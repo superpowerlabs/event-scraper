@@ -1,0 +1,1 @@
+docker exec -it staking-postgres psql -h localhost -U postgres
