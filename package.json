@@ -31,7 +31,7 @@
   "devDependencies": {
     "@sapphire/prettier-config": "^1.4.4",
     "chai": "^4.3.7",
-    "husky": "^7.0.0",
+    "husky": "^8.0.0",
     "jest": "^29.3.1",
     "lint-staged": "^12.4.0",
     "mocha": "^8.4.0",
@@ -43,7 +43,7 @@
   "scripts": {
     "start": "node .",
     "deploy": "(cd synr-seed && bin/deploy-for-tests.sh)",
-    "test": "NODE_ENV=test mocha server/test/*.test.js --exit",
+    "test": "NODE_ENV=test mocha test/*.test.js --exit",
     "format": "npx prettier --write .",
     "postinstall": "./post-install.sh",
     "prepare": "husky install"

@@ -1,0 +1,14 @@
+[
+  {
+    "contractName": "SynCityPasses",
+    "chainId": 1,
+    "startBlock": 13722860,
+    "events": ["Transfer", "Approval"]
+  },
+  {
+    "contractName": "SynCityCoupons",
+    "chainId": 56,
+    "startBlock": 13069259,
+    "events": ["Transfer"]
+  }
+]

@@ -1,4 +1,4 @@
-const description = require("../config/description");
+const description = require("../../server/config/description");
 const Case = require("case");
 const _ = require("lodash");
 

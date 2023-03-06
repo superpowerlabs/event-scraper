@@ -1,6 +1,6 @@
-const debug = require("../server/db/debug");
+const debug = require("./db/debug");
 
-class CreateInitialTables extends require("../server/db/Migration") {
+class CreateInitialTables extends require("./db/Migration") {
   async body(index, database) {
     let done = false;
     let sql = await this.sql();

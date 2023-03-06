@@ -1,5 +1,5 @@
 const commandLineArgs = require("command-line-args");
-const blockChainIndexingLib = require("./lib/blockChainIndexingLib");
+const eventScraper = require("./src/lib/eventScraper");
 
 const optionDefinitions = [
   {
@@ -60,7 +60,7 @@ Options:
   process.exit(0);
 }
 
-blockChainIndexingLib(options)
+eventScraper(options)
   .then(() => process.exit(0))
   .catch((error) => {
     console.error(error);

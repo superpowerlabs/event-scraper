@@ -1,8 +1,8 @@
 // noinspection DuplicatedCode
 
 const expect = require("chai").expect;
-const dbManager = require("../lib/DbManager");
-const migrate = require("../db/migrations/migrate");
+const dbManager = require("../src/lib/DbManager");
+const migrate = require("../src/db/migrations/migrate");
 
 describe("Integration test", function () {
   beforeEach(async () => {
