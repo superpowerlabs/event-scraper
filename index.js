@@ -1,5 +1,5 @@
 require("dotenv").config();
-const migrateEvents = require("./src/migrateEvents");
+const { migrateEvents } = require("./src/migrateEvents");
 const eventScraper = require("./src/lib/eventScraper");
 
 const options = {

@@ -72,7 +72,7 @@ async function main(opt) {
 
   for (let eventConfig of eventsConfig) {
     for (let event of eventConfig.events) {
-      promises.push(getEventInfo(eventConfig, event));
+      promises.push(getEventInfo(eventConfig, event.name));
     }
   }
 
