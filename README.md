@@ -82,7 +82,7 @@ https://api.mob.land/v1/snapshots/2022-11-12
 
 - `./db/config.js` : database configuration file for test, development and production environment
 - `./db/Sql.js`: reads configuration and starts a DB client
-- `./db/migrations/migrate.js`: called in `./index.js` to migrate DB is necessary
+- `./db/migrations/migrateEvents.js`: called in `./index.js` to migrateEvents DB is necessary
   - `./db/Migration.js` extends Sql, parent class to `./db/migrations/XX_YYYYYYYYY.js` individual migrations
 
 ## Commands

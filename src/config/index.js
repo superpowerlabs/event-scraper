@@ -1,6 +1,7 @@
 const contracts = require("./deployedProduction.json");
-const abi = Object.assign(require("./ABIs.json").contracts);
+const abi = require("./ABIs.json").contracts;
 const events = require("./events.json");
+const ethers = require("ethers");
 
 const config = {
   contracts,
@@ -17,8 +18,13 @@ const config = {
     SEED_SWAP: 7,
   },
   eventsConfig: events,
-  BNB_CHAIN_RPC_URL: "https://bsc-dataseed.binance.org/",
-  BNB_CHAIN_ID: 56,
+  providers: {
+    1: new ethers.providers.InfuraProvider("homestead", process.env.INFURA_KEY),
+    56: new ethers.providers.JsonRpcProvider(
+      "https://bsc-dataseed.binance.org/",
+      56
+    ),
+  },
 };
 
 module.exports = config;

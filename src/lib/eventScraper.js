@@ -1,26 +1,12 @@
 require("dotenv").config();
 const ethers = require("ethers");
-const {
-  BNB_CHAIN_RPC_URL,
-  BNB_CHAIN_ID,
-  abi,
-  eventsConfig,
-  contracts,
-} = require("../config");
+const { providers, abi, eventsConfig, contracts } = require("../config");
 
 // const transactions = require("./transactions");
 
-const ethProvider = new ethers.providers.InfuraProvider(
-  "homestead",
-  process.env.INFURA_KEY
-);
-
-const bscProvider = new ethers.providers.JsonRpcProvider(
-  BNB_CHAIN_RPC_URL,
-  BNB_CHAIN_ID
-);
-
-let options = {};
+let options = {
+  //
+};
 
 // Uncomment, if/when needed
 
@@ -36,27 +22,27 @@ let options = {};
 // }
 
 // returns start block
-async function startPoint(type, blockNumber, provider) {
-  const time = (await ethProvider.getBlock(blockNumber)).timestamp;
-  return { timestamp: time, block: blockNumber };
-}
-
-async function endPoint(provider) {
-  const blockNum = await provider.getBlockNumber();
-  let end = { timestamp: Date.now() / 1000, block: blockNum };
-  return { timestamp: end.timestamp, block: end.block };
-}
-
-function getTargetEvent(contractName, eventName, provider) {
-  const conf = eventsConfig[contractName];
-  const address = contracts[conf.chainId][contractName];
-  const contract = new ethers.Contract(address, abi[contractName], provider);
-  return contract.filters[eventName]();
-}
+// async function startPoint(type, blockNumber, provider) {
+//   const time = (await ethProvider.getBlock(blockNumber)).timestamp;
+//   return { timestamp: time, block: blockNumber };
+// }
+//
+// async function endPoint(provider) {
+//   const blockNum = await provider.getBlockNumber();
+//   let end = { timestamp: Date.now() / 1000, block: blockNum };
+//   return { timestamp: end.timestamp, block: end.block };
+// }
+//
+// function getTargetEvent(contractName, eventName, provider) {
+//   const conf = eventsConfig[contractName];
+//   const address = contracts[conf.chainId][contractName];
+//   const contract = new ethers.Contract(address, abi[contractName], provider);
+//   return contract.filters[eventName]();
+// }
 
 async function getEventInfo(eventConfig, eventName) {
   const { chainId: eventChainId, contractName, startBlock } = eventConfig;
-  const provider = eventChainId === "1" ? ethProvider : bscProvider;
+  const provider = providers[eventChainId];
   const contract = new ethers.Contract(
     contracts[eventChainId][contractName],
     abi[contractName],
@@ -69,14 +55,18 @@ async function getEventInfo(eventConfig, eventName) {
   // TODO, this will exceed the API limit
   // Implement the functions Yacin put in place in the original script to
   // avoid the issue.
-  const response = await contract.queryFilter(type, startBlock, endBlock);
-
+  const response = await contract.queryFilter(
+    type,
+    startBlock,
+    startBlock + 100
+  );
+  console.log(response);
   // save in the db if needed
 }
 
 async function main(opt) {
   if (opt) {
-    options = opt;
+    options = Object.assign(options, opt);
   }
   const promises = [];
 
@@ -87,7 +77,7 @@ async function main(opt) {
   }
 
   const results = await Promise.all(promises);
-  // console.log(results)
+  console.log(results);
 }
 
 module.exports = main;

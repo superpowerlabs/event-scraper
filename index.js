@@ -1,13 +1,14 @@
 require("dotenv").config();
-const migrate = require("./src/db/migrations/migrate");
+const migrateEvents = require("./src/migrateEvents");
 const eventScraper = require("./src/lib/eventScraper");
 
+const options = {
+  // verbose: true,
+  // dryrun: true,
+};
+
 async function main() {
-  await migrate();
-  const options = {
-    // verbose: true,
-    // dryrun: true,
-  };
+  await migrateEvents();
   await eventScraper(options);
 }
 
