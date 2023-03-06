@@ -5,8 +5,8 @@ const eventScraper = require("./src/lib/eventScraper");
 async function main() {
   await migrate();
   const options = {
-    verbose: true,
-    dryrun: true,
+    // verbose: true,
+    // dryrun: true,
   };
   await eventScraper(options);
 }
