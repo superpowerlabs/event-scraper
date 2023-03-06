@@ -33,25 +33,13 @@ function isApiLimitExceeded(start, end) {
 }
 
 // returns start block
-async function startPoint(etype, blockNumber) {
-  await transactions.init();
-  let tx = await transactions.latest(etype);
-  if (tx) {
-    // console.log("Starting after block: ",tx.block);
-    return {
-      timestamp: Number(tx.timestamp),
-      block: Number(tx.block),
-    };
-  } else {
-    const time = (await ethProvider.getBlock(midBlock)).timestamp;
-    return { timestamp: time, block: blockNumber };
-  }
+async function startPoint(etype, blockNumber, provider) {
+  const time = (await ethProvider.getBlock(blockNumber)).timestamp;
+  return { timestamp: time, block: blockNumber };
 }
 
 async function endPoint(provider) {
-  console.log("cacapipi");
   const blockNum = await provider.getBlockNumber();
-  console.log(blockNum);
   let end = { timestamp: Date.now() / 1000, block: blockNum };
   return { timestamp: end.timestamp, block: end.block };
 }
@@ -163,6 +151,7 @@ async function main(opt) {
     "homestead",
     process.env.INFURA_KEY
   );
+
   bscProvider = new ethers.providers.JsonRpcProvider(
     supportedId[56].rpcUrls[0],
     56
@@ -189,16 +178,15 @@ async function main(opt) {
       }
 
       const event = getTargetEvent(contractName, eventName, provider);
-      const blockNum = await provider.getBlockNumber();
-      console.log(blockNum);
-      let end = await endPoint(provider);
 
-      console.log(end);
+      let end = await endPoint(provider);
       let start = await startPoint(
         eventName,
-        configuration[contractName].StartBlock
+        configuration[contractName].StartBlock,
+        provider
       );
-      await getOldEvents(event, start, end, abis[contractName], provider);
+
+      // await getOldEvents(event, start, end, abis[contractName], provider);
 
       resolve();
     });
