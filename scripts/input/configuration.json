@@ -1,0 +1,11 @@
+{
+  "contracts": {
+    "SynCityPasses": {
+      "Address": "0x6f24A2A5Ecfffb0610F69929e9AA7fceF441897a",
+      "Events": [
+        { "Transfer": ["To", "From", "Key"] },
+        { "Approval": ["To", "From", "Key"] }
+      ]
+    }
+  }
+}
