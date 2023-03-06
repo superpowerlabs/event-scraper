@@ -5,8 +5,10 @@ const abis = require("../../src/config/ABIs.json").contracts;
 const transactions = require("../../server/lib/transactions");
 
 const configuration = require("../input/configuration.json").contracts;
+const { supportedId } = require("../../server/config/index");
 
-let provider;
+let ethProvider;
+let bscProvider;
 let options = {};
 let failedEvents = [];
 
@@ -31,7 +33,7 @@ function isApiLimitExceeded(start, end) {
 }
 
 // returns start block
-async function startPoint(etype) {
+async function startPoint(etype, blockNumber) {
   await transactions.init();
   let tx = await transactions.latest(etype);
   if (tx) {
@@ -41,41 +43,30 @@ async function startPoint(etype) {
       block: Number(tx.block),
     };
   } else {
-    // console.log("No transactions found, using block (14173085)");
-    return { timestamp: 1644425832, block: 14173085 }; // first tx for this contract
-    // return { timestamp: 1674863615, block: 16501853 }; // for testing
+    const time = (await ethProvider.getBlock(midBlock)).timestamp;
+    return { timestamp: time, block: blockNumber };
   }
 }
 
-async function endPoint() {
+async function endPoint(provider) {
+  console.log("cacapipi");
   const blockNum = await provider.getBlockNumber();
+  console.log(blockNum);
   let end = { timestamp: Date.now() / 1000, block: blockNum };
   return { timestamp: end.timestamp, block: end.block };
 }
 
 async function midPoint(start, end) {
   const midBlock = Math.floor((start.block + end.block) / 2);
-  const midTimestamp = (await provider.getBlock(midBlock)).timestamp;
+  const midTimestamp = (await ethProvider.getBlock(midBlock)).timestamp;
   return { timestamp: midTimestamp, block: midBlock };
 }
 
-function eventTypes() {
-  const events = {};
-  const contracts = Object.keys(configuration);
-  for (let contractName of contracts) {
-    for (let evenInfo of configuration[contractName].Events) {
-      const eventName = Object.keys(evenInfo)[0];
-      const address = configuration[contractName].Address;
-      const contract = new ethers.Contract(
-        address,
-        abis[contractName],
-        provider
-      );
-      const event = contract.filters[eventName]();
-      events[eventName] = event;
-    }
-  }
-  return events;
+function getTargetEvent(contractName, eventName, provider) {
+  const address = configuration[contractName].Address;
+  const contract = new ethers.Contract(address, abis[contractName], provider);
+  const event = contract.filters[eventName]();
+  return event;
 }
 
 function amount(args, type) {
@@ -127,7 +118,8 @@ async function processEvents(events, type, start) {
 // input: type of event, start point, end point,
 // note: handles API limits
 // returns a list of events
-async function getEvents(type, start, end) {
+async function getOldEvents(type, start, end, abi, provider) {
+  console.log("getting old");
   const contract = new ethers.Contract(address, abi, provider);
   log(`=> Getting event ${type}: ${start.block}< block <${end.block}`);
   if (isApiLimitExceeded(start.block, end.block)) {
@@ -167,26 +159,59 @@ async function main(opt) {
   if (opt) {
     options = opt;
   }
-  provider = new ethers.providers.InfuraProvider(
+  ethProvider = new ethers.providers.InfuraProvider(
     "homestead",
     process.env.INFURA_KEY
   );
+  bscProvider = new ethers.providers.JsonRpcProvider(
+    supportedId[56].rpcUrls[0],
+    56
+  );
 
-  //get all events
-  const eventsList = eventTypes();
-  console.log(eventsList);
-
-  let end = await endPoint();
-
-  for (let type in event_types) {
-    let start = await startPoint(type);
-    console.info(
-      `Getting events ${type} volumes from ${start.block} to ${end.block}`
-    );
-    await getEvents(type, start, end);
+  const contractsArray = [];
+  const contracts = Object.keys(configuration);
+  for (let contractName of contracts) {
+    for (let eventInfo of configuration[contractName].Events) {
+      const eventName = Object.keys(eventInfo)[0];
+      contractsArray.push([contractName, eventName]);
+    }
   }
-  console.timeEnd("Events");
-  log(await transactions.aggregate());
+
+  const promisesArray = contractsArray.map((contractEvent) => {
+    return new Promise(async (resolve, reject) => {
+      const contractName = contractEvent[0];
+      const eventName = contractEvent[1];
+      let provider;
+      if (configuration[contractName].ChainId === "1") {
+        provider = ethProvider;
+      } else {
+        provider = bscProvider;
+      }
+
+      const event = getTargetEvent(contractName, eventName, provider);
+      const blockNum = await provider.getBlockNumber();
+      console.log(blockNum);
+      let end = await endPoint(provider);
+
+      console.log(end);
+      let start = await startPoint(
+        eventName,
+        configuration[contractName].StartBlock
+      );
+      await getOldEvents(event, start, end, abis[contractName], provider);
+
+      resolve();
+    });
+  });
+
+  Promise.all(promisesArray)
+    .then((results) => {
+      // results array contains the resolved data for each element in dataArray
+      console.log(results);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 }
 
 module.exports = main;
