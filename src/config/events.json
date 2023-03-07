@@ -45,32 +45,5 @@
         ]
       }
     ]
-  },
-  {
-    "contractName": "SynCityCoupons",
-    "chainId": 56,
-    "startBlock": 13069259,
-    "events": [
-      {
-        "name": "Transfer",
-        "params": [
-          {
-            "name": "from",
-            "type": "string",
-            "indexed": true
-          },
-          {
-            "name": "to",
-            "type": "string",
-            "indexed": true
-          },
-          {
-            "name": "tokenId",
-            "type": "bigint",
-            "indexed": true
-          }
-        ]
-      }
-    ]
   }
 ]
