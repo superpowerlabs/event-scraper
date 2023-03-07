@@ -1,14 +1,43 @@
 require("dotenv").config();
+const debug = require("./db/debug");
+const json = require("./config/events.json");
+const Sql = require("./db/Sql");
+const Case = require("Case");
 const migrate = require("./db/migrations/migrate");
 
-function migrateEvent() {}
+async function migrateEvent(tablename, params, sql) {
+  await sql.schema.createTable(tablename, (table) => {
+    table.string("transactionHash").unique();
+    table.integer("blockNumber");
+    table.timestamp("created_at").defaultTo(sql.fn.now());
+    for (const param of params) {
+      if (param.indexed) {
+        table[param.type](param.name.toLowerCase()).index();
+      } else {
+        table[param.type](param.name.toLowerCase());
+      }
+    }
+  });
+  return;
+}
 
 async function migrateEvents() {
   await migrate();
 
-  // for each event in the eventTables
-  // migrateEvent(eventTables)
-  // the script to create the dynamic migrations
+  let sql = new Sql();
+  sql = await sql.sql();
+
+  for (const contract of json) {
+    for (const event of contract.events) {
+      const params = event.params;
+      let tablename = Case.capital(contract.contractName, "_");
+      tablename = `${tablename}_${event.name}`.toLowerCase();
+      if (!(await sql.schema.hasTable(tablename))) {
+        migrateEvent(tablename, params, sql);
+        debug(`table ${tablename} created`);
+      }
+    }
+  }
 }
 
 module.exports = {

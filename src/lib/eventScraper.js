@@ -43,11 +43,7 @@ let options = {
 async function getEventInfo(eventConfig, eventName) {
   const { chainId: eventChainId, contractName, startBlock } = eventConfig;
   const provider = providers[eventChainId];
-  const contract = new ethers.Contract(
-    contracts[eventChainId][contractName],
-    abi[contractName],
-    provider
-  );
+  const contract = new ethers.Contract(contracts[eventChainId][contractName], abi[contractName], provider);
   const type = contract.filters[eventName]();
   const endBlock = await provider.getBlockNumber();
   console.log(endBlock);
@@ -55,11 +51,7 @@ async function getEventInfo(eventConfig, eventName) {
   // TODO, this will exceed the API limit
   // Implement the functions Yacin put in place in the original script to
   // avoid the issue.
-  const response = await contract.queryFilter(
-    type,
-    startBlock,
-    startBlock + 100
-  );
+  const response = await contract.queryFilter(type, startBlock, startBlock + 100);
   console.log(response);
   // save in the db if needed
 }

@@ -18,18 +18,22 @@ class DbManager extends Sql {
     if (process.env.NODE_ENV !== "test") {
       throw new Error("This can be used only for testing");
     }
-    await (await this.sql()).schema.dropTableIfExists("snapshots");
-    await (await this.sql()).schema.dropTableIfExists("preregister");
-    await (await this.sql()).schema.dropTableIfExists("owners");
-    await (await this.sql()).schema.dropTableIfExists("temporary_urls");
-    await (await this.sql()).schema.dropTableIfExists("nfts");
-    await (await this.sql()).schema.dropTableIfExists("volume");
-    await (await this.sql()).schema.dropTableIfExists("nfts_history");
+    await (await this.sql()).schema.dropTableIfExists("syn_city_passes_transfer");
+    await (await this.sql()).schema.dropTableIfExists("syn_city_passes_approval");
+    await (await this.sql()).schema.dropTableIfExists("syn_city_coupons_transfer");
     // TODO complete it
   }
 
-  async snapshots(wallet) {
-    return dbr.select("*").from("snapshots").where({ wallet });
+  async tableExist(tablename) {
+    if (!(await dbr.schema.hasTable(tablename))) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  async getEvents(event) {
+    return dbr.select("*").from(event);
   }
 
   async snapshotAt(got_at) {
@@ -41,9 +45,7 @@ class DbManager extends Sql {
   }
 
   async sumTotals(wallet) {
-    return dbr.raw(
-      `SELECT SUM(total) as total FROM snapshots WHERE wallet = '${wallet}';`
-    );
+    return dbr.raw(`SELECT SUM(total) as total FROM snapshots WHERE wallet = '${wallet}';`);
   }
 
   async snapshot(wallet, got_at) {
@@ -91,11 +93,7 @@ class DbManager extends Sql {
 
   async preregisterByConfirmationCode(confirmation_code) {
     // console.log(confirmation_code);
-    return dbr
-      .select("*")
-      .from("preregister")
-      .where({ confirmation_code })
-      .first();
+    return dbr.select("*").from("preregister").where({ confirmation_code }).first();
   }
 
   async setPreregister(obj) {
@@ -138,10 +136,7 @@ class DbManager extends Sql {
   }
 
   async tokenIDsByWallet(wallet) {
-    return dbr
-      .select("token_id")
-      .from("owners")
-      .where({ virtual_owner: wallet });
+    return dbr.select("token_id").from("owners").where({ virtual_owner: wallet });
   }
 
   async virtualOwner(token_id) {
@@ -230,10 +225,7 @@ where temporary_urls.validated_at is not null && owners.token_id = ${token_id};
       };
       let changesRequired = false;
       for (let trait in attributes) {
-        if (
-          attributes[trait] !== undefined &&
-          attributes[trait] !== existingAttributes[trait]
-        ) {
+        if (attributes[trait] !== undefined && attributes[trait] !== existingAttributes[trait]) {
           // we save in the history only values that have been changed
           changesRequired = true;
           history[trait] = existingAttributes[trait];
@@ -264,10 +256,7 @@ where temporary_urls.validated_at is not null && owners.token_id = ${token_id};
 
   async volumeMaxBlock() {
     if ((await dbr.select("*").from("volume")).length) {
-      return [
-        (await dbr("volume").max("block"))[0].max,
-        (await dbr("volume").max("total_stake"))[0].max,
-      ];
+      return [(await dbr("volume").max("block"))[0].max, (await dbr("volume").max("total_stake"))[0].max];
     } else {
       return [0, 0];
     }
