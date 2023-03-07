@@ -3,8 +3,8 @@ const { migrateEvents } = require("./src/migrateEvents");
 const eventScraper = require("./src/lib/eventScraper");
 
 const options = {
-  // verbose: true,
-  // dryrun: true,
+  verbose: true,
+  dryrun: true,
 };
 
 async function main() {

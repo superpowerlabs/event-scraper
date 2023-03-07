@@ -1,9 +1,8 @@
 require("dotenv").config();
 const ethers = require("ethers");
 const { providers, abi, eventsConfig, contracts } = require("../config");
-
+const inputJson = require("../config/events.json");
 // const transactions = require("./transactions");
-
 let options = {
   //
 };
@@ -15,11 +14,11 @@ let options = {
 // const LIMIT_BLOCK_MIN = 1000;
 // const LIMIT_BLOCK_MAX = 10000;
 //
-// function log(...params) {
-//   if (options.verbose) {
-//     console.debug(...params);
-//   }
-// }
+function log(...params) {
+  if (options.verbose) {
+    console.debug(...params);
+  }
+}
 
 // returns start block
 // async function startPoint(type, blockNumber, provider) {
@@ -40,19 +39,102 @@ let options = {
 //   return contract.filters[eventName]();
 // }
 
+// To work around API limitations (infura and etherscan)
+// A max of 10,000 results can be returned by a single query
+// Query duration must not exceed 10 seconds
+function isApiLimitExceeded(start, end) {
+  return end > start && end - start > 10000;
+}
+
+async function midPoint(start, end) {
+  const midBlock = Math.floor((start + end) / 2);
+  return midBlock;
+}
+
+async function getEvents(contract, type, start, end, contractName) {
+  log(`=> Getting event ${type}: ${start}< block <${end}`);
+  if (isApiLimitExceeded(start, end)) {
+    ` ! API block limit exceeded, splitting request`;
+    const mid = await midPoint(start, end);
+    await getEvents(contract, type, start, mid, contractName);
+    await getEvents(contract, type, mid, end, contractName);
+    return;
+  }
+  try {
+    const response = await contract.queryFilter(type, start, end, contractName);
+    if (response.length > 0) {
+      const txs = await processEvents(response, type, start, contractName);
+      console.log(txs);
+    }
+
+    // if (!options.dryrun) {
+    //   await persistTransactionsToDB(txs);
+    // }
+  } catch (error) {
+    log(` ! API error, splitting request to void limit and timeout`);
+    const mid = await midPoint(start, end);
+    await getEvents(contract, type, start, mid, contractName);
+    await getEvents(contract, type, mid, end, contractName);
+  }
+  return;
+}
+
+async function processEvents(events, type, start, contractName) {
+  let processedEvents = [];
+
+  let argNames = [];
+  for (const contract of inputJson) {
+    if (contract.contractName === contractName) {
+      for (const inputEvent of contract.events) {
+        if (inputEvent.name === events[0].event) {
+          for (let i of inputEvent.params) argNames.push(i.name);
+        }
+      }
+    }
+  }
+
+  for (let event of events) {
+    const tx = await processSingleEvent(event, type, start, argNames);
+    if (tx !== undefined) {
+      processedEvents.push(tx);
+    }
+  }
+  return processedEvents;
+}
+
+async function processSingleEvent(event, type, start, argNames) {
+  let tx;
+  const { transactionHash, blockNumber } = event;
+  try {
+    timestamp = (await event.getBlock()).timestamp;
+    if (timestamp <= start.timestamp) return;
+    tx = {
+      transaction_hash: transactionHash,
+      block_number: blockNumber,
+    };
+
+    for (let arg of argNames) {
+      tx[arg] = event.args[arg];
+    }
+  } catch (error) {
+    failedEvents.push({ event: event, type: type });
+    console.log(error);
+  }
+  return tx;
+}
+
 async function getEventInfo(eventConfig, eventName) {
   const { chainId: eventChainId, contractName, startBlock } = eventConfig;
   const provider = providers[eventChainId];
-  const contract = new ethers.Contract(contracts[eventChainId][contractName], abi[contractName], provider);
+  const contract = new ethers.Contract(
+    contracts[eventChainId][contractName],
+    abi[contractName],
+    provider
+  );
   const type = contract.filters[eventName]();
   const endBlock = await provider.getBlockNumber();
-  console.log(endBlock);
 
-  // TODO, this will exceed the API limit
-  // Implement the functions Yacin put in place in the original script to
-  // avoid the issue.
-  const response = await contract.queryFilter(type, startBlock, startBlock + 100);
-  console.log(response);
+  await getEvents(contract, type, startBlock, endBlock, contractName);
   // save in the db if needed
 }
 
@@ -76,12 +158,6 @@ module.exports = main;
 
 // Unused functions.
 // Move them back if, when needed
-
-// async function midPoint(start, end) {
-//   const midBlock = Math.floor((start.block + end.block) / 2);
-//   const midTimestamp = (await ethProvider.getBlock(midBlock)).timestamp;
-//   return { timestamp: midTimestamp, block: midBlock };
-// }
 
 // function amount(args, type) {
 //   const amount = parseInt(ethers.utils.formatEther(args.amount).toString());
@@ -167,15 +243,4 @@ module.exports = main;
 //   } catch (error) {
 //     console.error("Failed to persist transactions to db: \n", error);
 //   }
-// }
-
-// To work around API limitations (infura and etherscan)
-// A max of 10,000 results can be returned by a single query
-// Query duration must not exceed 10 seconds
-// function isApiLimitExceeded(start, end) {
-//   return (
-//     end > start &&
-//     end - start > LIMIT_BLOCK_MIN &&
-//     end - start > LIMIT_BLOCK_MAX
-//   );
 // }

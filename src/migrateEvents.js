@@ -7,8 +7,8 @@ const migrate = require("./db/migrations/migrate");
 
 async function migrateEvent(tablename, params, sql) {
   await sql.schema.createTable(tablename, (table) => {
-    table.string("transactionHash").unique();
-    table.integer("blockNumber");
+    table.string("transaction_hash").unique();
+    table.integer("block_number");
     table.timestamp("created_at").defaultTo(sql.fn.now());
     for (const param of params) {
       if (param.indexed) {
