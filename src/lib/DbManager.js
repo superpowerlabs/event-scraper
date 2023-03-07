@@ -40,6 +40,13 @@ class DbManager extends Sql {
       console.error("failed to insert transactions", error);
     });
   }
+
+  async latestEvent(contractName, event) {
+    let tablename = Case.capital(contractName, "_");
+    tablename = `${tablename}_${event}`.toLowerCase();
+    let block = dbr.select("*").from("syn_city_passes_approval").orderBy("block_number", "desc").first();
+    return block;
+  }
 }
 
 let dbManager;

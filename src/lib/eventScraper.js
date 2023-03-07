@@ -57,6 +57,7 @@ async function getEvents(contract, type, start, end, contractName) {
   if (isApiLimitExceeded(start, end)) {
     ` ! API block limit exceeded, splitting request`;
     const mid = await midPoint(start, end);
+    console.log(mid);
     await getEvents(contract, type, start, mid, contractName);
     await getEvents(contract, type, mid, end, contractName);
     return;
