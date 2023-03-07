@@ -1,5 +1,6 @@
 require("dotenv").config();
 const ethers = require("ethers");
+const dbManager = require("./DbManager");
 const { providers, abi, eventsConfig, contracts } = require("../config");
 const inputJson = require("../config/events.json");
 // const transactions = require("./transactions");
@@ -64,13 +65,15 @@ async function getEvents(contract, type, start, end, contractName) {
     const response = await contract.queryFilter(type, start, end, contractName);
     if (response.length > 0) {
       const txs = await processEvents(response, type, start, contractName);
-      console.log(txs);
+      const event = response[0].event;
+      await dbManager.updateEvents(txs, event, contractName);
     }
 
     // if (!options.dryrun) {
     //   await persistTransactionsToDB(txs);
     // }
   } catch (error) {
+    console.log(error);
     log(` ! API error, splitting request to void limit and timeout`);
     const mid = await midPoint(start, end);
     await getEvents(contract, type, start, mid, contractName);
@@ -114,7 +117,12 @@ async function processSingleEvent(event, type, start, argNames) {
     };
 
     for (let arg of argNames) {
-      tx[arg] = event.args[arg];
+      const dataArg = arg.toLowerCase();
+      if (typeof event.args[arg] == "object") {
+        tx[dataArg] = Number(event.args[arg]);
+      } else {
+        tx[dataArg] = event.args[arg];
+      }
     }
   } catch (error) {
     failedEvents.push({ event: event, type: type });
@@ -126,11 +134,7 @@ async function processSingleEvent(event, type, start, argNames) {
 async function getEventInfo(eventConfig, eventName) {
   const { chainId: eventChainId, contractName, startBlock } = eventConfig;
   const provider = providers[eventChainId];
-  const contract = new ethers.Contract(
-    contracts[eventChainId][contractName],
-    abi[contractName],
-    provider
-  );
+  const contract = new ethers.Contract(contracts[eventChainId][contractName], abi[contractName], provider);
   const type = contract.filters[eventName]();
   const endBlock = await provider.getBlockNumber();
 

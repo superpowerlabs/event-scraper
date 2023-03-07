@@ -5,8 +5,7 @@ const ethers = require("ethers");
 
 const config = {
   contracts,
-  geckoApi:
-    "https://api.coingecko.com/api/v3/simple/price?ids=syndicate-2&vs_currencies=usd&include_24hr_change=true",
+  geckoApi: "https://api.coingecko.com/api/v3/simple/price?ids=syndicate-2&vs_currencies=usd&include_24hr_change=true",
   abi,
   tokenTypes: {
     S_SYNR_SWAP: 1,
@@ -20,10 +19,7 @@ const config = {
   eventsConfig: events,
   providers: {
     1: new ethers.providers.InfuraProvider("homestead", process.env.INFURA_KEY),
-    56: new ethers.providers.JsonRpcProvider(
-      "https://bsc-dataseed.binance.org/",
-      56
-    ),
+    56: new ethers.providers.JsonRpcProvider("https://bsc-dataseed.binance.org/", 56),
   },
 };
 
