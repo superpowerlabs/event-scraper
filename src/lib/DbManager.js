@@ -1,5 +1,6 @@
 const Sql = require("../db/Sql");
 const Case = require("case");
+const { table } = require("console");
 
 let dbw;
 let dbr;
@@ -44,7 +45,7 @@ class DbManager extends Sql {
   async latestEvent(contractName, event) {
     let tablename = Case.capital(contractName, "_");
     tablename = `${tablename}_${event}`.toLowerCase();
-    let block = dbr.select("*").from("syn_city_passes_approval").orderBy("block_number", "desc").first();
+    let block = dbr.select("*").from(tablename).orderBy("block_number", "desc").first();
     return block;
   }
 }
