@@ -1,5 +1,6 @@
 const Sql = require("../db/Sql");
 const Case = require("case");
+const { table } = require("console");
 
 let dbw;
 let dbr;
@@ -39,6 +40,13 @@ class DbManager extends Sql {
     return dbr.batchInsert(tablename, rows, chunkSize).catch(function (error) {
       console.error("failed to insert transactions", error);
     });
+  }
+
+  async latestEvent(contractName, event) {
+    let tablename = Case.capital(contractName, "_");
+    tablename = `${tablename}_${event}`.toLowerCase();
+    let block = dbr.select("*").from(tablename).orderBy("block_number", "desc").first();
+    return block;
   }
 }
 
