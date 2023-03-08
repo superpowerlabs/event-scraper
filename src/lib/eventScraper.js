@@ -3,8 +3,8 @@ const ethers = require("ethers");
 const dbManager = require("./DbManager");
 const { providers, abi, eventsConfig, contracts } = require("../config");
 const inputJson = require("../config/events.json");
-const { eventNames } = require("process");
-// const transactions = require("./transactions");
+let failedEvents = [];
+
 let options = {
   //
 };
@@ -15,26 +15,6 @@ function log(...params) {
     console.debug(...params);
   }
 }
-
-// returns start block
-// async function startPoint(type, blockNumber, provider) {
-//   const time = (await ethProvider.getBlock(blockNumber)).timestamp;
-//   return { timestamp: time, block: blockNumber };
-// }
-//
-// async function endPoint(provider) {
-//   const blockNum = await provider.getBlockNumber();
-//   let end = { timestamp: Date.now() / 1000, block: blockNum };
-//   return { timestamp: end.timestamp, block: end.block };
-// }
-//
-// function getTargetEvent(contractName, eventName, provider) {
-//   const conf = eventsConfig[contractName];
-//   const address = contracts[conf.chainId][contractName];
-//   const contract = new ethers.Contract(address, abi[contractName], provider);
-//   return contract.filters[eventName]();
-// }
-
 function isApiLimitExceeded(start, end) {
   return end > start && end - start > LIMIT_BLOCK_MAX;
 }
@@ -57,9 +37,9 @@ async function getEvents(contract, type, start, end, contractName) {
   try {
     const response = await contract.queryFilter(type, start, end, contractName);
     if (response.length > 0) {
-      const txs = await processEvents(response, type, start, contractName);
-      const event = response[0].event;
-      await dbManager.updateEvents(txs, event, contractName);
+      const txs = await processEvents(response, type, contractName);
+      const eventName = response[0].event;
+      await dbManager.updateEvents(txs, eventName, contractName);
     }
   } catch (error) {
     console.log(error);
@@ -71,13 +51,15 @@ async function getEvents(contract, type, start, end, contractName) {
   return;
 }
 
-async function getFutureEvents(contract, eventName, contractName) {
-  contract.on("Transfer", async (from, to, value, event) => {
-    console.log(event);
+async function getFutureEvents(contract, type, eventName, contractName) {
+  contract.on(eventName, async (...args) => {
+    const event = [args[args.length - 1]];
+    const txs = await processEvents(event, type, contractName);
+    await dbManager.updateEvents(txs, eventName, contractName);
   });
 }
 
-async function processEvents(events, type, start, contractName) {
+async function processEvents(events, type, contractName) {
   let processedEvents = [];
 
   let argNames = [];
@@ -92,7 +74,7 @@ async function processEvents(events, type, start, contractName) {
   }
 
   for (let event of events) {
-    const tx = await processSingleEvent(event, type, start, argNames);
+    const tx = await processSingleEvent(event, type, argNames);
     if (tx !== undefined) {
       processedEvents.push(tx);
     }
@@ -100,12 +82,10 @@ async function processEvents(events, type, start, contractName) {
   return processedEvents;
 }
 
-async function processSingleEvent(event, type, start, argNames) {
+async function processSingleEvent(event, type, argNames) {
   let tx;
   const { transactionHash, blockNumber } = event;
   try {
-    timestamp = (await event.getBlock()).timestamp;
-    if (timestamp <= start.timestamp) return;
     tx = {
       transaction_hash: transactionHash,
       block_number: blockNumber,
@@ -113,7 +93,7 @@ async function processSingleEvent(event, type, start, argNames) {
 
     for (let arg of argNames) {
       const dataArg = arg.toLowerCase();
-      if (typeof event.args[arg] == "object") {
+      if (typeof event.args[arg] === "object") {
         tx[dataArg] = Number(event.args[arg]);
       } else {
         tx[dataArg] = event.args[arg];
@@ -136,17 +116,17 @@ async function getEventInfo(eventConfig, eventName) {
     startBlock = eventConfig.startBlock;
   }
   const provider = providers[eventChainId];
-  const contract = new ethers.Contract(contracts[eventChainId][contractName], abi[contractName], provider);
+  const contract = new ethers.Contract(
+    contracts[eventChainId][contractName],
+    abi[contractName],
+    provider
+  );
   const type = contract.filters[eventName]();
   const endBlock = await provider.getBlockNumber();
 
   await getEvents(contract, type, startBlock, endBlock, contractName);
 
-  // provider.on(type, async (event) => {
-  //   console.log(event);
-  // });
-
-  await getFutureEvents(contract, eventName, contractName);
+  // await getFutureEvents(contract,type, eventName, contractName);
 }
 
 async function main(opt) {

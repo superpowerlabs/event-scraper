@@ -68,9 +68,4 @@ async function main() {
   await eventScraper(options);
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+main();
