@@ -3,6 +3,7 @@ const ethers = require("ethers");
 const dbManager = require("./DbManager");
 const { providers, abi, eventsConfig, contracts } = require("../config");
 const inputJson = require("../config/events.json");
+const { eventNames } = require("process");
 // const transactions = require("./transactions");
 let options = {
   //
@@ -71,9 +72,7 @@ async function getEvents(contract, type, start, end, contractName) {
 }
 
 async function getFutureEvents(contract, eventName, contractName) {
-  console.log("promises");
-
-  contract.on(eventName, async (event) => {
+  contract.on("Transfer", async (from, to, value, event) => {
     console.log(event);
   });
 }
@@ -139,6 +138,11 @@ async function getEventInfo(eventConfig, eventName) {
   const endBlock = await provider.getBlockNumber();
 
   // await getEvents(contract, type, startBlock, endBlock, contractName);
+
+  // provider.on(type, async (event) => {
+  //   console.log(event);
+  // });
+
   await getFutureEvents(contract, eventName, contractName);
 }
 
@@ -155,96 +159,8 @@ async function main(opt) {
   }
 
   const results = await Promise.all(promises);
-  console.log(results);
+
+  // console.log(results);
 }
 
 module.exports = main;
-
-// Unused functions.
-// Move them back if, when needed
-
-// function amount(args, type) {
-//   const amount = parseInt(ethers.utils.formatEther(args.amount).toString());
-//   return type === "Unstaked" ? -amount : amount;
-// }
-
-//
-// processes a single event
-// skips events that are younger than the starting point
-// returns a transaction object or undefined if event is skipped
-//
-// async function processSingleEvent(event, type, start) {
-//   let timestamp = -1;
-//   let tx;
-//   const { args, transactionHash, blockNumber } = event;
-//   try {
-//     timestamp = (await event.getBlock()).timestamp;
-//     // we skip YieldClaimed events that are not for the SYNR token (sSyn :False)
-//     if (type === "YieldClaimed" && !args.sSyn) return;
-//     if (timestamp <= start.timestamp) return;
-//     tx = {
-//       hash: transactionHash,
-//       timestamp,
-//       block: blockNumber,
-//       amount: amount(args, type),
-//       type,
-//     };
-//   } catch (error) {
-//     failedEvents.push({ event: event, type: type });
-//     console.log(error);
-//   }
-//   return tx;
-// }
-
-// processes a list of events
-// async function processEvents(events, type, start) {
-//   let processedEvents = [];
-//   for (let event of events) {
-//     const tx = await processSingleEvent(event, type, start);
-//     if (tx !== undefined) {
-//       processedEvents.push(tx);
-//     }
-//   }
-//   return processedEvents;
-// }
-
-// get all the events for event type
-// input: type of event, start point, end point,
-// note: handles API limits
-// returns a list of events
-// async function getOldEvents(type, start, end, abi, provider) {
-//   console.log("getting old");
-//   const contract = new ethers.Contract(address, abi, provider);
-//   log(`=> Getting event ${type}: ${start.block}< block <${end.block}`);
-//   if (isApiLimitExceeded(start.block, end.block)) {
-//     ` ! API block limit exceeded, splitting request`;
-//     const mid = await midPoint(start, end);
-//     await getEvents(type, start, mid);
-//     await getEvents(type, mid, end);
-//     return;
-//   }
-//   try {
-//     const response = await contract.queryFilter(type, start.block, end.block);
-//     const txs = await processEvents(response, type, start);
-//     if (!options.dryrun) {
-//       await persistTransactionsToDB(txs);
-//     }
-//   } catch (error) {
-//     log(` ! API error, splitting request to void limit and timeout`);
-//     const mid = await midPoint(start, end);
-//     await getEvents(type, start, mid);
-//     await getEvents(type, mid, end);
-//   }
-//   return;
-// }
-
-// persist transactions to db
-// async function persistTransactionsToDB(tsx) {
-//   if (tsx.length === 0) return;
-//   console.info(`Persisting ${tsx.length} transactions to db`);
-//   try {
-//     await transactions.batchInsert(tsx);
-//   } catch (error) {
-//     console.error("Failed to persist transactions to db: \n", error);
-//   }
-// }

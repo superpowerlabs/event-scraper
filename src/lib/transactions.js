@@ -28,9 +28,11 @@ class Transactions extends Sql {
   }
 
   async batchInsert(rows, chunkSize = 100) {
-    return dbr.batchInsert("transactions", rows, chunkSize).catch(function (error) {
-      console.error("failed to insert transactions", error);
-    });
+    return dbr
+      .batchInsert("transactions", rows, chunkSize)
+      .catch(function (error) {
+        console.error("failed to insert transactions", error);
+      });
   }
 
   //
@@ -40,9 +42,18 @@ class Transactions extends Sql {
   async latest(etype) {
     let res;
     if (etype) {
-      res = await dbr.select("*").from("transactions").where("etype", etype).orderBy("timestamp", "desc").limit(1);
+      res = await dbr
+        .select("*")
+        .from("transactions")
+        .where("etype", etype)
+        .orderBy("timestamp", "desc")
+        .limit(1);
     } else {
-      res = await dbr.select("*").from("transactions").orderBy("timestamp", "desc").limit(1);
+      res = await dbr
+        .select("*")
+        .from("transactions")
+        .orderBy("timestamp", "desc")
+        .limit(1);
     }
     return res.length === 0 ? null : res[0];
   }
