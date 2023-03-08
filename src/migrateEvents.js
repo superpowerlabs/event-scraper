@@ -6,17 +6,21 @@ const Case = require("Case");
 const migrate = require("./db/migrations/migrate");
 
 async function migrateEvent(tablename, params, sql) {
+  let array = ["transaction_hash", "block_number"];
   await sql.schema.createTable(tablename, (table) => {
-    table.string("transaction_hash").unique();
+    table.string("transaction_hash");
     table.integer("block_number");
     table.timestamp("created_at").defaultTo(sql.fn.now());
     for (const param of params) {
       if (param.indexed) {
         table[param.type](param.name.toLowerCase()).index();
+        array.push(param.name.toLowerCase());
       } else {
         table[param.type](param.name.toLowerCase());
+        array.push(param.name.toLowerCase());
       }
     }
+    table.unique(array);
   });
   return;
 }

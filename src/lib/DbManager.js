@@ -43,7 +43,7 @@ class DbManager extends Sql {
   async updateEvents(rows, event, contractName, chunkSize = 100) {
     let tablename = Case.capital(contractName, "_");
     tablename = `${tablename}_${event}`.toLowerCase();
-    console.log(tablename);
+    console.log("inserting into", tablename);
     return dbr.batchInsert(tablename, rows, chunkSize).catch(function (error) {
       console.error("failed to insert transactions", error);
     });
