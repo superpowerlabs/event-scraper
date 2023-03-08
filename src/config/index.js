@@ -5,8 +5,7 @@ const ethers = require("ethers");
 
 const config = {
   contracts,
-  geckoApi:
-    "https://api.coingecko.com/api/v3/simple/price?ids=syndicate-2&vs_currencies=usd&include_24hr_change=true",
+  geckoApi: "https://api.coingecko.com/api/v3/simple/price?ids=syndicate-2&vs_currencies=usd&include_24hr_change=true",
   abi,
   tokenTypes: {
     S_SYNR_SWAP: 1,

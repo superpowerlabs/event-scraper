@@ -127,17 +127,20 @@ async function processSingleEvent(event, type, start, argNames) {
 }
 
 async function getEventInfo(eventConfig, eventName) {
-  const { chainId: eventChainId, contractName, startBlock } = eventConfig;
+  const { chainId: eventChainId, contractName } = eventConfig;
+  let startBlock;
+  let lastEvent = await dbManager.latestEvent(contractName, eventName);
+  if (lastEvent) {
+    startBlock = lastEvent.block_number + 1;
+  } else {
+    startBlock = eventConfig.startBlock;
+  }
   const provider = providers[eventChainId];
-  const contract = new ethers.Contract(
-    contracts[eventChainId][contractName],
-    abi[contractName],
-    provider
-  );
+  const contract = new ethers.Contract(contracts[eventChainId][contractName], abi[contractName], provider);
   const type = contract.filters[eventName]();
   const endBlock = await provider.getBlockNumber();
 
-  // await getEvents(contract, type, startBlock, endBlock, contractName);
+  await getEvents(contract, type, startBlock, endBlock, contractName);
 
   // provider.on(type, async (event) => {
   //   console.log(event);

@@ -33,6 +33,13 @@ class DbManager extends Sql {
     }
   }
 
+  async table(tablename) {
+    if (!(await dbr.schema.hasTable(tablename))) {
+      return false;
+    }
+    return true;
+  }
+
   async updateEvents(rows, event, contractName, chunkSize = 100) {
     let tablename = Case.capital(contractName, "_");
     tablename = `${tablename}_${event}`.toLowerCase();
@@ -42,11 +49,15 @@ class DbManager extends Sql {
     });
   }
 
-  async latestEvent(contractName, event) {
+  async latestEvent(contractName, eventName) {
+    let event = false;
     let tablename = Case.capital(contractName, "_");
-    tablename = `${tablename}_${event}`.toLowerCase();
-    let block = dbr.select("*").from(tablename).orderBy("block_number", "desc").first();
-    return block;
+    tablename = `${tablename}_${eventName}`.toLowerCase();
+    const exist = await this.table(tablename);
+    if (exist) {
+      event = dbr.select("*").from(tablename).orderBy("block_number", "desc").first();
+    }
+    return event;
   }
 }
 
