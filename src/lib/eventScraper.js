@@ -126,7 +126,7 @@ async function getEventInfo(eventConfig, eventName) {
 
   await getEvents(contract, type, startBlock, endBlock, contractName);
 
-  // await getFutureEvents(contract,type, eventName, contractName);
+  await getFutureEvents(contract, type, eventName, contractName);
 }
 
 async function main(opt) {
