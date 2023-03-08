@@ -1,0 +1,76 @@
+[
+  {
+    "contractName": "SynCityPasses",
+    "chainId": 1,
+    "startBlock": 13722860,
+    "events": [
+      {
+        "name": "Transfer",
+        "params": [
+          {
+            "name": "from",
+            "type": "string",
+            "indexed": true
+          },
+          {
+            "name": "to",
+            "type": "string",
+            "indexed": true
+          },
+          {
+            "name": "tokenId",
+            "type": "bigint",
+            "indexed": true
+          }
+        ]
+      },
+      {
+        "name": "Approval",
+        "params": [
+          {
+            "name": "owner",
+            "type": "string",
+            "indexed": true
+          },
+          {
+            "name": "approved",
+            "type": "string",
+            "indexed": true
+          },
+          {
+            "name": "tokenId",
+            "type": "bigint",
+            "indexed": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "contractName": "SynCityCoupons",
+    "chainId": 56,
+    "startBlock": 13069259,
+    "events": [
+      {
+        "name": "Transfer",
+        "params": [
+          {
+            "name": "from",
+            "type": "string",
+            "indexed": true
+          },
+          {
+            "name": "to",
+            "type": "string",
+            "indexed": true
+          },
+          {
+            "name": "tokenId",
+            "type": "bigint",
+            "indexed": true
+          }
+        ]
+      }
+    ]
+  }
+]

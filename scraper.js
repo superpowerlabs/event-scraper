@@ -1,5 +1,8 @@
+#!/usr/bin/env node
+
 const commandLineArgs = require("command-line-args");
-const blockChainIndexingLib = require("./lib/blockChainIndexingLib");
+const eventScraper = require("./src/lib/eventScraper");
+const { migrateEvents } = require("./src/migrateEvents");
 
 const optionDefinitions = [
   {
@@ -60,7 +63,12 @@ Options:
   process.exit(0);
 }
 
-blockChainIndexingLib(options)
+async function main() {
+  await migrateEvents();
+  await eventScraper(options);
+}
+
+main()
   .then(() => process.exit(0))
   .catch((error) => {
     console.error(error);
