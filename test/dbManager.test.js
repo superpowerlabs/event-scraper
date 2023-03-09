@@ -29,13 +29,13 @@ describe("Integration test", function () {
   describe("Testing update event", function () {
     it("should insert event", async function () {
       const obj = [{ transaction_hash: "hash", block_number: 1, to: "you", from: "me", tokenid: 16 }];
-      await dbManager.updateEvents(obj, "Transfer", "SynCityPasses");
-      let event = await dbManager.getEvent("SynCityPasses", "Transfer", { tokenid: 16 });
-      expect(event.transaction_hash).equal("hash");
-      expect(event.block_number).equal(1);
-      expect(event.to).equal("you");
-      expect(event.from).equal("me");
-      expect(event.tokenid).equal(16);
+      await dbManager.updateEvents(obj, "Transfer", "SynCityCoupons");
+      let event = await dbManager.getEvent("SynCityCoupons", "Transfer", { tokenid: 16 });
+      expect(event[0].transaction_hash).equal("hash");
+      expect(event[0].block_number).equal(1);
+      expect(event[0].to).equal("you");
+      expect(event[0].from).equal("me");
+      expect(event[0].tokenid).equal(16);
     });
     it("should insert batch", async function () {
       const obj = [{ transaction_hash: "hash", block_number: 1, to: "you", from: "me", tokenid: 16 }];
