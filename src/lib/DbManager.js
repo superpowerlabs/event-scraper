@@ -20,7 +20,6 @@ class DbManager extends Sql {
       throw new Error("This can be used only for testing");
     }
     await (await this.sql()).schema.dropTableIfExists("syn_city_passes_transfer");
-    await (await this.sql()).schema.dropTableIfExists("syn_city_passes_approval");
     await (await this.sql()).schema.dropTableIfExists("syn_city_coupons_transfer");
     // TODO complete it
   }
