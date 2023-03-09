@@ -1,10 +1,9 @@
 const Sql = require("../db/Sql");
 const Case = require("case");
-const { table } = require("console");
+const json = require("../config/events.json");
 
 let dbw;
 let dbr;
-
 class DbManager extends Sql {
   // for reference
   // https://knexjs.org
@@ -19,8 +18,13 @@ class DbManager extends Sql {
     if (process.env.NODE_ENV !== "test") {
       throw new Error("This can be used only for testing");
     }
-    await (await this.sql()).schema.dropTableIfExists("syn_city_passes_transfer");
-    await (await this.sql()).schema.dropTableIfExists("syn_city_coupons_transfer");
+    for (const contract of json) {
+      for (const event of contract.events) {
+        let tablename = Case.capital(contract.contractName, "_");
+        tablename = `${tablename}_${event.name}`.toLowerCase();
+        await (await this.sql()).schema.dropTableIfExists(tablename);
+      }
+    }
     // TODO complete it
   }
 
