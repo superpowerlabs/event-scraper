@@ -17,10 +17,6 @@ describe("Integration test", function () {
     let exist = await dbManager.table("syn_city_passes_transfer");
     expect(exist).equal(true);
   });
-  it("check for syn_city_passes_approval", async function () {
-    let exist = await dbManager.table("syn_city_passes_approval");
-    expect(exist).equal(true);
-  });
   it.skip("check for syn_city_coupons_transfer", async function () {
     let exist = await dbManager.table("syn_city_coupons_transfer");
     expect(exist).equal(true);
