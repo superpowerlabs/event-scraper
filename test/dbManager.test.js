@@ -14,15 +14,15 @@ describe("Integration test", function () {
   });
 
   it("check for syn_city_passes_transfer", async function () {
-    let exist = await dbManager.tableExist("syn_city_passes_transfer");
+    let exist = await dbManager.table("syn_city_passes_transfer");
     expect(exist).equal(true);
   });
   it("check for syn_city_passes_approval", async function () {
-    let exist = await dbManager.tableExist("syn_city_passes_approval");
+    let exist = await dbManager.table("syn_city_passes_approval");
     expect(exist).equal(true);
   });
   it.skip("check for syn_city_coupons_transfer", async function () {
-    let exist = await dbManager.tableExist("syn_city_coupons_transfer");
+    let exist = await dbManager.table("syn_city_coupons_transfer");
     expect(exist).equal(true);
   });
 
@@ -58,7 +58,7 @@ describe("Integration test", function () {
     it.skip("should revert if inserting same events", async function () {
       const obj = [{ transaction_hash: "hash", block_number: 1, to: "you", from: "me", tokenid: 16 }];
       await dbManager.updateEvents(obj, "Transfer", "SynCityPasses");
-      await dbManager.updateEvents(obj, "Transfer", "SynCityPasses");
+      expect(await dbManager.updateEvents(obj, "Transfer", "SynCityPasses")).equal(undefined);
     });
   });
 });

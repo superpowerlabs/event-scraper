@@ -25,14 +25,6 @@ class DbManager extends Sql {
     // TODO complete it
   }
 
-  async tableExist(tablename) {
-    if (!(await dbr.schema.hasTable(tablename))) {
-      return false;
-    } else {
-      return true;
-    }
-  }
-
   async table(tablename) {
     if (!(await dbr.schema.hasTable(tablename))) {
       return false;
