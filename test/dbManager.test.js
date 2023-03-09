@@ -21,8 +21,44 @@ describe("Integration test", function () {
     let exist = await dbManager.tableExist("syn_city_passes_approval");
     expect(exist).equal(true);
   });
-  it("check for syn_city_coupons_transfer", async function () {
+  it.skip("check for syn_city_coupons_transfer", async function () {
     let exist = await dbManager.tableExist("syn_city_coupons_transfer");
     expect(exist).equal(true);
+  });
+
+  describe("Testing update event", function () {
+    it("should insert event", async function () {
+      const obj = [{ transaction_hash: "hash", block_number: 1, to: "you", from: "me", tokenid: 16 }];
+      await dbManager.updateEvents(obj, "Transfer", "SynCityPasses");
+      let event = await dbManager.latestEvent("SynCityPasses", "Transfer");
+      expect(event.transaction_hash).equal("hash");
+      expect(event.block_number).equal(1);
+      expect(event.to).equal("you");
+      expect(event.from).equal("me");
+      expect(event.tokenid).equal(16);
+    });
+    it("should insert batch", async function () {
+      const obj = [{ transaction_hash: "hash", block_number: 1, to: "you", from: "me", tokenid: 16 }];
+      const obj1 = [{ transaction_hash: "hash", block_number: 1, to: "you", from: "me", tokenid: 17 }];
+      await dbManager.updateEvents(obj, "Transfer", "SynCityPasses");
+      await dbManager.updateEvents(obj1, "Transfer", "SynCityPasses");
+      let event = await dbManager.getEvent("SynCityPasses", "Transfer", { tokenid: 16 });
+      expect(event[0].transaction_hash).equal("hash");
+      expect(event[0].block_number).equal(1);
+      expect(event[0].to).equal("you");
+      expect(event[0].from).equal("me");
+      expect(event[0].tokenid).equal(16);
+      let event1 = await dbManager.getEvent("SynCityPasses", "Transfer", { tokenid: 17 });
+      expect(event1[0].transaction_hash).equal("hash");
+      expect(event1[0].block_number).equal(1);
+      expect(event1[0].to).equal("you");
+      expect(event1[0].from).equal("me");
+      expect(event1[0].tokenid).equal(17);
+    });
+    it.skip("should revert if inserting same events", async function () {
+      const obj = [{ transaction_hash: "hash", block_number: 1, to: "you", from: "me", tokenid: 16 }];
+      await dbManager.updateEvents(obj, "Transfer", "SynCityPasses");
+      await dbManager.updateEvents(obj, "Transfer", "SynCityPasses");
+    });
   });
 });

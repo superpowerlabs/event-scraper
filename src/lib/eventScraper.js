@@ -115,11 +115,7 @@ async function getEventInfo(eventConfig, eventName) {
     startBlock = eventConfig.startBlock;
   }
   const provider = providers[eventChainId];
-  const contract = new ethers.Contract(
-    contracts[eventChainId][contractName],
-    abi[contractName],
-    provider
-  );
+  const contract = new ethers.Contract(contracts[eventChainId][contractName], abi[contractName], provider);
   const type = contract.filters[eventName]();
   const endBlock = await provider.getBlockNumber();
 

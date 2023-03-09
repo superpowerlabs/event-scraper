@@ -59,6 +59,17 @@ class DbManager extends Sql {
     }
     return event;
   }
+
+  async getEvent(contractName, eventName, obj) {
+    let event = false;
+    let tablename = Case.capital(contractName, "_");
+    tablename = `${tablename}_${eventName}`.toLowerCase();
+    const exist = await this.table(tablename);
+    if (exist) {
+      event = dbr.select("*").from(tablename).where(obj);
+    }
+    return event;
+  }
 }
 
 let dbManager;
