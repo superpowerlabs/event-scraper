@@ -65,6 +65,7 @@ describe("Integration test", function () {
       await dbManager.updateEvents(obj1, "Transfer", "SynCityPasses");
       await dbManager.updateEvents(obj2, "Transfer", "SynCityPasses");
       await dbManager.updateEvents(obj3, "Transfer", "SynCityPasses");
+      await dbManager.updateEvents(obj4, "Transfer", "SynCityPasses");
       let event = await dbManager.latestEvent("SynCityPasses", "Transfer");
       expect(event.transaction_hash).equal("hish");
       expect(event.block_number).equal(4);
