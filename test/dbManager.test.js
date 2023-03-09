@@ -73,10 +73,11 @@ describe("Integration test", function () {
       expect(event.from).equal("me");
       expect(event.tokenid).equal(19);
     });
-    it.skip("should revert if inserting same events", async function () {
+    it("should revert if inserting same events", async function () {
       const obj = [{ transaction_hash: "hash", block_number: 1, to: "you", from: "me", tokenid: 16 }];
       await dbManager.updateEvents(obj, "Transfer", "SynCityPasses");
-      expect(await dbManager.updateEvents(obj, "Transfer", "SynCityPasses")).equal(undefined);
+      let error = await dbManager.updateEvents(obj, "Transfer", "SynCityPasses");
+      expect(error.code).equal("SQLITE_CONSTRAINT");
     });
   });
 });

@@ -38,6 +38,7 @@ class DbManager extends Sql {
     console.log("inserting into", tablename);
     return dbr.batchInsert(tablename, rows, chunkSize).catch(function (error) {
       console.error("failed to insert transactions", error);
+      return error;
     });
   }
 
