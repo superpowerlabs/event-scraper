@@ -37,7 +37,25 @@ describe("Integration test", function () {
       expect(event[0].from).equal("me");
       expect(event[0].tokenid).equal(16);
     });
-    it("should insert batch", async function () {
+    it("should batch insert", async function () {
+      const obj = [
+        { transaction_hash: "hash", block_number: 1, to: "you", from: "me", tokenid: 16 },
+        { transaction_hash: "hash", block_number: 1, to: "you", from: "me", tokenid: 17 },
+      ];
+      await dbManager.updateEvents(obj, "Transfer", "SynCityPasses");
+      let event = await dbManager.getEvent("SynCityPasses", "Transfer", { transaction_hash: "hash" });
+      expect(event[0].transaction_hash).equal("hash");
+      expect(event[0].block_number).equal(1);
+      expect(event[0].to).equal("you");
+      expect(event[0].from).equal("me");
+      expect(event[0].tokenid).equal(16);
+      expect(event[1].transaction_hash).equal("hash");
+      expect(event[1].block_number).equal(1);
+      expect(event[1].to).equal("you");
+      expect(event[1].from).equal("me");
+      expect(event[1].tokenid).equal(17);
+    });
+    it("should insert batch transfer", async function () {
       const obj = [{ transaction_hash: "hash", block_number: 1, to: "you", from: "me", tokenid: 16 }];
       const obj1 = [{ transaction_hash: "hash", block_number: 1, to: "you", from: "me", tokenid: 17 }];
       await dbManager.updateEvents(obj, "Transfer", "SynCityPasses");
