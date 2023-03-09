@@ -30,7 +30,7 @@ describe("Integration test", function () {
     it("should insert event", async function () {
       const obj = [{ transaction_hash: "hash", block_number: 1, to: "you", from: "me", tokenid: 16 }];
       await dbManager.updateEvents(obj, "Transfer", "SynCityPasses");
-      let event = await dbManager.latestEvent("SynCityPasses", "Transfer");
+      let event = await dbManager.getEvent("SynCityPasses", "Transfer", { tokenid: 16 });
       expect(event.transaction_hash).equal("hash");
       expect(event.block_number).equal(1);
       expect(event.to).equal("you");
@@ -54,6 +54,23 @@ describe("Integration test", function () {
       expect(event1[0].to).equal("you");
       expect(event1[0].from).equal("me");
       expect(event1[0].tokenid).equal(17);
+    });
+    it("should get latest event", async function () {
+      const obj = [{ transaction_hash: "hash", block_number: 1, to: "you", from: "me", tokenid: 16 }];
+      const obj1 = [{ transaction_hash: "hesh", block_number: 2, to: "you", from: "me", tokenid: 17 }];
+      const obj2 = [{ transaction_hash: "hosh", block_number: 3, to: "you", from: "me", tokenid: 18 }];
+      const obj3 = [{ transaction_hash: "hish", block_number: 4, to: "you", from: "me", tokenid: 19 }];
+      const obj4 = [{ transaction_hash: "hish", block_number: 3, to: "you", from: "me", tokenid: 20 }];
+      await dbManager.updateEvents(obj, "Transfer", "SynCityPasses");
+      await dbManager.updateEvents(obj1, "Transfer", "SynCityPasses");
+      await dbManager.updateEvents(obj2, "Transfer", "SynCityPasses");
+      await dbManager.updateEvents(obj3, "Transfer", "SynCityPasses");
+      let event = await dbManager.latestEvent("SynCityPasses", "Transfer");
+      expect(event.transaction_hash).equal("hish");
+      expect(event.block_number).equal(4);
+      expect(event.to).equal("you");
+      expect(event.from).equal("me");
+      expect(event.tokenid).equal(19);
     });
     it.skip("should revert if inserting same events", async function () {
       const obj = [{ transaction_hash: "hash", block_number: 1, to: "you", from: "me", tokenid: 16 }];
