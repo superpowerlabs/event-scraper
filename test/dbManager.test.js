@@ -55,7 +55,7 @@ describe("Integration test", function () {
       expect(event1[0].from).equal("me");
       expect(event1[0].tokenid).equal(17);
     });
-    it("should get latest event", async function () {
+    it("should get latest event by block_number", async function () {
       const obj = [{ transaction_hash: "hash", block_number: 1, to: "you", from: "me", tokenid: 16 }];
       const obj1 = [{ transaction_hash: "hesh", block_number: 2, to: "you", from: "me", tokenid: 17 }];
       const obj2 = [{ transaction_hash: "hosh", block_number: 3, to: "you", from: "me", tokenid: 18 }];
