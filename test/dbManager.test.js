@@ -26,7 +26,7 @@ describe("Integration test", function () {
     expect(exist).equal(true);
   });
 
-  describe("Testing update event", function () {
+  describe("Testing dbManager event", function () {
     it("should insert event", async function () {
       const obj = [{ transaction_hash: "hash", block_number: 1, to: "you", from: "me", tokenid: 16 }];
       await dbManager.updateEvents(obj, "Transfer", "SynCityCoupons");
