@@ -39,7 +39,7 @@ class DbManager extends Sql {
     let tablename = Case.capital(contractName, "_");
     tablename = `${tablename}_${event}`.toLowerCase();
     console.log("inserting into", tablename);
-    return dbr.batchInsert(tablename, rows, chunkSize).catch(function (error) {
+    return dbw.batchInsert(tablename, rows, chunkSize).catch(function (error) {
       console.error("failed to insert transactions", error);
       return error;
     });
