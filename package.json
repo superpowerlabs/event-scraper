@@ -45,7 +45,6 @@
     "deploy": "(cd synr-seed && bin/deploy-for-tests.sh)",
     "test": "NODE_ENV=test mocha test/*.test.js --exit",
     "format": "npx prettier --write .",
-    "postinstall": "./post-install.sh",
     "prepare": "husky install"
   },
   "eslintConfig": {
