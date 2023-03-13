@@ -2,7 +2,7 @@ require("dotenv").config();
 const debug = require("./db/debug");
 const json = require("./config/events.json");
 const Sql = require("./db/Sql");
-const Case = require("Case");
+const Case = require("case");
 const migrate = require("./db/migrations/migrate");
 
 async function migrateEvent(tablename, params, sql) {
