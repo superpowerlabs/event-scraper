@@ -23,26 +23,6 @@
             "indexed": true
           }
         ]
-      },
-      {
-        "name": "Approval",
-        "params": [
-          {
-            "name": "owner",
-            "type": "string",
-            "indexed": true
-          },
-          {
-            "name": "approved",
-            "type": "string",
-            "indexed": true
-          },
-          {
-            "name": "tokenId",
-            "type": "bigint",
-            "indexed": true
-          }
-        ]
       }
     ]
   },
