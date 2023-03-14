@@ -14,8 +14,8 @@ module.exports = {
        "ref"  : "origin/main",
        "repo" : "git@github.com:superpowerlabs/event-scraper",
        "path" : "/home/ubuntu/production/indexing-service",
-       "post-setup": "/home/ubuntu/.nvm/versions/node/v16.17.0/bin/pnpm i",
-       "post-deploy" : "pnpm install && pm2 startOrRestart --env production"
+       "post-setup": ". ~/.nvm/nvm.sh && pnpm install",
+       "post-deploy" : ". ~/.nvm/nvm.sh && pnpm install && pm2 startOrRestart --env production"
     }
   }
 };
