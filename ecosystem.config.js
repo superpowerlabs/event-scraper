@@ -1,6 +1,6 @@
 module.exports = {
   apps : [{
-    script: 'indexingService.js',
+    script: 'index.js',
     name: 'indexing-service',
   }],
    
