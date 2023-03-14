@@ -13,11 +13,11 @@ async function migrateEvent(tablename, params, sql) {
     table.timestamp("created_at").defaultTo(sql.fn.now());
     for (const param of params) {
       if (param.indexed) {
-        table[param.type](param.name.toLowerCase()).index();
-        array.push(param.name.toLowerCase());
+        table[param.type](Case.snake(param.name)).index();
+        array.push(Case.snake(param.name));
       } else {
-        table[param.type](param.name.toLowerCase());
-        array.push(param.name.toLowerCase());
+        table[param.type](Case.snake(param.name));
+        array.push(Case.snake(param.name));
       }
     }
     table.unique(array);
