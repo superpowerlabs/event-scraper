@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
 
-pnpm i
-pm2 start index.js -i max --name mob-api && pm2 save
+# git pull
+# pnpm i
+# pm2 delete event-scraper
+pm2 start ./indexingService.js --name event-scraper && pm2 save
