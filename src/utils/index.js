@@ -71,7 +71,7 @@ const utils = {
   },
 
   nameTable(contractName, eventName) {
-    return [Case.snake(contractName), Case.snake(eventName)].join("_");
+    return [Case.snake(contractName), Case.snake(eventName)].join("__");
   },
 
   //   turf_level1_4x4.png
