@@ -18,7 +18,7 @@ pmpm pm2 deploy production setup
 ```
 You should see something like this:
 ```
-➜  event-scraper git:(run-indexer-with-node-cron) ✗ pnpm pm2 deploy production setup
+➜  event-scraper git:(run-indexer-with-pm2) ✗ pnpm pm2 deploy production setup
 --> Deploying to production environment
 --> on host ec2-18-221-245-11.us-east-2.compute.amazonaws.com
 
@@ -118,3 +118,6 @@ Local PM2 version: 5.2.2
   ○ successfully deployed origin/main
 --> Success
 ```
+
+
+curl -X POST -H 'Content-type: application/json' --data '{"text":"Hello, World!"}' https://hooks.slack.com/services/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
