@@ -21,8 +21,7 @@ class DbManager extends Sql {
     }
     for (const contract of json) {
       for (const event of contract.events) {
-        let tablename = Case.capital(contract.contractName, "_");
-        tablename = `${tablename}_${event.name}`.toLowerCase();
+        let tablename = utils.nameTable(contract.contractName, event.name);
         await (await this.sql()).schema.dropTableIfExists(tablename);
       }
     }
@@ -47,8 +46,7 @@ class DbManager extends Sql {
 
   async latestEvent(contractName, eventName) {
     let event = false;
-    let tablename = Case.capital(contractName, "_");
-    tablename = `${tablename}_${eventName}`.toLowerCase();
+    let tablename = utils.nameTable(contractName, event);
     const exist = await this.table(tablename);
     if (exist) {
       event = dbr.select("*").from(tablename).orderBy("block_number", "desc").first();

@@ -3,6 +3,7 @@ const debug = require("./db/debug");
 const json = require("./config/events.json");
 const Sql = require("./db/Sql");
 const Case = require("case");
+const utils = require("./utils");
 const migrate = require("./db/migrations/migrate");
 
 async function migrateEvent(tablename, params, sql) {
@@ -34,8 +35,7 @@ async function migrateEvents() {
   for (const contract of json) {
     for (const event of contract.events) {
       const params = event.params;
-      let tablename = Case.capital(contract.contractName, "_");
-      tablename = `${tablename}_${event.name}`.toLowerCase();
+      let tablename = utils.nameTable(contract.contractName, event.name);
       if (!(await sql.schema.hasTable(tablename))) {
         migrateEvent(tablename, params, sql);
         debug(`table ${tablename} created`);
