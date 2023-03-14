@@ -1,5 +1,6 @@
 const Sql = require("../db/Sql");
 const Case = require("case");
+const utils = require("../utils");
 const json = require("../config/events.json");
 
 let dbw;
@@ -36,8 +37,7 @@ class DbManager extends Sql {
   }
 
   async updateEvents(rows, event, contractName, chunkSize = 100) {
-    let tablename = Case.capital(contractName, "_");
-    tablename = `${tablename}_${event}`.toLowerCase();
+    let tablename = utils.nameTable(contractName, event);
     console.log("inserting into", tablename);
     return dbw.batchInsert(tablename, rows, chunkSize).catch(function (error) {
       console.error("failed to insert transactions", error);

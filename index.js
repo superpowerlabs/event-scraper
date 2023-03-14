@@ -4,8 +4,8 @@ const eventScraper = require("./src/lib/eventScraper");
 
 // options for production
 const options = {
-  verbose: false,
-  dryrun: false,
+  verbose: true,
+  dryrun: true,
 };
 
 async function main() {

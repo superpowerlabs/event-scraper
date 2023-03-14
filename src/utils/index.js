@@ -1,4 +1,3 @@
-const description = require("../../server/config/description");
 const Case = require("case");
 const _ = require("lodash");
 
@@ -69,6 +68,10 @@ const utils = {
     data.attributes = Object.assign(obj);
     meta = data;
     return meta;
+  },
+
+  nameTable(contractName, eventName) {
+    return [Case.snake(contractName), Case.snake(eventName)].join("_");
   },
 
   //   turf_level1_4x4.png

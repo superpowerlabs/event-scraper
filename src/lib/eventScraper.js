@@ -1,4 +1,5 @@
 require("dotenv").config();
+const Case = require("case");
 const ethers = require("ethers");
 const dbManager = require("./DbManager");
 const { providers, abi, eventsConfig, contracts } = require("../config");
@@ -91,7 +92,7 @@ async function processSingleEvent(event, type, argNames) {
     };
 
     for (let arg of argNames) {
-      const dataArg = arg.toLowerCase();
+      const dataArg = Case.snake(arg);
       if (typeof event.args[arg] === "object") {
         tx[dataArg] = Number(event.args[arg]);
       } else {
