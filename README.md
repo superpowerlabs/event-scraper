@@ -1,88 +1,54 @@
-# Mobland API Server
+# Superpower indexer
 
-Staking frontend for Mobland
+## PM2 Deploy feature
 
-Clone the repo and call
-
+We're using the deploy scirpt that comes with PM2 (see https://pm2.keymetrics.io/docs/usage/deployment/).
 ```
-git submodule update --init --recursive
+> pm2 deploy <configuration_file> <environment> <command>
 ```
+## Deployment setup
 
-## Install and usage
-
+This command needs to be issued only once per server.
 ```
-(cd synr-seed && pnpm i)
-pnpm i
+pmpm pm2 deploy pm2.config.js production setup
 ```
-
-Have Docker Opened.
-Have .env set up
-
+or, since the config file is using the default name `ecosystem.config.js`, we don't need to add it. 
 ```
-bin/postgres.sh
+pmpm pm2 deploy production setup
 ```
-
-Create Docker Container and sets up database.
-
-In the project directory, you can run:
-
+You should see something like this:
 ```
-npm start
-```
+➜  event-scraper git:(run-indexer-with-node-cron) ✗ pnpm pm2 deploy production setup
+--> Deploying to production environment
+--> on host ec2-18-221-245-11.us-east-2.compute.amazonaws.com
 
-Runs the app in the development mode.\
-Open [http://localhost:3003](http://localhost:3003) to view it in your browser.
+>>>> In-memory PM2 is out-of-date, do:
+>>>> $ pm2 update
+In memory PM2 version: 5.2.0
+Local PM2 version: 5.2.2
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-To test the app, you must deploy the contract for testing
-
-```
-npm run deploy
-npm test
+  ○ hook pre-setup
+  ○ running setup
+  ○ cloning git@github.com:superpowerlabs/event-scraper
+  ○ full fetch
+Cloning into '/home/ubuntu/production/indexing-service/source'...
+  ○ hook post-setup
+  ○ setup complete
+--> Success
 ```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `node .`
-
-Sets up DB with migrations, starts Server
-
-## Snapshot scripts
-
-To run the scripts in development, launch:
+Check that the deployment folder is setup properly on staging (since we're deploying to staging)
 
 ```
-node scripts/snapshotService.js
-```
-
-To see all the console logs, launch
-
-```
-node scripts/snapshotService.js -v
-```
-
-To launch it in production, launch
+ubuntu@ip-172-31-42-225:~$ ls -al /home/ubuntu/production/indexing-service/
+total 16
+drwxrwxr-x 4 ubuntu ubuntu 4096 Mar 14 13:23 .
+drwxrwxr-x 3 ubuntu ubuntu 4096 Mar 14 13:23 ..
+lrwxrwxrwx 1 ubuntu ubuntu   47 Mar 14 13:23 current -> /home/ubuntu/production/indexing-service/source
+drwxrwxr-x 4 ubuntu ubuntu 4096 Mar 14 13:23 shared
+drwxrwxr-x 7 ubuntu ubuntu 4096 Mar 14 13:23 source
 
 ```
-./start-snapshotService.sh
-```
 
-To see latest snapshot connect to
-https://api.mob.land/v1/snapshots/latest
+## Deployment
 
-To see at a specific data connect to
-https://api.mob.land/v1/snapshots/2022-11-12
-
-# Database
-
-## Files
-
-- `./db/config.js` : database configuration file for test, development and production environment
-- `./db/Sql.js`: reads configuration and starts a DB client
-- `./db/migrations/migrateEvents.js`: called in `./index.js` to migrateEvents DB is necessary
-  - `./db/Migration.js` extends Sql, parent class to `./db/migrations/XX_YYYYYYYYY.js` individual migrations
-
-## Commands
