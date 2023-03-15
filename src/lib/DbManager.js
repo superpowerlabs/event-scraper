@@ -28,11 +28,23 @@ class DbManager extends Sql {
     // TODO complete it
   }
 
-  async table(tablename) {
+  async tableExists(tablename) {
     if (!(await dbr.schema.hasTable(tablename))) {
       return false;
     }
     return true;
+  }
+
+  async checkColumns(tablename, params) {
+    for (const param of params) {
+      dbr.schema.hasColumn(tablename, Case.snake(param.name)).then((exists) => {
+        if (exists) {
+          console.log("Column exists");
+        } else {
+          console.log("Column does not exist");
+        }
+      });
+    }
   }
 
   async updateEvents(rows, event, contractName, chunkSize = 100) {
@@ -46,8 +58,8 @@ class DbManager extends Sql {
 
   async latestEvent(contractName, eventName) {
     let event = false;
-    let tablename = utils.nameTable(contractName, event);
-    const exist = await this.table(tablename);
+    let tablename = utils.nameTable(contractName, eventName);
+    const exist = await this.tableExists(tablename);
     if (exist) {
       event = dbr.select("*").from(tablename).orderBy("block_number", "desc").first();
     }
@@ -58,7 +70,7 @@ class DbManager extends Sql {
     let event = false;
     let tablename = Case.capital(contractName, "_");
     tablename = `${tablename}_${eventName}`.toLowerCase();
-    const exist = await this.table(tablename);
+    const exist = await this.tableExists(tablename);
     if (exist) {
       event = dbr.select("*").from(tablename).where(obj);
     }

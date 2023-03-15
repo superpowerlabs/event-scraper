@@ -5,6 +5,7 @@ const Sql = require("./db/Sql");
 const Case = require("case");
 const utils = require("./utils");
 const migrate = require("./db/migrations/migrate");
+const dbManager = require("./lib/DbManager");
 
 async function migrateEvent(tablename, params, sql) {
   let array = ["transaction_hash", "block_number"];
@@ -36,6 +37,7 @@ async function migrateEvents() {
     for (const event of contract.events) {
       const params = event.params;
       let tablename = utils.nameTable(contract.contractName, event.name);
+      await dbManager.checkColumns(tablename, params);
       if (!(await sql.schema.hasTable(tablename))) {
         migrateEvent(tablename, params, sql);
         debug(`table ${tablename} created`);
