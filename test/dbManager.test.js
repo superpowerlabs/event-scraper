@@ -14,11 +14,11 @@ describe("Integration test", function () {
   });
 
   it("check for syn_city_passes_transfer", async function () {
-    let exist = await eventManager.table("syn_city_passes_transfer");
+    let exist = await eventManager.tableExists("syn_city_passes_transfer");
     expect(exist).equal(true);
   });
   it.skip("check for syn_city_coupons_transfer", async function () {
-    let exist = await eventManager.table("syn_city_coupons_transfer");
+    let exist = await eventManager.tableExists("syn_city_coupons_transfer");
     expect(exist).equal(true);
   });
 
@@ -30,18 +30,18 @@ describe("Integration test", function () {
           block_number: 1,
           to: "you",
           from: "me",
-          tokenid: 16,
+          token_id: 16,
         },
       ];
       await eventManager.updateEvents(obj, "Transfer", "SynCityCoupons");
       let event = await eventManager.getEvent("SynCityCoupons", "Transfer", {
-        tokenid: 16,
+        token_id: 16,
       });
       expect(event[0].transaction_hash).equal("hash");
       expect(event[0].block_number).equal(1);
       expect(event[0].to).equal("you");
       expect(event[0].from).equal("me");
-      expect(event[0].tokenid).equal(16);
+      expect(event[0].token_id).equal(16);
     });
     it("should batch insert", async function () {
       const obj = [
@@ -50,14 +50,14 @@ describe("Integration test", function () {
           block_number: 1,
           to: "you",
           from: "me",
-          tokenid: 16,
+          token_id: 16,
         },
         {
           transaction_hash: "hash",
           block_number: 1,
           to: "you",
           from: "me",
-          tokenid: 17,
+          token_id: 17,
         },
       ];
       await eventManager.updateEvents(obj, "Transfer", "SynCityPasses");
@@ -68,12 +68,12 @@ describe("Integration test", function () {
       expect(event[0].block_number).equal(1);
       expect(event[0].to).equal("you");
       expect(event[0].from).equal("me");
-      expect(event[0].tokenid).equal(16);
+      expect(event[0].token_id).equal(16);
       expect(event[1].transaction_hash).equal("hash");
       expect(event[1].block_number).equal(1);
       expect(event[1].to).equal("you");
       expect(event[1].from).equal("me");
-      expect(event[1].tokenid).equal(17);
+      expect(event[1].token_id).equal(17);
     });
     it("should insert batch transfer", async function () {
       const obj = [
@@ -82,7 +82,7 @@ describe("Integration test", function () {
           block_number: 1,
           to: "you",
           from: "me",
-          tokenid: 16,
+          token_id: 16,
         },
       ];
       const obj1 = [
@@ -91,27 +91,27 @@ describe("Integration test", function () {
           block_number: 1,
           to: "you",
           from: "me",
-          tokenid: 17,
+          token_id: 17,
         },
       ];
       await eventManager.updateEvents(obj, "Transfer", "SynCityPasses");
       await eventManager.updateEvents(obj1, "Transfer", "SynCityPasses");
       let event = await eventManager.getEvent("SynCityPasses", "Transfer", {
-        tokenid: 16,
+        token_id: 16,
       });
       expect(event[0].transaction_hash).equal("hash");
       expect(event[0].block_number).equal(1);
       expect(event[0].to).equal("you");
       expect(event[0].from).equal("me");
-      expect(event[0].tokenid).equal(16);
+      expect(event[0].token_id).equal(16);
       let event1 = await eventManager.getEvent("SynCityPasses", "Transfer", {
-        tokenid: 17,
+        token_id: 17,
       });
       expect(event1[0].transaction_hash).equal("hash");
       expect(event1[0].block_number).equal(1);
       expect(event1[0].to).equal("you");
       expect(event1[0].from).equal("me");
-      expect(event1[0].tokenid).equal(17);
+      expect(event1[0].token_id).equal(17);
     });
     it("should get latest event by block_number", async function () {
       const obj = [
@@ -120,7 +120,7 @@ describe("Integration test", function () {
           block_number: 1,
           to: "you",
           from: "me",
-          tokenid: 16,
+          token_id: 16,
         },
       ];
       const obj1 = [
@@ -129,7 +129,7 @@ describe("Integration test", function () {
           block_number: 2,
           to: "you",
           from: "me",
-          tokenid: 17,
+          token_id: 17,
         },
       ];
       const obj2 = [
@@ -138,7 +138,7 @@ describe("Integration test", function () {
           block_number: 3,
           to: "you",
           from: "me",
-          tokenid: 18,
+          token_id: 18,
         },
       ];
       const obj3 = [
@@ -147,7 +147,7 @@ describe("Integration test", function () {
           block_number: 4,
           to: "you",
           from: "me",
-          tokenid: 19,
+          token_id: 19,
         },
       ];
       const obj4 = [
@@ -156,7 +156,7 @@ describe("Integration test", function () {
           block_number: 3,
           to: "you",
           from: "me",
-          tokenid: 20,
+          token_id: 20,
         },
       ];
       await eventManager.updateEvents(obj, "Transfer", "SynCityPasses");
@@ -169,7 +169,7 @@ describe("Integration test", function () {
       expect(event.block_number).equal(4);
       expect(event.to).equal("you");
       expect(event.from).equal("me");
-      expect(event.tokenid).equal(19);
+      expect(event.token_id).equal(19);
     });
     it("should revert if inserting same events", async function () {
       const obj = [
@@ -178,15 +178,11 @@ describe("Integration test", function () {
           block_number: 1,
           to: "you",
           from: "me",
-          tokenid: 16,
+          token_id: 16,
         },
       ];
       await eventManager.updateEvents(obj, "Transfer", "SynCityPasses");
-      let error = await eventManager.updateEvents(
-        obj,
-        "Transfer",
-        "SynCityPasses"
-      );
+      let error = await eventManager.updateEvents(obj, "Transfer", "SynCityPasses");
       expect(error.code).equal("SQLITE_CONSTRAINT");
     });
   });
