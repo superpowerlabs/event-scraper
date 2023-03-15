@@ -1,7 +1,7 @@
 require("dotenv").config();
 const Case = require("case");
 const ethers = require("ethers");
-const eventManager = require("./eventsManager");
+const eventManager = require("./EventsManager");
 const { providers, abi, eventsConfig, contracts } = require("../config");
 const inputJson = require("../config/events.json");
 let failedEvents = [];
@@ -116,7 +116,11 @@ async function getEventInfo(eventConfig, eventName) {
     startBlock = eventConfig.startBlock;
   }
   const provider = providers[eventChainId];
-  const contract = new ethers.Contract(contracts[eventChainId][contractName], abi[contractName], provider);
+  const contract = new ethers.Contract(
+    contracts[eventChainId][contractName],
+    abi[contractName],
+    provider
+  );
   const type = contract.filters[eventName]();
   const endBlock = await provider.getBlockNumber();
 

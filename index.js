@@ -10,7 +10,8 @@ const options = {
 
 async function main() {
   await migrateEvents();
-  await eventScraper(options);
+  // TODO first launch this with second line commented just to execute the migration
+  // await eventScraper(options);
 }
 
 main();
