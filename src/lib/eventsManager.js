@@ -5,7 +5,7 @@ const json = require("../config/events.json");
 
 let dbw;
 let dbr;
-class DbManager extends Sql {
+class eventManager extends Sql {
   // for reference
   // https://knexjs.org
 
@@ -80,7 +80,7 @@ class DbManager extends Sql {
 
 let dbManager;
 if (!dbManager) {
-  dbManager = new DbManager();
+  dbManager = new eventManager();
   dbManager.init();
 }
 module.exports = dbManager;

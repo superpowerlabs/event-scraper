@@ -1,7 +1,7 @@
 require("dotenv").config();
 const Case = require("case");
 const ethers = require("ethers");
-const dbManager = require("./DbManager");
+const eventManager = require("./eventsManager");
 const { providers, abi, eventsConfig, contracts } = require("../config");
 const inputJson = require("../config/events.json");
 let failedEvents = [];
@@ -39,7 +39,7 @@ async function getEvents(contract, type, start, end, contractName) {
     if (response.length > 0) {
       const txs = await processEvents(response, type, contractName);
       const eventName = response[0].event;
-      await dbManager.updateEvents(txs, eventName, contractName);
+      await eventManager.updateEvents(txs, eventName, contractName);
     }
   } catch (error) {
     console.log(error);
@@ -55,7 +55,7 @@ async function getFutureEvents(contract, type, eventName, contractName) {
   contract.on(eventName, async (...args) => {
     const event = [args[args.length - 1]];
     const txs = await processEvents(event, type, contractName);
-    await dbManager.updateEvents(txs, eventName, contractName);
+    await eventManager.updateEvents(txs, eventName, contractName);
   });
 }
 
@@ -109,7 +109,7 @@ async function processSingleEvent(event, type, argNames) {
 async function getEventInfo(eventConfig, eventName) {
   const { chainId: eventChainId, contractName } = eventConfig;
   let startBlock;
-  let lastEvent = await dbManager.latestEvent(contractName, eventName);
+  let lastEvent = await eventManager.latestEvent(contractName, eventName);
   if (lastEvent) {
     startBlock = lastEvent.block_number + 1;
   } else {
