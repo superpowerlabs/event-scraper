@@ -5,7 +5,8 @@ const json = require("../config/events.json");
 
 let dbw;
 let dbr;
-class eventManager extends Sql {
+
+class EventManager extends Sql {
   // for reference
   // https://knexjs.org
 
@@ -61,7 +62,11 @@ class eventManager extends Sql {
     let tablename = utils.nameTable(contractName, eventName);
     const exist = await this.tableExists(tablename);
     if (exist) {
-      event = dbr.select("*").from(tablename).orderBy("block_number", "desc").first();
+      event = dbr
+        .select("*")
+        .from(tablename)
+        .orderBy("block_number", "desc")
+        .first();
     }
     return event;
   }
@@ -78,9 +83,9 @@ class eventManager extends Sql {
   }
 }
 
-let dbManager;
-if (!dbManager) {
-  dbManager = new eventManager();
-  dbManager.init();
+let eventManager;
+if (!eventManager) {
+  eventManager = new EventManager();
+  eventManager.init();
 }
-module.exports = dbManager;
+module.exports = eventManager;

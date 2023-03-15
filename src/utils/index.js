@@ -70,8 +70,13 @@ const utils = {
     return meta;
   },
 
+  sleep: async (millis) => {
+    // eslint-disable-next-line no-undef
+    return new Promise((resolve) => setTimeout(resolve, millis));
+  },
+
   nameTable(contractName, eventName) {
-    return [Case.snake(contractName), Case.snake(eventName)].join("__");
+    return [Case.snake(contractName), Case.snake(eventName)].join("_");
   },
 
   //   turf_level1_4x4.png
