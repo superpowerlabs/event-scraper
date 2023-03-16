@@ -38,7 +38,6 @@ async function migrateEvents() {
     for (const event of contract.events) {
       const params = event.params;
       let tablename = utils.nameTable(contract.contractName, event.name);
-      await eventManager.checkColumns(tablename, params);
       if (!(await sql.schema.hasTable(tablename))) {
         await migrateEvent(tablename, params, sql);
         debug(`table ${tablename} created`);

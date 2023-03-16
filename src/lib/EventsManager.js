@@ -36,18 +36,6 @@ class EventManager extends Sql {
     return true;
   }
 
-  async checkColumns(tablename, params) {
-    for (const param of params) {
-      dbr.schema.hasColumn(tablename, Case.snake(param.name)).then((exists) => {
-        if (exists) {
-          console.log("Column exists");
-        } else {
-          console.log("Column does not exist");
-        }
-      });
-    }
-  }
-
   async updateEvents(rows, event, contractName, chunkSize = 100) {
     let tablename = utils.nameTable(contractName, event);
     console.log("inserting into", tablename);
