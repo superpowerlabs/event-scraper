@@ -52,5 +52,99 @@
         ]
       }
     ]
+  },
+  {
+    "contractName": "Turf",
+    "chainId": 56,
+    "startBlock": 23911132,
+    "events": [
+      {
+        "name": "Transfer",
+        "params": [
+          {
+            "name": "from",
+            "type": "string",
+            "indexed": true
+          },
+          {
+            "name": "to",
+            "type": "string",
+            "indexed": true
+          },
+          {
+            "name": "tokenId",
+            "type": "bigint",
+            "indexed": true
+          }
+        ]
+      },
+      {
+        "name": "Locked",
+        "params": [
+          {
+            "name": "tokenId",
+            "type": "bigint",
+            "indexed": true
+          }
+        ]
+      },
+      {
+        "name": "Unlocked",
+        "params": [
+          {
+            "name": "tokenId",
+            "type": "bigint",
+            "indexed": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "contractName": "Farm",
+    "chainId": 56,
+    "startBlock": 23911196,
+    "events": [
+      {
+        "name": "Transfer",
+        "params": [
+          {
+            "name": "from",
+            "type": "string",
+            "indexed": true
+          },
+          {
+            "name": "to",
+            "type": "string",
+            "indexed": true
+          },
+          {
+            "name": "tokenId",
+            "type": "bigint",
+            "indexed": true
+          }
+        ]
+      },
+      {
+        "name": "Locked",
+        "params": [
+          {
+            "name": "tokenId",
+            "type": "bigint",
+            "indexed": true
+          }
+        ]
+      },
+      {
+        "name": "Unlocked",
+        "params": [
+          {
+            "name": "tokenId",
+            "type": "bigint",
+            "indexed": true
+          }
+        ]
+      }
+    ]
   }
 ]
