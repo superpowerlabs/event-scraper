@@ -9,12 +9,16 @@ class MigrateDataFromT1toT2 extends require("../Migration") {
 
     if (await sql.schema.hasTable("syn_city_passes_transfer")) {
       if (await sql.schema.hasColumn("syn_city_passes_transfer", "tokenid")) {
-        await sql.schema.raw(`alter table syn_city_passes_transfer rename column tokenid to token_id;`);
+        await sql.schema.alterTable("syn_city_passes_transfer", (table) => {
+          table.renameColumn("tokenid", "token_id");
+        });
         done = true;
         debug('Table "syn_city_passes_transfer" tokenid changed to token_id.');
       }
       if (!(await sql.schema.hasColumn("syn_city_passes_transfer", "id"))) {
-        await sql.schema.raw("alter table syn_city_passes_transfer add column id serial primary key;");
+        await sql.schema.table("syn_city_passes_transfer", (table) => {
+          table.increments("id").primary();
+        });
         done = true;
         debug('Table "syn_city_passes_transfer" column id created.');
       }
@@ -25,12 +29,16 @@ class MigrateDataFromT1toT2 extends require("../Migration") {
 
     if (await sql.schema.hasTable("syn_city_coupons_transfer")) {
       if (await sql.schema.hasColumn("syn_city_coupons_transfer", "tokenid")) {
-        await sql.schema.raw(`alter table syn_city_coupons_transfer rename column tokenid to token_id;`);
+        await sql.schema.alterTable("syn_city_coupons_transfer", (table) => {
+          table.renameColumn("tokenid", "token_id");
+        });
         done = true;
         debug('Table "syn_city_coupons_transfer" tokenid changed to token_id.');
       }
       if (!(await sql.schema.hasColumn("syn_city_coupons_transfer", "id"))) {
-        await sql.schema.raw("alter table syn_city_coupons_transfer add column id serial primary key;");
+        await sql.schema.table("syn_city_coupons_transfer", (table) => {
+          table.increments("id").primary();
+        });
         done = true;
         debug('Table "syn_city_coupons_transfer" column id created.');
       }
