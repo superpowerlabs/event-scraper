@@ -52,6 +52,7 @@ async function getEvents(contract, type, start, end, contractName) {
 }
 
 async function getFutureEvents(contract, type, eventName, contractName) {
+  log(`Starting Monitor for ${contractName} on event ${eventName}`);
   contract.on(eventName, async (...args) => {
     const event = [args[args.length - 1]];
     const txs = await processEvents(event, type, contractName);
@@ -116,7 +117,11 @@ async function getEventInfo(eventConfig, eventName) {
     startBlock = eventConfig.startBlock;
   }
   const provider = providers[eventChainId];
-  const contract = new ethers.Contract(contracts[eventChainId][contractName], abi[contractName], provider);
+  const contract = new ethers.Contract(
+    contracts[eventChainId][contractName],
+    abi[contractName],
+    provider
+  );
   const type = contract.filters[eventName]();
   const endBlock = await provider.getBlockNumber();
 
