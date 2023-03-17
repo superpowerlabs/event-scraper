@@ -82,7 +82,7 @@
         "name": "Locked",
         "params": [
           {
-            "name": "tokenId",
+            "name": "tokendId",
             "type": "bigint",
             "indexed": true
           }
@@ -92,7 +92,7 @@
         "name": "Unlocked",
         "params": [
           {
-            "name": "tokenId",
+            "name": "tokendId",
             "type": "bigint",
             "indexed": true
           }
@@ -129,7 +129,7 @@
         "name": "Locked",
         "params": [
           {
-            "name": "tokenId",
+            "name": "tokendId",
             "type": "bigint",
             "indexed": true
           }
@@ -139,7 +139,7 @@
         "name": "Unlocked",
         "params": [
           {
-            "name": "tokenId",
+            "name": "tokendId",
             "type": "bigint",
             "indexed": true
           }
