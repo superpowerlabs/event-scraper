@@ -7,21 +7,31 @@
       {
         "name": "Transfer",
         "filter": "Transfer(address,address,uint256)",
-        "params": [
+        "ABI": [
           {
-            "name": "from",
-            "type": "string",
-            "indexed": true
-          },
-          {
-            "name": "to",
-            "type": "string",
-            "indexed": true
-          },
-          {
-            "name": "tokenId",
-            "type": "bigint",
-            "indexed": true
+            "anonymous": false,
+            "inputs": [
+              {
+                "indexed": true,
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+              },
+              {
+                "indexed": true,
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+              },
+              {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+              }
+            ],
+            "name": "Transfer",
+            "type": "event"
           }
         ]
       }
@@ -35,21 +45,31 @@
       {
         "name": "Transfer",
         "filter": "Transfer(address,address,uint256)",
-        "params": [
+        "ABI": [
           {
-            "name": "from",
-            "type": "string",
-            "indexed": true
-          },
-          {
-            "name": "to",
-            "type": "string",
-            "indexed": true
-          },
-          {
-            "name": "tokenId",
-            "type": "bigint",
-            "indexed": true
+            "anonymous": false,
+            "inputs": [
+              {
+                "indexed": true,
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+              },
+              {
+                "indexed": true,
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+              },
+              {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+              }
+            ],
+            "name": "Transfer",
+            "type": "event"
           }
         ]
       }
@@ -63,43 +83,69 @@
       {
         "name": "Transfer",
         "filter": "Transfer(address,address,uint256)",
-        "params": [
+        "ABI": [
           {
-            "name": "from",
-            "type": "string",
-            "indexed": true
-          },
-          {
-            "name": "to",
-            "type": "string",
-            "indexed": true
-          },
-          {
-            "name": "tokenId",
-            "type": "bigint",
-            "indexed": true
+            "anonymous": false,
+            "inputs": [
+              {
+                "indexed": true,
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+              },
+              {
+                "indexed": true,
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+              },
+              {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+              }
+            ],
+            "name": "Transfer",
+            "type": "event"
           }
         ]
       },
       {
         "name": "Locked",
         "filter": "Locked(uint256)",
-        "params": [
+        "ABI": [
           {
-            "name": "tokendId",
-            "type": "bigint",
-            "indexed": true
+            "anonymous": false,
+            "inputs": [
+              {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "tokendId",
+                "type": "uint256"
+              }
+            ],
+            "name": "Locked",
+            "type": "event"
           }
         ]
       },
       {
         "name": "Unlocked",
         "filter": "Unlocked(uint256)",
-        "params": [
+        "ABI": [
           {
-            "name": "tokendId",
-            "type": "bigint",
-            "indexed": true
+            "anonymous": false,
+            "inputs": [
+              {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "tokendId",
+                "type": "uint256"
+              }
+            ],
+            "name": "Unlocked",
+            "type": "event"
           }
         ]
       }
@@ -113,43 +159,69 @@
       {
         "name": "Transfer",
         "filter": "Transfer(address,address,uint256)",
-        "params": [
+        "ABI": [
           {
-            "name": "from",
-            "type": "string",
-            "indexed": true
-          },
-          {
-            "name": "to",
-            "type": "string",
-            "indexed": true
-          },
-          {
-            "name": "tokenId",
-            "type": "bigint",
-            "indexed": true
+            "anonymous": false,
+            "inputs": [
+              {
+                "indexed": true,
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+              },
+              {
+                "indexed": true,
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+              },
+              {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+              }
+            ],
+            "name": "Transfer",
+            "type": "event"
           }
         ]
       },
       {
         "name": "Locked",
         "filter": "Locked(uint256)",
-        "params": [
+        "ABI": [
           {
-            "name": "tokendId",
-            "type": "bigint",
-            "indexed": true
+            "anonymous": false,
+            "inputs": [
+              {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "tokendId",
+                "type": "uint256"
+              }
+            ],
+            "name": "Locked",
+            "type": "event"
           }
         ]
       },
       {
         "name": "Unlocked",
         "filter": "Unlocked(uint256)",
-        "params": [
+        "ABI": [
           {
-            "name": "tokendId",
-            "type": "bigint",
-            "indexed": true
+            "anonymous": false,
+            "inputs": [
+              {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "tokendId",
+                "type": "uint256"
+              }
+            ],
+            "name": "Unlocked",
+            "type": "event"
           }
         ]
       }

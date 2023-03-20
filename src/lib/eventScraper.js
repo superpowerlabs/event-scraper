@@ -68,7 +68,9 @@ async function processEvents(events, type, contractName) {
     if (contract.contractName === contractName) {
       for (const inputEvent of contract.events) {
         if (inputEvent.name === events[0].event) {
-          for (let i of inputEvent.params) argNames.push(i.name);
+          for (let abi of inputEvent.ABI[0].inputs) {
+            argNames.push(abi.name);
+          }
         }
       }
     }
@@ -108,7 +110,8 @@ async function processSingleEvent(event, type, argNames) {
 }
 
 async function getEventInfo(eventConfig, eventName, eventFilter) {
-  const { chainId: eventChainId, contractName } = eventConfig;
+  const { chainId: eventChainId, contractName, events } = eventConfig;
+  let contract;
   let startBlock;
   let lastEvent = await eventManager.latestEvent(contractName, eventName);
   if (lastEvent) {
@@ -117,7 +120,11 @@ async function getEventInfo(eventConfig, eventName, eventFilter) {
     startBlock = eventConfig.startBlock;
   }
   const provider = providers[eventChainId];
-  const contract = new ethers.Contract(contracts[eventChainId][contractName], abi[contractName], provider);
+  for (let x in events) {
+    if (events[x].name === eventName) {
+      contract = new ethers.Contract(contracts[eventChainId][contractName], events[x].ABI, provider);
+    }
+  }
   const type = contract.filters[eventFilter]();
   const endBlock = await provider.getBlockNumber();
 
