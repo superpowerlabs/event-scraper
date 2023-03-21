@@ -1,5 +1,5 @@
 const contracts = require("./deployedProduction.json");
-const events = require("./events.json");
+const events = require("./events.js");
 const ethers = require("ethers");
 
 const conversion = { address: "string", uint256: "bigint" };

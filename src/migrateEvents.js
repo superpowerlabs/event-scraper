@@ -1,6 +1,6 @@
 require("dotenv").config();
 const debug = require("./db/debug");
-const json = require("./config/events.json");
+const json = require("./config/events.js");
 const Sql = require("./db/Sql");
 const Case = require("case");
 const utils = require("./utils");

@@ -2,8 +2,8 @@ require("dotenv").config();
 const Case = require("case");
 const ethers = require("ethers");
 const eventManager = require("./EventsManager");
-const { providers, abi, eventsConfig, contracts } = require("../config");
-const inputJson = require("../config/events.json");
+const { providers, eventsConfig, contracts } = require("../config");
+const inputJson = require("../config/events.js");
 let failedEvents = [];
 
 let options = {
