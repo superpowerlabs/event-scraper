@@ -1,7 +1,7 @@
 const Sql = require("../db/Sql");
 const Case = require("case");
 const utils = require("../utils");
-const json = require("../config/events.json");
+const json = require("../config/events.js");
 
 let dbw;
 let dbr;
