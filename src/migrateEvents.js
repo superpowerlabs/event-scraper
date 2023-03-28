@@ -13,6 +13,7 @@ async function migrateEvent(tablename, params, sql) {
     table.increments("id").primary();
     table.string("transaction_hash");
     table.integer("block_number");
+    table.string("unique_key", 255).unique();
     table.timestamp("created_at").defaultTo(sql.fn.now());
     for (const param of params) {
       let paramName = Case.snake(param.name);
@@ -25,7 +26,6 @@ async function migrateEvent(tablename, params, sql) {
         array.push(paramName);
       }
     }
-    table.unique(array);
   });
 }
 
@@ -33,7 +33,7 @@ async function migrateEvents() {
   await migrate();
 
   let sql = new Sql();
-  sql = await sql.sql();
+  sql = await sql.client();
 
   for (const contract of json) {
     for (const event of contract.events) {

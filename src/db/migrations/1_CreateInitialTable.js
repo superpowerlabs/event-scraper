@@ -3,7 +3,7 @@ const debug = require("../debug");
 class CreateInitialTables extends require("../Migration") {
   async body(index, database) {
     let done = false;
-    let sql = await this.sql();
+    let sql = await this.client();
 
     // await sql.schema.dropTableIfExists("test");
 

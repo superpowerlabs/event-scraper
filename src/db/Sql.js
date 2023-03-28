@@ -17,18 +17,30 @@ class Sql {
     }
   }
 
-  async sql(useReplica = false) {
-    let clientKey = "client";
+  async client(useReplica = false, database = "", client0 = "", user = "", port = 0) {
+    let clientKey = "client_" + (database || "default");
     if (useReplica) {
-      clientKey = "replicaClient";
+      clientKey = "replicaClient_" + (database || "default");
     }
     if (!this[clientKey]) {
       const spinner = new Spinner("Waiting for Postgres %s ");
       spinner.setSpinnerString("|/-\\");
       let started = false;
       const config = JSON.parse(JSON.stringify(dbConfig));
+      if (database) {
+        config.connection.database = database;
+      }
+      if (port > 0) {
+        config.connection.port = port;
+      }
+      if (user) {
+        config.connection.user = user;
+      }
       if (useReplica) {
         config.connection.host = config.connection.hostReplica;
+      }
+      if (client0) {
+        config.client = client0;
       }
       for (;;) {
         try {
@@ -41,7 +53,7 @@ class Sql {
             await sleep(1000);
             const { connection } = config;
             let tmpClient = knex({
-              client: "pg",
+              client: config.client,
               connection: {
                 host: connection.host,
                 user: connection.user,
