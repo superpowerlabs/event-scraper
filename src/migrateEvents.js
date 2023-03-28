@@ -1,28 +1,32 @@
 require("dotenv").config();
 const debug = require("./db/debug");
-const json = require("./config/events.json");
+const json = require("./config/events.js");
 const Sql = require("./db/Sql");
 const Case = require("case");
+const utils = require("./utils");
 const migrate = require("./db/migrations/migrate");
+const { conversion } = require("./config");
 
 async function migrateEvent(tablename, params, sql) {
   let array = ["transaction_hash", "block_number"];
-  await sql.schema.createTable(tablename, (table) => {
+  return sql.schema.createTable(tablename, (table) => {
+    table.increments("id").primary();
     table.string("transaction_hash");
     table.integer("block_number");
     table.timestamp("created_at").defaultTo(sql.fn.now());
     for (const param of params) {
+      let paramName = Case.snake(param.name);
+      let paramType = conversion[param.type];
       if (param.indexed) {
-        table[param.type](param.name.toLowerCase()).index();
-        array.push(param.name.toLowerCase());
+        table[paramType](paramName).index();
+        array.push(paramName);
       } else {
-        table[param.type](param.name.toLowerCase());
-        array.push(param.name.toLowerCase());
+        table[paramType](paramName);
+        array.push(paramName);
       }
     }
     table.unique(array);
   });
-  return;
 }
 
 async function migrateEvents() {
@@ -33,11 +37,10 @@ async function migrateEvents() {
 
   for (const contract of json) {
     for (const event of contract.events) {
-      const params = event.params;
-      let tablename = Case.capital(contract.contractName, "_");
-      tablename = `${tablename}_${event.name}`.toLowerCase();
+      const params = event.ABI[0].inputs;
+      let tablename = utils.nameTable(contract.contractName, event.name);
       if (!(await sql.schema.hasTable(tablename))) {
-        migrateEvent(tablename, params, sql);
+        await migrateEvent(tablename, params, sql);
         debug(`table ${tablename} created`);
       }
     }

@@ -3,20 +3,27 @@
 ## PM2 Deploy feature
 
 We're using the deploy scirpt that comes with PM2 (see https://pm2.keymetrics.io/docs/usage/deployment/).
+
 ```
 > pm2 deploy <configuration_file> <environment> <command>
 ```
+
 ## Deployment setup
 
 This command needs to be issued only once per server.
+
 ```
 pmpm pm2 deploy pm2.config.js production setup
 ```
-or, since the config file is using the default name `ecosystem.config.js`, we don't need to add it. 
+
+or, since the config file is using the default name `ecosystem.config.js`, we don't need to add it.
+
 ```
 pmpm pm2 deploy production setup
 ```
+
 You should see something like this:
+
 ```
 ➜  event-scraper git:(run-indexer-with-pm2) ✗ pnpm pm2 deploy production setup
 --> Deploying to production environment
@@ -53,12 +60,14 @@ drwxrwxr-x 7 ubuntu ubuntu 4096 Mar 14 13:23 source
 ## Deployment
 
 To deploy a new release or rollback, just use the commands bellow:
+
 ```
 pnpm pm2 deploy production deploy
 pnpm pm2 deploy production revert 1
 ```
 
 here's an example:
+
 ```
 ➜  event-scraper git:(pm2-deploy-fix-2) pnpm pm2 deploy production deploy
 --> Deploying to production environment
@@ -118,6 +127,5 @@ Local PM2 version: 5.2.2
   ○ successfully deployed origin/main
 --> Success
 ```
-
 
 curl -X POST -H 'Content-type: application/json' --data '{"text":"Hello, World!"}' https://hooks.slack.com/services/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

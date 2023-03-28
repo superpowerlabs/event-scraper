@@ -1,10 +1,12 @@
 const Sql = require("../db/Sql");
 const Case = require("case");
-const json = require("../config/events.json");
+const utils = require("../utils");
+const json = require("../config/events.js");
 
 let dbw;
 let dbr;
-class DbManager extends Sql {
+
+class EventManager extends Sql {
   // for reference
   // https://knexjs.org
 
@@ -20,15 +22,14 @@ class DbManager extends Sql {
     }
     for (const contract of json) {
       for (const event of contract.events) {
-        let tablename = Case.capital(contract.contractName, "_");
-        tablename = `${tablename}_${event.name}`.toLowerCase();
+        let tablename = utils.nameTable(contract.contractName, event.name);
         await (await this.sql()).schema.dropTableIfExists(tablename);
       }
     }
     // TODO complete it
   }
 
-  async table(tablename) {
+  async tableExists(tablename) {
     if (!(await dbr.schema.hasTable(tablename))) {
       return false;
     }
@@ -36,8 +37,7 @@ class DbManager extends Sql {
   }
 
   async updateEvents(rows, event, contractName, chunkSize = 100) {
-    let tablename = Case.capital(contractName, "_");
-    tablename = `${tablename}_${event}`.toLowerCase();
+    let tablename = utils.nameTable(contractName, event);
     console.log("inserting into", tablename);
     return dbw.batchInsert(tablename, rows, chunkSize).catch(function (error) {
       console.error("failed to insert transactions", error);
@@ -47,9 +47,8 @@ class DbManager extends Sql {
 
   async latestEvent(contractName, eventName) {
     let event = false;
-    let tablename = Case.capital(contractName, "_");
-    tablename = `${tablename}_${eventName}`.toLowerCase();
-    const exist = await this.table(tablename);
+    let tablename = utils.nameTable(contractName, eventName);
+    const exist = await this.tableExists(tablename);
     if (exist) {
       event = dbr.select("*").from(tablename).orderBy("block_number", "desc").first();
     }
@@ -60,7 +59,7 @@ class DbManager extends Sql {
     let event = false;
     let tablename = Case.capital(contractName, "_");
     tablename = `${tablename}_${eventName}`.toLowerCase();
-    const exist = await this.table(tablename);
+    const exist = await this.tableExists(tablename);
     if (exist) {
       event = dbr.select("*").from(tablename).where(obj);
     }
@@ -68,9 +67,9 @@ class DbManager extends Sql {
   }
 }
 
-let dbManager;
-if (!dbManager) {
-  dbManager = new DbManager();
-  dbManager.init();
+let eventManager;
+if (!eventManager) {
+  eventManager = new EventManager();
+  eventManager.init();
 }
-module.exports = dbManager;
+module.exports = eventManager;

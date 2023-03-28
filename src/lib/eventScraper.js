@@ -1,8 +1,9 @@
 require("dotenv").config();
+const Case = require("case");
 const ethers = require("ethers");
-const dbManager = require("./DbManager");
-const { providers, abi, eventsConfig, contracts } = require("../config");
-const inputJson = require("../config/events.json");
+const eventManager = require("./EventsManager");
+const { providers, eventsConfig, contracts } = require("../config");
+const inputJson = require("../config/events.js");
 let failedEvents = [];
 
 let options = {
@@ -38,7 +39,7 @@ async function getEvents(contract, type, start, end, contractName) {
     if (response.length > 0) {
       const txs = await processEvents(response, type, contractName);
       const eventName = response[0].event;
-      await dbManager.updateEvents(txs, eventName, contractName);
+      await eventManager.updateEvents(txs, eventName, contractName);
     }
   } catch (error) {
     console.log(error);
@@ -51,10 +52,11 @@ async function getEvents(contract, type, start, end, contractName) {
 }
 
 async function getFutureEvents(contract, type, eventName, contractName) {
+  log(`Starting Monitor for ${contractName} on event ${eventName}`);
   contract.on(eventName, async (...args) => {
     const event = [args[args.length - 1]];
     const txs = await processEvents(event, type, contractName);
-    await dbManager.updateEvents(txs, eventName, contractName);
+    await eventManager.updateEvents(txs, eventName, contractName);
   });
 }
 
@@ -66,7 +68,9 @@ async function processEvents(events, type, contractName) {
     if (contract.contractName === contractName) {
       for (const inputEvent of contract.events) {
         if (inputEvent.name === events[0].event) {
-          for (let i of inputEvent.params) argNames.push(i.name);
+          for (let abi of inputEvent.ABI[0].inputs) {
+            argNames.push(abi.name);
+          }
         }
       }
     }
@@ -91,7 +95,7 @@ async function processSingleEvent(event, type, argNames) {
     };
 
     for (let arg of argNames) {
-      const dataArg = arg.toLowerCase();
+      const dataArg = Case.snake(arg);
       if (typeof event.args[arg] === "object") {
         tx[dataArg] = Number(event.args[arg]);
       } else {
@@ -105,18 +109,23 @@ async function processSingleEvent(event, type, argNames) {
   return tx;
 }
 
-async function getEventInfo(eventConfig, eventName) {
-  const { chainId: eventChainId, contractName } = eventConfig;
+async function getEventInfo(eventConfig, eventName, eventFilter) {
+  const { chainId: eventChainId, contractName, events } = eventConfig;
+  let contract;
   let startBlock;
-  let lastEvent = await dbManager.latestEvent(contractName, eventName);
+  let lastEvent = await eventManager.latestEvent(contractName, eventName);
   if (lastEvent) {
     startBlock = lastEvent.block_number + 1;
   } else {
     startBlock = eventConfig.startBlock;
   }
   const provider = providers[eventChainId];
-  const contract = new ethers.Contract(contracts[eventChainId][contractName], abi[contractName], provider);
-  const type = contract.filters[eventName]();
+  for (let x in events) {
+    if (events[x].name === eventName) {
+      contract = new ethers.Contract(contracts[eventChainId][contractName], events[x].ABI, provider);
+    }
+  }
+  const type = contract.filters[eventFilter]();
   const endBlock = await provider.getBlockNumber();
 
   await getEvents(contract, type, startBlock, endBlock, contractName);
@@ -132,7 +141,7 @@ async function main(opt) {
 
   for (let eventConfig of eventsConfig) {
     for (let event of eventConfig.events) {
-      promises.push(getEventInfo(eventConfig, event.name));
+      promises.push(getEventInfo(eventConfig, event.name, event.filter));
     }
   }
 
