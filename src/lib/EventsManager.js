@@ -2,7 +2,6 @@ const Sql = require("../db/Sql");
 const Case = require("case");
 const utils = require("../utils");
 const json = require("../config/events.js");
-const sha3 = require("js-sha3");
 
 let dbw;
 let dbr;
@@ -39,26 +38,11 @@ class EventManager extends Sql {
 
   async updateEvents(rows, event, contractName, chunkSize = 100) {
     let tablename = utils.nameTable(contractName, event);
-    let uniqueRows = await this.addUnique(tablename, rows);
     console.log("inserting into", tablename);
-    return dbw.batchInsert(tablename, uniqueRows, chunkSize).catch(function (error) {
+    return dbw.batchInsert(tablename, rows, chunkSize).catch(function (error) {
       console.error("failed to insert transactions", error);
       return error;
     });
-  }
-
-  async addUnique(tablename, rows) {
-    let exist;
-    let uniqueRow = [];
-    for (let x in rows) {
-      exist = await dbr.select("*").from(tablename).where(rows[x]);
-      if (exist.length === 0) {
-        let values = Object.values(rows[x]).join("");
-        rows[x]["unique_key"] = sha3.keccak256(values);
-        uniqueRow.push(rows[x]);
-      }
-    }
-    return uniqueRow;
   }
 
   async latestEvent(contractName, eventName) {

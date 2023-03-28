@@ -8,12 +8,11 @@ const migrate = require("./db/migrations/migrate");
 const { conversion } = require("./config");
 
 async function migrateEvent(tablename, params, sql) {
-  let array = ["transaction_hash", "block_number"];
+  const array = ["transaction_hash", "block_number"];
   return sql.schema.createTable(tablename, (table) => {
     table.increments("id").primary();
     table.string("transaction_hash");
     table.integer("block_number");
-    table.string("unique_key", 255).unique();
     table.timestamp("created_at").defaultTo(sql.fn.now());
     for (const param of params) {
       let paramName = Case.snake(param.name);
@@ -26,6 +25,9 @@ async function migrateEvent(tablename, params, sql) {
         array.push(paramName);
       }
     }
+    table.unique(array, {
+      indexName: `${tablename}_idx`,
+    });
   });
 }
 
