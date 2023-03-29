@@ -17,7 +17,7 @@ describe("Integration test", function () {
     let exist = await eventManager.tableExists("syn_city_passes_transfer");
     expect(exist).equal(true);
   });
-  it.skip("check for syn_city_coupons_transfer", async function () {
+  it("check for syn_city_coupons_transfer", async function () {
     let exist = await eventManager.tableExists("syn_city_coupons_transfer");
     expect(exist).equal(true);
   });
