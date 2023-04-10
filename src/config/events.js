@@ -56,33 +56,118 @@ const ABI = {
       type: "event",
     },
   ],
-  // Staked : [
-  //   {
-  //     anonymous: false,
-  //     inputs: [],
-  //     name: "Staked",
-  //     type: "event",
-  //   }
-  // ],
-  // Unstaked: [
-  //   { 
-  //     anonymous: false,
-  //     inputs: [],
-  //     name: "Unstaked",
-  //     type: "event",
-  //   }
-  // ],
-  // YieldClaimed :[
-  //   { 
-  //     anonymous: false,
-  //     inputs: [],
-  //     name: "YieldClaimed",
-  //     type: "event",
-  //   }
-  // ],
+  Staked : [
+    {
+      anonymous: false,
+      inputs: [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_by",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_from",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      name: "Staked",
+      type: "event",
+    }
+  ],
+  Unstaked: [
+    { 
+      anonymous: false,
+      inputs: [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_by",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      name: "Unstaked",
+      type: "event",
+    }
+  ],
+  YieldClaimed :[
+    { 
+      anonymous: false,
+      inputs: [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_by",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "sSyn",
+          "type": "bool"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      name: "YieldClaimed",
+      type: "event",
+    }
+  ],
 };
 
 const data = [
+  {
+    contractName: "SyndicateCorePool",
+    chainId: 1,
+    startBlock: 14173085,
+    events: [
+      {
+        name: "Staked",
+        filter: "Staked(address,address,uint256)",
+        ABI: ABI.Staked,
+      },
+      {
+        name: "Unstaked",
+        filter: "Unstaked(address,address,uint256)",
+        ABI: ABI.Unstaked,
+      },
+      {
+        name: "YieldClaimed",
+        filter: "YieldClaimed(address,address,bool,uint256)",
+        ABI: ABI.YieldClaimed,
+      },
+    ],
+  },
   {
     contractName: "SynCityPasses",
     chainId: 1,
