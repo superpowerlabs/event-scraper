@@ -42,7 +42,7 @@ async function getEvents(contract, type, start, end, contractName) {
       await eventManager.updateEvents(txs, eventName, contractName);
     }
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     log(` ! API error, splitting request to void limit and timeout`);
     const mid = await midPoint(start, end);
     await getEvents(contract, type, start, mid, contractName);
@@ -122,15 +122,29 @@ async function getEventInfo(eventConfig, eventName, eventFilter) {
   const provider = providers[eventChainId];
   for (let x in events) {
     if (events[x].name === eventName) {
-      contract = new ethers.Contract(contracts[eventChainId][contractName], events[x].ABI, provider);
+      contract = new ethers.Contract(
+        contracts[eventChainId][contractName],
+        events[x].ABI,
+        provider
+      );
     }
   }
   const type = contract.filters[eventFilter]();
-  const endBlock = await provider.getBlockNumber();
 
-  await getEvents(contract, type, startBlock, endBlock, contractName);
+  let endBlock;
+  let currentBlock = await provider.getBlockNumber();
+  if (eventConfig.endBlock) {
+    endBlock = eventConfig.endBlock;
+  } else {
+    endBlock = 0;
+  }
 
-  await getFutureEvents(contract, type, eventName, contractName);
+  if (endBlock >= currentBlock || endBlock === 0) {
+    await getEvents(contract, type, startBlock, currentBlock, contractName);
+    await getFutureEvents(contract, type, eventName, contractName, endBlock);
+  } else if (endBlock < currentBlock) {
+    await getEvents(contract, type, startBlock, endBlock, contractName);
+  }
 }
 
 async function main(opt) {
@@ -146,8 +160,6 @@ async function main(opt) {
   }
 
   const results = await Promise.all(promises);
-
-  // console.log(results);
 }
 
 module.exports = main;
