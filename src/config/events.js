@@ -56,6 +56,30 @@ const ABI = {
       type: "event",
     },
   ],
+  // Staked : [
+  //   {
+  //     anonymous: false,
+  //     inputs: [],
+  //     name: "Staked",
+  //     type: "event",
+  //   }
+  // ],
+  // Unstaked: [
+  //   { 
+  //     anonymous: false,
+  //     inputs: [],
+  //     name: "Unstaked",
+  //     type: "event",
+  //   }
+  // ],
+  // YieldClaimed :[
+  //   { 
+  //     anonymous: false,
+  //     inputs: [],
+  //     name: "YieldClaimed",
+  //     type: "event",
+  //   }
+  // ],
 };
 
 const data = [

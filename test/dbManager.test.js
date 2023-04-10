@@ -1,13 +1,14 @@
 // noinspection DuplicatedCode
 
 const expect = require("chai").expect;
-const eventManager = require("../src/lib/EventsManager");
+const eventManager = require("../src/lib/EventManager");
 const migrate = require("../src/db/migrations/migrate");
 const { migrateEvents } = require("../src/migrateEvents");
 
 describe("Integration test", function () {
   beforeEach(async () => {
     // run the migrations and do any other setup here
+    await eventManager.init();
     await eventManager.resetDbIfTesting();
     await migrate(true);
     await migrateEvents();

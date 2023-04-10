@@ -23,7 +23,7 @@ class EventManager extends Sql {
     for (const contract of json) {
       for (const event of contract.events) {
         let tablename = utils.nameTable(contract.contractName, event.name);
-        await (await this.sql()).schema.dropTableIfExists(tablename);
+        await dbw.schema.dropTableIfExists(tablename);
       }
     }
     // TODO complete it
@@ -55,6 +55,7 @@ class EventManager extends Sql {
     return event;
   }
 
+  // used in testing
   async getEvent(contractName, eventName, obj) {
     let event = false;
     let tablename = Case.capital(contractName, "_");

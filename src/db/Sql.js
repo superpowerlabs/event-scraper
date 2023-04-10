@@ -4,11 +4,7 @@ const _ = require("lodash");
 const path = require("path");
 const fs = require("fs-extra");
 const dbConfig = require("./dbConfig");
-
-async function sleep(millis) {
-  // eslint-disable-next-line no-undef
-  return new Promise((resolve) => setTimeout(resolve, millis));
-}
+const utils = require("../utils");
 
 class Sql {
   constructor() {
@@ -38,7 +34,7 @@ class Sql {
           break;
         } catch (err) {
           if (/database ".*" does not exist/.test(err)) {
-            await sleep(1000);
+            await utils.sleep(1000);
             const { connection } = config;
             let tmpClient = knex({
               client: "pg",
@@ -60,7 +56,7 @@ class Sql {
             // console.error(err);
           }
         }
-        await sleep(1000);
+        await utils.sleep(1000);
         if (!started) {
           spinner.start();
           started = true;
