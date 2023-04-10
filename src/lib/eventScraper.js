@@ -115,10 +115,18 @@ async function getEventInfo(eventConfig, eventName, eventFilter) {
   let startBlock;
   let lastEvent = await eventManager.latestEvent(contractName, eventName);
   if (lastEvent) {
-    startBlock = lastEvent.block_number + 1;
+    startBlock = lastEvent.block_number;
   } else {
     startBlock = eventConfig.startBlock;
   }
+
+  await eventManager.revertTableToBlock(
+    contractName,
+    eventName,
+    startBlock - 11
+  );
+  startBlock = startBlock - 10;
+
   const provider = providers[eventChainId];
   for (let x in events) {
     if (events[x].name === eventName) {

@@ -50,11 +50,24 @@ class EventManager extends Sql {
     let tablename = utils.nameTable(contractName, eventName);
     const exist = await this.tableExists(tablename);
     if (exist) {
-      event = dbr.select("*").from(tablename).orderBy("block_number", "desc").first();
+      event = dbr
+        .select("*")
+        .from(tablename)
+        .orderBy("block_number", "desc")
+        .first();
     }
     return event;
   }
 
+  async revertTableToBlock(contractName, eventName, blockNumber) {
+    let tablename = utils.nameTable(contractName, eventName);
+    const exist = await this.tableExists(tablename);
+    if (exist) {
+      await dbr.from(tablename).where("block_number", ">", blockNumber).del();
+      return true;
+    }
+    return false;
+  }
   // used in testing
   async getEvent(contractName, eventName, obj) {
     let event = false;
