@@ -2,10 +2,10 @@ require("dotenv").config();
 const Case = require("case");
 const ethers = require("ethers");
 const eventManager = require("./EventManager");
-const Moralis = require("moralis").default;
-const Web3 = require("web3");
-const web3 = new Web3();
-const _ = require("lodash");
+// const Moralis = require("moralis").default;
+// const Web3 = require("web3");
+// const web3 = new Web3();
+// const _ = require("lodash");
 
 const {
   providers,
@@ -28,8 +28,6 @@ function clone(obj, options) {
   obj = Object.assign(JSON.parse(JSON.stringify(obj)), options, {
     contract,
   });
-  // console.log("options", options);
-  // console.log("obj.startBlock, obj.endBlock", obj.startBlock, obj.endBlock)
   return obj;
 }
 
@@ -40,116 +38,117 @@ function log(...params) {
 }
 
 async function midPoint(start, end, initialStartBlock, chainId) {
-  const blocks = blocksPerHour[chainId];
-  if (start === initialStartBlock) {
-    return start + blocks * 2;
-  } else if (start === initialStartBlock + blocks * 2) {
-    return start + blocks * 4;
-  } else if (start === initialStartBlock + blocks * 6) {
-    return start + blocks * 12;
-  } else if (start === initialStartBlock + blocks * 18) {
-    return start + blocks * 48;
-  } else {
-    return Math.floor((start + end) / 2);
-  }
-}
-
-function decodeLogs(abi, contractAddress, logs) {
-  // Create a Contract instance
-  const contract = new web3.eth.Contract(abi, contractAddress);
-
-  // Iterate through the logs and decode each event
-  return _.compact(
-    logs.map((log) => {
-      const eventSignature = log.topics[0];
-      const eventAbi = abi.find(
-        (item) =>
-          item.type === "event" &&
-          web3.utils.keccak256(item.signature) === eventSignature
-      );
-
-      if (!eventAbi) {
-        // console.warn("Unknown event with signature:", eventSignature);
-        return null;
-      }
-
-      const decodedLog = web3.eth.abi.decodeLog(
-        eventAbi.inputs,
-        log.data,
-        log.topics.slice(1)
-      );
-
-      // console.log("decodedLog", decodedLog);
-
-      return {
-        eventName: eventAbi.name,
-        ...decodedLog,
-      };
-    })
-  );
-}
-
-async function getAllLogs(options) {
-  //
-  // const limit = 100; // The maximum number of results per request (max 1000)
-  // let skip = 0; // The number of results to skip
-  let allLogs = [];
-  // let moreResults = true;
-  //
-  // while (moreResults) {
-  //   const response = await Moralis.EvmApi.events.getContractLogs({
-  //     cursor: skip,
-  //     limit: limit,
-  //   });
-  //
-  //   allLogs = allLogs.concat(response.result);
-  //
-  //   if (response.result.length < limit) {
-  //     // If the response contains less than the limit, there are no more results to fetch
-  //     moreResults = false;
-  //   } else {
-  //     // Otherwise, update the skip parameter for the next iteration
-  //     skip += limit;
-  //   }
+  // const blocks = blocksPerHour[chainId];
+  // if (start === initialStartBlock) {
+  //   return start + blocks * 2;
+  // } else if (start === initialStartBlock + blocks * 2) {
+  //   return start + blocks * 4;
+  // } else if (start === initialStartBlock + blocks * 6) {
+  //   return start + blocks * 12;
+  // } else if (start === initialStartBlock + blocks * 18) {
+  //   return start + blocks * 48;
+  // } else {
+  return Math.floor((start + end) / 2);
   // }
-
-  let cursor = undefined;
-  let owners = {};
-  do {
-    const response = await Moralis.EvmApi.events.getContractLogs({
-      chain: "0x" + options.eventConfig.chainId.toString(16),
-      address: options.contract.address,
-      limit: 100,
-      cursor: cursor,
-    });
-    // console.log(response.result[0])
-    // process.exit();
-
-    let logs = response.result.map((e) => e._value);
-
-    logs = decodeLogs(options.eventConfig.ABI, options.contract.address, logs);
-    // console.log(logs[0])
-    // allLogs = allLogs.concat(response.result.map(e => e._value));
-    // console.log(allLogs[0]);
-    // process.exit()
-
-    // console.log(
-    //     `Got page ${response.page} of ${Math.ceil(
-    //         response.total / response.page_size
-    //     )}, ${response.total} total`
-    // );
-    // for (const owner of response.result) {
-    //   owners[owner.owner_of] = {
-    //     amount: owner.amount,
-    //     owner: owner.owner_of,
-    //     tokenId: owner.token_id,
-    //     tokenAddress: owner.token_address,
-    //   };
-    // }
-    cursor = response.cursor;
-  } while (cursor !== "" && cursor != null);
-  return allLogs;
 }
+
+//
+// function decodeLogs(abi, contractAddress, logs) {
+//   // Create a Contract instance
+//   const contract = new web3.eth.Contract(abi, contractAddress);
+//
+//   // Iterate through the logs and decode each event
+//   return _.compact(
+//     logs.map((log) => {
+//       const eventSignature = log.topics[0];
+//       const eventAbi = abi.find(
+//         (item) =>
+//           item.type === "event" &&
+//           web3.utils.keccak256(item.signature) === eventSignature
+//       );
+//
+//       if (!eventAbi) {
+//         // console.warn("Unknown event with signature:", eventSignature);
+//         return null;
+//       }
+//
+//       const decodedLog = web3.eth.abi.decodeLog(
+//         eventAbi.inputs,
+//         log.data,
+//         log.topics.slice(1)
+//       );
+//
+//       // console.log("decodedLog", decodedLog);
+//
+//       return {
+//         eventName: eventAbi.name,
+//         ...decodedLog,
+//       };
+//     })
+//   );
+// }
+//
+// async function getAllLogs(options) {
+//   //
+//   // const limit = 100; // The maximum number of results per request (max 1000)
+//   // let skip = 0; // The number of results to skip
+//   let allLogs = [];
+//   // let moreResults = true;
+//   //
+//   // while (moreResults) {
+//   //   const response = await Moralis.EvmApi.events.getContractLogs({
+//   //     cursor: skip,
+//   //     limit: limit,
+//   //   });
+//   //
+//   //   allLogs = allLogs.concat(response.result);
+//   //
+//   //   if (response.result.length < limit) {
+//   //     // If the response contains less than the limit, there are no more results to fetch
+//   //     moreResults = false;
+//   //   } else {
+//   //     // Otherwise, update the skip parameter for the next iteration
+//   //     skip += limit;
+//   //   }
+//   // }
+//
+//   let cursor = undefined;
+//   let owners = {};
+//   do {
+//     const response = await Moralis.EvmApi.events.getContractLogs({
+//       chain: "0x" + options.eventConfig.chainId.toString(16),
+//       address: options.contract.address,
+//       limit: 100,
+//       cursor: cursor,
+//     });
+//     // console.log(response.result[0])
+//     // process.exit();
+//
+//     let logs = response.result.map((e) => e._value);
+//
+//     logs = decodeLogs(options.eventConfig.ABI, options.contract.address, logs);
+//     // console.log(logs[0])
+//     // allLogs = allLogs.concat(response.result.map(e => e._value));
+//     // console.log(allLogs[0]);
+//     // process.exit()
+//
+//     // console.log(
+//     //     `Got page ${response.page} of ${Math.ceil(
+//     //         response.total / response.page_size
+//     //     )}, ${response.total} total`
+//     // );
+//     // for (const owner of response.result) {
+//     //   owners[owner.owner_of] = {
+//     //     amount: owner.amount,
+//     //     owner: owner.owner_of,
+//     //     tokenId: owner.token_id,
+//     //     tokenAddress: owner.token_address,
+//     //   };
+//     // }
+//     cursor = response.cursor;
+//   } while (cursor !== "" && cursor != null);
+//   return allLogs;
+// }
 
 async function getEventsByFilter(options) {
   let {
@@ -176,13 +175,13 @@ async function getEventsByFilter(options) {
   );
   let response = [];
   try {
-    if (eventConfig.chainId === 1) {
-      response = await requestHandler(
-        contract.queryFilter(filter, startBlock, endBlock, contractName)
-      );
-    } else {
-      response = await getAllLogs(options);
-    }
+    // if (eventConfig.chainId === 1) {
+    response = await requestHandler(
+      contract.queryFilter(filter, startBlock, endBlock, contractName)
+    );
+    // } else {
+    //   response = await getAllLogs(options);
+    // }
   } catch (error) {
     let message = (
       error.error ||
@@ -310,7 +309,7 @@ async function getStartBlock(contractName, filter, startBlock) {
 }
 
 async function getEventInfo(contractName, eventConfig, getStarted) {
-  console.log(
+  log(
     `Getting ${getStarted ? "initial " : ""}"${
       eventConfig.name
     }" events from "${contractName}"`
@@ -324,7 +323,6 @@ async function getEventInfo(contractName, eventConfig, getStarted) {
     filterName,
     initialStartBlock
   );
-  console.log("Start block", startBlock);
   const provider = providers[chainId];
   const contract = new ethers.Contract(
     contracts[chainId][contractName],
@@ -344,7 +342,7 @@ async function getEventInfo(contractName, eventConfig, getStarted) {
     initialStartBlock,
   };
   if (getStarted) {
-    console.log("Launching initial event fetch");
+    log("Launching initial event fetch");
     await getEventsByFilter(options);
   } else {
     await getFutureEvents(contract, filter, name, contractName, eventConfig);
@@ -374,9 +372,9 @@ async function main(opt) {
   if (opt) {
     options = Object.assign(options, opt);
   }
-  await Moralis.start({
-    apiKey: process.env.MORALIS,
-  });
+  // await Moralis.start({
+  //   apiKey: process.env.MORALIS,
+  // });
 
   await getAllInitialEvents();
   // await getAllNewEvents();
