@@ -1,7 +1,7 @@
 const Sql = require("../db/Sql");
 const Case = require("case");
 const utils = require("../utils");
-const json = require("../config/events.js");
+const json = require("../config/eventsByContract.js");
 
 let dbw;
 let dbr;
@@ -22,24 +22,24 @@ class EventManager extends Sql {
     }
     for (const contract of json) {
       for (const event of contract.events) {
-        let tablename = utils.nameTable(contract.contractName, event.name);
-        await dbw.schema.dropTableIfExists(tablename);
+        let tableName = utils.nameTable(contract.contractName, event.name);
+        await dbw.schema.dropTableIfExists(tableName);
       }
     }
     // TODO complete it
   }
 
-  async tableExists(tablename) {
-    if (!(await dbr.schema.hasTable(tablename))) {
+  async tableExists(tableName) {
+    if (!(await dbr.schema.hasTable(tableName))) {
       return false;
     }
     return true;
   }
 
   async updateEvents(rows, event, contractName, chunkSize = 100) {
-    let tablename = utils.nameTable(contractName, event);
-    console.log("inserting into", tablename);
-    return dbw.batchInsert(tablename, rows, chunkSize).catch(function (error) {
+    let tableName = utils.nameTable(contractName, event);
+    // console.log("inserting into", tableName);
+    return dbw.batchInsert(tableName, rows, chunkSize).catch(function (error) {
       console.error("failed to insert transactions", error);
       return error;
     });
@@ -47,10 +47,10 @@ class EventManager extends Sql {
 
   async latestEvent(contractName, eventName) {
     let event = false;
-    let tablename = utils.nameTable(contractName, eventName);
-    const exist = await this.tableExists(tablename);
+    let tableName = utils.nameTable(contractName, eventName);
+    const exist = await this.tableExists(tableName);
     if (exist) {
-      event = dbr.select("*").from(tablename).orderBy("block_number", "desc").first();
+      event = dbr(tableName).max("block_number as block_number").first();
     }
     return event;
   }
@@ -58,11 +58,11 @@ class EventManager extends Sql {
   // used in testing
   async getEvent(contractName, eventName, obj) {
     let event = false;
-    let tablename = Case.capital(contractName, "_");
-    tablename = `${tablename}_${eventName}`.toLowerCase();
-    const exist = await this.tableExists(tablename);
+    let tableName = Case.capital(contractName, "_");
+    tableName = `${tableName}_${eventName}`.toLowerCase();
+    const exist = await this.tableExists(tableName);
     if (exist) {
-      event = dbr.select("*").from(tablename).where(obj);
+      event = dbr.select("*").from(tableName).where(obj);
     }
     return event;
   }
