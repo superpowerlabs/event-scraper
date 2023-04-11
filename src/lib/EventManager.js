@@ -50,11 +50,7 @@ class EventManager extends Sql {
     let tableName = utils.nameTable(contractName, eventName);
     const exist = await this.tableExists(tableName);
     if (exist) {
-      event = dbr
-        .select("*")
-        .from(tableName)
-        .orderBy("block_number", "desc")
-        .first();
+      event = dbr(tableName).max("block_number as block_number").first();
     }
     return event;
   }
