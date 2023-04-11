@@ -1,3 +1,4 @@
+require("dotenv").config();
 module.exports = {
   apps: [
     {
@@ -11,8 +12,8 @@ module.exports = {
   deploy: {
     production: {
       user: "ubuntu",
-      host: "ec2-18-221-245-11.us-east-2.compute.amazonaws.com",
-      key: "~/.ssh/superpower.pem",
+      host: process.env.EC2_HOST,
+      key: process.env.SSH_KEY,
       ref: "origin/main",
       repo: "git@github.com:superpowerlabs/event-scraper",
       path: "/home/ubuntu/production/indexing-service",
