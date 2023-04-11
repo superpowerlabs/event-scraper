@@ -10,7 +10,9 @@
     "fs-extra": "^11.1.1",
     "knex": "^2.4.2",
     "lodash": "^4.17.21",
-    "pg": "^8.10.0"
+    "moralis": "^2.18.2",
+    "pg": "^8.10.0",
+    "web3": "^1.9.0"
   },
   "devDependencies": {
     "@sapphire/prettier-config": "^1.4.4",

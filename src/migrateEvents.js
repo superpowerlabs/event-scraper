@@ -8,7 +8,6 @@ const migrate = require("./db/migrations/migrate");
 const { typeMapping } = require("./config");
 
 async function migrateEvent(tableName, params, dbw) {
-  // await dbw.schema.createTable(tableName);
   let array = ["transaction_hash", "block_number"];
   return dbw.schema.createTable(tableName, (table) => {
     table.increments("primary_key").primary();
@@ -35,11 +34,13 @@ async function migrateEvents() {
 
   const sql = new Sql();
   const dbw = await sql.sql();
+  await dbw.schema.dropTableIfExists("syn_city_coupons__transfer__aau");
 
   for (const contractName in eventsByContract) {
     for (const event of eventsByContract[contractName].events) {
       const params = event.ABI[0].inputs;
-      let tableName = utils.nameTable(contractName, event.name);
+      let tableName = utils.nameTable(contractName, event.filter);
+      // await dbw.schema.dropTableIfExists(tableName);
       if (!(await dbw.schema.hasTable(tableName))) {
         await migrateEvent(tableName, params, dbw);
         debug(`table ${tableName} created`);
