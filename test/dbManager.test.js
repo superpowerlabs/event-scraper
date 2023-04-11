@@ -183,7 +183,11 @@ describe("Integration test", function () {
         },
       ];
       await eventManager.updateEvents(obj, "Transfer", "SynCityPasses");
-      let error = await eventManager.updateEvents(obj, "Transfer", "SynCityPasses");
+      let error = await eventManager.updateEvents(
+        obj,
+        "Transfer",
+        "SynCityPasses"
+      );
       expect(error.code).equal("SQLITE_CONSTRAINT");
     });
   });

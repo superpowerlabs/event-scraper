@@ -1,47 +1,48 @@
 require("dotenv").config();
 const debug = require("./db/debug");
-const json = require("./config/events.js");
+const eventsByContract = require("./config/eventsByContract.js");
 const Sql = require("./db/Sql");
 const Case = require("case");
 const utils = require("./utils");
 const migrate = require("./db/migrations/migrate");
-const { mapping } = require("./config");
+const { typeMapping } = require("./config");
 
-async function migrateEvent(tablename, params, sql) {
+async function migrateEvent(tableName, params, dbw) {
+  // await dbw.schema.createTable(tableName);
   let array = ["transaction_hash", "block_number"];
-  return sql.schema.createTable(tablename, (table) => {
-    table.increments("id").primary();
+  return dbw.schema.createTable(tableName, (table) => {
+    table.increments("primary_key").primary();
     table.string("transaction_hash");
     table.integer("block_number");
-    table.timestamp("created_at").defaultTo(sql.fn.now());
+    table.timestamp("created_at").defaultTo(dbw.fn.now());
     for (const param of params) {
       let paramName = Case.snake(param.name);
-      let paramType = mapping[param.type];
+      let paramType = typeMapping[param.type];
       if (param.indexed) {
-        table[paramType](paramName).index();
+        table.specificType(paramName, paramType).index();
         array.push(paramName);
       } else {
-        table[paramType](paramName);
+        table.specificType(paramName, paramType);
         array.push(paramName);
       }
     }
-    table.unique(array);
+    table.unique(array, `${tableName}_unique`);
   });
 }
 
 async function migrateEvents() {
   await migrate();
 
-  let sql = new Sql();
-  sql = await sql.sql();
+  const sql = new Sql();
+  const dbw = await sql.sql();
 
-  for (const contract of json) {
-    for (const event of contract.events) {
+  for (const contractName in eventsByContract) {
+    for (const event of eventsByContract[contractName].events) {
       const params = event.ABI[0].inputs;
-      let tablename = utils.nameTable(contract.contractName, event.name);
-      if (!(await sql.schema.hasTable(tablename))) {
-        await migrateEvent(tablename, params, sql);
-        debug(`table ${tablename} created`);
+      let tableName = utils.nameTable(contractName, event.name);
+      if (!(await dbw.schema.hasTable(tableName))) {
+        await migrateEvent(tableName, params, dbw);
+        debug(`table ${tableName} created`);
       }
     }
   }
@@ -49,5 +50,4 @@ async function migrateEvents() {
 
 module.exports = {
   migrateEvents,
-  migrateEvent,
 };

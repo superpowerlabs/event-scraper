@@ -56,98 +56,118 @@ const ABI = {
       type: "event",
     },
   ],
-  Staked : [
+  LockedV2: [
     {
       anonymous: false,
       inputs: [
         {
-          "indexed": true,
-          "internalType": "address",
-          "name": "_by",
-          "type": "address"
+          indexed: true,
+          internalType: "uint256",
+          name: "tokenId",
+          type: "uint256",
         },
         {
-          "indexed": true,
-          "internalType": "address",
-          "name": "_from",
-          "type": "address"
+          indexed: false,
+          internalType: "bool",
+          name: "locked",
+          type: "bool",
+        },
+      ],
+      name: "Locked",
+      type: "event",
+    },
+  ],
+  Staked: [
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "address",
+          name: "_by",
+          type: "address",
         },
         {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
+          indexed: true,
+          internalType: "address",
+          name: "_from",
+          type: "address",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "amount",
+          type: "uint256",
+        },
       ],
       name: "Staked",
       type: "event",
-    }
+    },
   ],
   Unstaked: [
-    { 
+    {
       anonymous: false,
       inputs: [
         {
-          "indexed": true,
-          "internalType": "address",
-          "name": "_by",
-          "type": "address"
+          indexed: true,
+          internalType: "address",
+          name: "_by",
+          type: "address",
         },
         {
-          "indexed": true,
-          "internalType": "address",
-          "name": "_to",
-          "type": "address"
+          indexed: true,
+          internalType: "address",
+          name: "_to",
+          type: "address",
         },
         {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
+          indexed: false,
+          internalType: "uint256",
+          name: "amount",
+          type: "uint256",
+        },
       ],
       name: "Unstaked",
       type: "event",
-    }
+    },
   ],
-  YieldClaimed :[
-    { 
+  YieldClaimed: [
+    {
       anonymous: false,
       inputs: [
         {
-          "indexed": true,
-          "internalType": "address",
-          "name": "_by",
-          "type": "address"
+          indexed: true,
+          internalType: "address",
+          name: "_by",
+          type: "address",
         },
         {
-          "indexed": true,
-          "internalType": "address",
-          "name": "_to",
-          "type": "address"
+          indexed: true,
+          internalType: "address",
+          name: "_to",
+          type: "address",
         },
         {
-          "indexed": false,
-          "internalType": "bool",
-          "name": "sSyn",
-          "type": "bool"
+          indexed: false,
+          internalType: "bool",
+          name: "sSyn",
+          type: "bool",
         },
         {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
+          indexed: false,
+          internalType: "uint256",
+          name: "amount",
+          type: "uint256",
+        },
       ],
       name: "YieldClaimed",
       type: "event",
-    }
+    },
   ],
 };
 
-const data = [
-  {
-    contractName: "SyndicateCorePool",
+const eventsByContract = {
+  SyndicateCorePool: {
     chainId: 1,
     startBlock: 14173085,
     events: [
@@ -168,8 +188,7 @@ const data = [
       },
     ],
   },
-  {
-    contractName: "SynCityPasses",
+  SynCityPasses: {
     chainId: 1,
     startBlock: 13722860,
     events: [
@@ -180,8 +199,7 @@ const data = [
       },
     ],
   },
-  {
-    contractName: "SynCityCoupons",
+  SynCityCoupons: {
     chainId: 56,
     startBlock: 13069259,
     events: [
@@ -192,8 +210,7 @@ const data = [
       },
     ],
   },
-  {
-    contractName: "Turf",
+  Turf: {
     chainId: 56,
     startBlock: 23911132,
     events: [
@@ -212,10 +229,14 @@ const data = [
         filter: "Unlocked(uint256)",
         ABI: ABI.Unlocked,
       },
+      {
+        name: "LockedV2",
+        filter: "Locked(uint256,bool)",
+        ABI: ABI.LockedV2,
+      },
     ],
   },
-  {
-    contractName: "Farm",
+  Farm: {
     chainId: 56,
     startBlock: 23911196,
     events: [
@@ -234,8 +255,13 @@ const data = [
         filter: "Unlocked(uint256)",
         ABI: ABI.Unlocked,
       },
+      {
+        name: "LockedV2",
+        filter: "Locked(uint256,bool)",
+        ABI: ABI.LockedV2,
+      },
     ],
   },
-];
+};
 
-module.exports = data;
+module.exports = eventsByContract;
