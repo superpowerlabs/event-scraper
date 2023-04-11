@@ -13,7 +13,7 @@ async function migrateEvent(tableName, params, dbw) {
   return dbw.schema.createTable(tableName, (table) => {
     table.increments("primary_key").primary();
     table.string("transaction_hash");
-    table.integer("block_number");
+    table.integer("block_number").index();
     table.timestamp("created_at").defaultTo(dbw.fn.now());
     for (const param of params) {
       let paramName = Case.snake(param.name);
