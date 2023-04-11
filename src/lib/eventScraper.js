@@ -2,18 +2,13 @@ require("dotenv").config();
 const Case = require("case");
 const ethers = require("ethers");
 const eventManager = require("./EventManager");
-// const Moralis = require("moralis").default;
-// const Web3 = require("web3");
-// const web3 = new Web3();
-// const _ = require("lodash");
+const Moralis = require("moralis").default;
+const Web3 = require("web3");
+const web3 = new Web3();
+const _ = require("lodash");
 
-const {
-  providers,
-  eventsByContract,
-  contracts,
-  blocksPerHour,
-} = require("../config");
-const { nameTable, sleep } = require("../utils");
+const { providers, eventsByContract, contracts } = require("../config");
+const { nameTable } = require("../utils");
 const requestHandler = require("./requestHandler");
 
 let failedEvents = [];
@@ -37,120 +32,48 @@ function log(...params) {
   }
 }
 
-async function midPoint(start, end, initialStartBlock, chainId) {
-  // const blocks = blocksPerHour[chainId];
-  // if (start === initialStartBlock) {
-  //   return start + blocks * 2;
-  // } else if (start === initialStartBlock + blocks * 2) {
-  //   return start + blocks * 4;
-  // } else if (start === initialStartBlock + blocks * 6) {
-  //   return start + blocks * 12;
-  // } else if (start === initialStartBlock + blocks * 18) {
-  //   return start + blocks * 48;
-  // } else {
-  return Math.floor((start + end) / 2);
-  // }
+async function getMoralisEvents(options) {
+  let { filter, contractName, eventConfig, filterName } = options;
+  let logs;
+  let offset = 0;
+  let topic = web3.utils.keccak256(options.filterName);
+  do {
+    const response = await requestHandler(
+      Moralis.EvmApi.events.getContractEvents({
+        chain: "0x" + options.eventConfig.chainId.toString(16),
+        address: options.contract.address,
+        limit: 100,
+        offset,
+        topic,
+        abi: options.eventConfig.ABI[0],
+      })
+    );
+    logs = response.jsonResponse.result;
+    if (logs.length > 0) {
+      const txs = await processEvents(logs, filter, contractName, eventConfig);
+      log(
+        `Inserting ${txs.length} rows ${nameTable(contractName, filterName)}`
+      );
+      await eventManager.updateEvents(txs, filterName, contractName);
+    }
+    offset += 100;
+  } while (logs.length > 0);
 }
 
-//
-// function decodeLogs(abi, contractAddress, logs) {
-//   // Create a Contract instance
-//   const contract = new web3.eth.Contract(abi, contractAddress);
-//
-//   // Iterate through the logs and decode each event
-//   return _.compact(
-//     logs.map((log) => {
-//       const eventSignature = log.topics[0];
-//       const eventAbi = abi.find(
-//         (item) =>
-//           item.type === "event" &&
-//           web3.utils.keccak256(item.signature) === eventSignature
-//       );
-//
-//       if (!eventAbi) {
-//         // console.warn("Unknown event with signature:", eventSignature);
-//         return null;
-//       }
-//
-//       const decodedLog = web3.eth.abi.decodeLog(
-//         eventAbi.inputs,
-//         log.data,
-//         log.topics.slice(1)
-//       );
-//
-//       // console.log("decodedLog", decodedLog);
-//
-//       return {
-//         eventName: eventAbi.name,
-//         ...decodedLog,
-//       };
-//     })
-//   );
-// }
-//
-// async function getAllLogs(options) {
-//   //
-//   // const limit = 100; // The maximum number of results per request (max 1000)
-//   // let skip = 0; // The number of results to skip
-//   let allLogs = [];
-//   // let moreResults = true;
-//   //
-//   // while (moreResults) {
-//   //   const response = await Moralis.EvmApi.events.getContractLogs({
-//   //     cursor: skip,
-//   //     limit: limit,
-//   //   });
-//   //
-//   //   allLogs = allLogs.concat(response.result);
-//   //
-//   //   if (response.result.length < limit) {
-//   //     // If the response contains less than the limit, there are no more results to fetch
-//   //     moreResults = false;
-//   //   } else {
-//   //     // Otherwise, update the skip parameter for the next iteration
-//   //     skip += limit;
-//   //   }
-//   // }
-//
-//   let cursor = undefined;
-//   let owners = {};
-//   do {
-//     const response = await Moralis.EvmApi.events.getContractLogs({
-//       chain: "0x" + options.eventConfig.chainId.toString(16),
-//       address: options.contract.address,
-//       limit: 100,
-//       cursor: cursor,
-//     });
-//     // console.log(response.result[0])
-//     // process.exit();
-//
-//     let logs = response.result.map((e) => e._value);
-//
-//     logs = decodeLogs(options.eventConfig.ABI, options.contract.address, logs);
-//     // console.log(logs[0])
-//     // allLogs = allLogs.concat(response.result.map(e => e._value));
-//     // console.log(allLogs[0]);
-//     // process.exit()
-//
-//     // console.log(
-//     //     `Got page ${response.page} of ${Math.ceil(
-//     //         response.total / response.page_size
-//     //     )}, ${response.total} total`
-//     // );
-//     // for (const owner of response.result) {
-//     //   owners[owner.owner_of] = {
-//     //     amount: owner.amount,
-//     //     owner: owner.owner_of,
-//     //     tokenId: owner.token_id,
-//     //     tokenAddress: owner.token_address,
-//     //   };
-//     // }
-//     cursor = response.cursor;
-//   } while (cursor !== "" && cursor != null);
-//   return allLogs;
-// }
+async function processEvents(response, filter, contractName, eventConfig) {
+  const processedEvents = [];
+  const argNames = eventConfig.ABI[0].inputs.map((e) => e.name);
+  const argTypes = eventConfig.ABI[0].inputs.map((e) => e.type);
+  for (let event of response) {
+    const tx = await processSingleEvent(event, filter, argNames, argTypes);
+    if (tx !== undefined) {
+      processedEvents.push(tx);
+    }
+  }
+  return processedEvents;
+}
 
-async function getEventsByFilter(options) {
+async function getInfuraEvents(options) {
   let {
     contract,
     filter,
@@ -159,29 +82,15 @@ async function getEventsByFilter(options) {
     contractName,
     eventConfig,
     filterName,
-    initialStartBlock,
   } = options;
-  //
-  // console.log(filter,
-  //     startBlock,
-  //     endBlock,
-  //     contractName,
-  //     eventConfig,
-  //     filterName,
-  //     initialStartBlock);
-
   log(
     `=> Getting all events emitted by ${contractName}: ${startBlock}< block <${endBlock}`
   );
   let response = [];
   try {
-    // if (eventConfig.chainId === 1) {
     response = await requestHandler(
       contract.queryFilter(filter, startBlock, endBlock, contractName)
     );
-    // } else {
-    //   response = await getAllLogs(options);
-    // }
   } catch (error) {
     let message = (
       error.error ||
@@ -208,23 +117,9 @@ async function getEventsByFilter(options) {
       );
       log(` ! API error, splitting request to void limit and timeout`);
     } else {
-      //if (/block range is too wide/i.test(message)) {
-      console.log("error", error);
-      const mid = await midPoint(
-        startBlock,
-        endBlock,
-        initialStartBlock,
-        eventConfig.chainId
-      );
-      console.log(startBlock, mid, endBlock);
-      await sleep(100);
-      // await getEventsByFilter(clone(options, { endBlock: mid }));
-      await getEventsByFilter(clone(options, { startBlock: mid + 1 }));
+      console.error("Infura", error.error);
     }
   }
-
-  console.log(response);
-
   if (response.length > 0) {
     const txs = await processEvents(
       response,
@@ -234,6 +129,15 @@ async function getEventsByFilter(options) {
     );
     log(`Inserting ${txs.length} rows ${nameTable(contractName, filterName)}`);
     await eventManager.updateEvents(txs, filterName, contractName);
+  }
+}
+
+async function getEventsByFilter(options) {
+  const { eventConfig } = options;
+  if (eventConfig.chainId === 1) {
+    return await getInfuraEvents(options);
+  } else {
+    return await getMoralisEvents(options);
   }
 }
 
@@ -252,26 +156,16 @@ async function getFutureEvents(
   });
 }
 
-async function processEvents(response, filter, contractName, eventConfig) {
-  const processedEvents = [];
-  const argNames = eventConfig.ABI[0].inputs.map((e) => e.name);
-  const argTypes = eventConfig.ABI[0].inputs.map((e) => e.type);
-  for (let event of response) {
-    const tx = await processSingleEvent(event, filter, argNames, argTypes);
-    if (tx !== undefined) {
-      processedEvents.push(tx);
-    }
-  }
-  return processedEvents;
-}
-
 async function processSingleEvent(event, filter, argNames, argTypes) {
   let tx;
-  const { transactionHash, blockNumber } = event;
+  // handle the different formats returned by Infura and Moralis APIs
+  const { transactionHash, blockNumber, transaction_hash, block_number } =
+    event;
+  const key = transaction_hash ? "data" : "args";
   try {
     tx = {
-      transaction_hash: transactionHash,
-      block_number: blockNumber,
+      transaction_hash: transactionHash || transaction_hash,
+      block_number: blockNumber || block_number,
     };
     for (let i = 0; i < argNames.length; i++) {
       const arg = argNames[i];
@@ -279,17 +173,17 @@ async function processSingleEvent(event, filter, argNames, argTypes) {
       const dataArg = Case.snake(arg);
       switch (type) {
         case "uint256":
-          tx[dataArg] = event.args[arg].toString();
+          tx[dataArg] = event[key][arg].toString();
           break;
         case "boolean":
           tx[dataArg] =
-            (typeof event.args[arg] === "boolean" && event.args[arg]) ||
-            /true/i.test(event.args[arg])
+            (typeof event[key][arg] === "boolean" && event[key][arg]) ||
+            /true/i.test(event[key][arg])
               ? "TRUE"
               : "FALSE";
           break;
         default:
-          tx[dataArg] = event.args[arg];
+          tx[dataArg] = event[key][arg];
       }
     }
   } catch (error) {
@@ -350,12 +244,12 @@ async function getEventInfo(contractName, eventConfig, getStarted) {
 }
 
 async function getAllInitialEvents() {
-  // for (let contractName in eventsByContract) {
-  const contractName = "SynCityCoupons";
-  for (let eventConfig of eventsByContract[contractName].events) {
-    await getEventInfo(contractName, eventConfig, true);
+  for (let contractName in eventsByContract) {
+    // const contractName = "SynCityCoupons";
+    for (let eventConfig of eventsByContract[contractName].events) {
+      await getEventInfo(contractName, eventConfig, true);
+    }
   }
-  // }
 }
 
 async function getAllNewEvents() {
@@ -372,12 +266,12 @@ async function main(opt) {
   if (opt) {
     options = Object.assign(options, opt);
   }
-  // await Moralis.start({
-  //   apiKey: process.env.MORALIS,
-  // });
+  await Moralis.start({
+    apiKey: process.env.MORALIS,
+  });
 
   await getAllInitialEvents();
-  // await getAllNewEvents();
+  await getAllNewEvents();
 }
 
 module.exports = main;
