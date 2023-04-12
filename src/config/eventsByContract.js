@@ -41,22 +41,7 @@ const ABI = {
       type: "event",
     },
   ],
-  Unlocked: [
-    {
-      anonymous: false,
-      inputs: [
-        {
-          indexed: false,
-          internalType: "uint256",
-          name: "tokendId",
-          type: "uint256",
-        },
-      ],
-      name: "Unlocked",
-      type: "event",
-    },
-  ],
-  LockedV2: [
+  Locked2: [
     {
       anonymous: false,
       inputs: [
@@ -74,6 +59,21 @@ const ABI = {
         },
       ],
       name: "Locked",
+      type: "event",
+    },
+  ],
+  Unlocked: [
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "tokendId",
+          type: "uint256",
+        },
+      ],
+      name: "Unlocked",
       type: "event",
     },
   ],
@@ -230,9 +230,9 @@ const eventsByContract = {
         ABI: ABI.Unlocked,
       },
       {
-        name: "LockedV2",
+        name: "Locked",
         filter: "Locked(uint256,bool)",
-        ABI: ABI.LockedV2,
+        ABI: ABI.Locked2,
       },
     ],
   },
@@ -256,9 +256,9 @@ const eventsByContract = {
         ABI: ABI.Unlocked,
       },
       {
-        name: "LockedV2",
+        name: "Locked",
         filter: "Locked(uint256,bool)",
-        ABI: ABI.LockedV2,
+        ABI: ABI.Locked2,
       },
     ],
   },

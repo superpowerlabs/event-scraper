@@ -1,7 +1,7 @@
 const Sql = require("../db/Sql");
 const Case = require("case");
 const utils = require("../utils");
-const json = require("../config/eventsByContract.js");
+const eventsByContract = require("../config/eventsByContract.js");
 
 let dbw;
 let dbr;
@@ -20,9 +20,9 @@ class EventManager extends Sql {
     if (process.env.NODE_ENV !== "test") {
       throw new Error("This can be used only for testing");
     }
-    for (const contract of json) {
-      for (const event of contract.events) {
-        let tableName = utils.nameTable(contract.contractName, event.name);
+    for (const contract in eventsByContract) {
+      for (const event of eventsByContract[contract].events) {
+        let tableName = utils.nameTable(contract, event.filter);
         await dbw.schema.dropTableIfExists(tableName);
       }
     }
@@ -30,24 +30,43 @@ class EventManager extends Sql {
   }
 
   async tableExists(tableName) {
-    if (!(await dbr.schema.hasTable(tableName))) {
-      return false;
+    return await dbr.schema.hasTable(tableName);
+  }
+
+  createBatchInsertQuery(tableName, rows) {
+    const columns = Object.keys(rows[0])
+      .map((col) => `"${col}"`)
+      .join(", ");
+    const values = rows
+      .map(
+        (row) =>
+          "(" +
+          Object.values(row)
+            .map((value) => (typeof value === "string" ? `'${value}'` : value))
+            .join(", ") +
+          ")"
+      )
+      .join(", ");
+    return `INSERT INTO "${tableName}" (${columns}) VALUES ${values} ON CONFLICT (${columns}) DO NOTHING;`;
+  }
+
+  async updateEvents(rows, filter, contractName, chunkSize = 100) {
+    let tableName = utils.nameTable(contractName, filter);
+    for (let i = 0; i < rows.length; i += chunkSize) {
+      const chunk = rows.slice(i, i + chunkSize);
+      const sql = this.createBatchInsertQuery(tableName, chunk);
+      try {
+        await dbw.raw(sql);
+      } catch (error) {
+        console.error("failed to insert transactions", error);
+        return error;
+      }
     }
-    return true;
   }
 
-  async updateEvents(rows, event, contractName, chunkSize = 100) {
-    let tableName = utils.nameTable(contractName, event);
-    // console.log("inserting into", tableName);
-    return dbw.batchInsert(tableName, rows, chunkSize).catch(function (error) {
-      console.error("failed to insert transactions", error);
-      return error;
-    });
-  }
-
-  async latestEvent(contractName, eventName) {
+  async latestEvent(contractName, filter) {
     let event = false;
-    let tableName = utils.nameTable(contractName, eventName);
+    let tableName = utils.nameTable(contractName, filter);
     const exist = await this.tableExists(tableName);
     if (exist) {
       event = dbr(tableName).max("block_number as block_number").first();

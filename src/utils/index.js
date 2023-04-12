@@ -7,9 +7,17 @@ const utils = {
     return new Promise((resolve) => setTimeout(resolve, millis));
   },
 
-  nameTable(contractName, eventName) {
-    // changed to avoid conflicts with existing tables
-    return [Case.snake(contractName), Case.snake(eventName)].join("__");
+  nameTable(contractName, filter) {
+    let attrs = filter
+      .split("(")[1]
+      .split(")")[0]
+      .split(",")
+      .map((e) => e.substring(0, 1));
+    return [
+      Case.snake(contractName),
+      Case.snake(filter.split("(")[0]),
+      attrs.join(""),
+    ].join("__");
   },
 
   nameTableV1(contractName, eventName) {
