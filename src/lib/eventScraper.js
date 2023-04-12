@@ -24,7 +24,7 @@ async function getHistoricalEvents(opt) {
   let { filter, contractName, eventConfig, filterName, contract } = opt;
   let logs;
   let topic = web3.utils.keccak256(opt.filterName);
-  const count = options.fromZero
+  const count = options.force
     ? 0
     : await eventManager.countEvents(contractName, filter);
   let offset = count > 100 ? count - 100 : count;

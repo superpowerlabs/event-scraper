@@ -38,8 +38,8 @@ const optionDefinitions = [
     type: String,
   },
   {
-    name: "from-zero",
-    alias: "z",
+    name: "force",
+    alias: "f",
     type: Boolean,
   },
 ];
@@ -74,8 +74,8 @@ Options:
   -d, --dryrun    Don't persiste transactions to the database
   -t, --types     A comma seperated string o type of event to get (for example "Staked, Unstaked, YieldClaimed")
   -c, --contract  The contract to get events from
-  -z, --from-zero Retrieve all the events from deployment time
   -e, --event     The event to retrieve
+  -f, --force     Force the retrieve of all the events from deployment time
 `);
   // eslint-disable-next-line no-process-exit
   process.exit(0);
