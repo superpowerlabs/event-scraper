@@ -32,7 +32,7 @@ function log(...params) {
   }
 }
 
-async function getMoralisEvents(options) {
+async function getEventsByFilter(options) {
   let { filter, contractName, eventConfig, filterName } = options;
   let logs;
   let offset = 0;
@@ -72,74 +72,6 @@ async function processEvents(response, filter, contractName, eventConfig) {
     }
   }
   return processedEvents;
-}
-
-async function getInfuraEvents(options) {
-  let {
-    contract,
-    filter,
-    startBlock,
-    endBlock,
-    contractName,
-    eventConfig,
-    filterName,
-  } = options;
-  log(
-    `=> Getting all events emitted by ${contractName}: ${startBlock}< block <${endBlock}`
-  );
-  let response = [];
-  try {
-    response = await requestHandler(
-      contract.queryFilter(filter, startBlock, endBlock, contractName)
-    );
-  } catch (error) {
-    let message = (
-      error.error ||
-      error.message ||
-      JSON.parse(error.body)
-    ).toString();
-    if (/try with this block range/i.test(message)) {
-      // error coming from Infura
-      const [start, end] = message
-        .split("[")[1]
-        .split("]")[0]
-        .split(", ")
-        .map((e) => parseInt(e, 16));
-      await getEventsByFilter(
-        clone(options, {
-          startBlock: start,
-          endBlock: end,
-        })
-      );
-      await getEventsByFilter(
-        clone(options, {
-          startBlock: end + 1,
-        })
-      );
-      log(` ! API error, splitting request to void limit and timeout`);
-    } else {
-      console.error("Infura", error.error);
-    }
-  }
-  if (response.length > 0) {
-    const txs = await processEvents(
-      response,
-      filter,
-      contractName,
-      eventConfig
-    );
-    log(`Inserting ${txs.length} rows ${nameTable(contractName, filterName)}`);
-    await eventManager.updateEvents(txs, filterName, contractName);
-  }
-}
-
-async function getEventsByFilter(options) {
-  const { eventConfig } = options;
-  if (eventConfig.chainId === 1) {
-    return await getInfuraEvents(options);
-  } else {
-    return await getMoralisEvents(options);
-  }
 }
 
 async function getFutureEvents(
@@ -245,12 +177,12 @@ async function getEventInfo(contractName, eventConfig, getStarted) {
 }
 
 async function getAllInitialEvents() {
-  // for (let contractName in eventsByContract) {
-  const contractName = "SynCityCoupons";
-  for (let eventConfig of eventsByContract[contractName].events) {
-    await getEventInfo(contractName, eventConfig, true);
+  for (let contractName in eventsByContract) {
+    // const contractName = "SynCityCoupons";
+    for (let eventConfig of eventsByContract[contractName].events) {
+      await getEventInfo(contractName, eventConfig, true);
+    }
   }
-  // }
 }
 
 async function getAllNewEvents() {
