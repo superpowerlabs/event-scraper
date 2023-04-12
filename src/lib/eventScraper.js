@@ -37,12 +37,13 @@ async function getMoralisEvents(options) {
   let logs;
   let offset = 0;
   let topic = web3.utils.keccak256(options.filterName);
+  let limit = 500;
   do {
     const response = await requestHandler(
       Moralis.EvmApi.events.getContractEvents({
         chain: "0x" + options.eventConfig.chainId.toString(16),
         address: options.contract.address,
-        limit: 100,
+        limit,
         offset,
         topic,
         abi: options.eventConfig.ABI[0],
@@ -56,7 +57,7 @@ async function getMoralisEvents(options) {
       );
       await eventManager.updateEvents(txs, filterName, contractName);
     }
-    offset += 100;
+    offset += limit;
   } while (logs.length > 0);
 }
 
@@ -244,12 +245,12 @@ async function getEventInfo(contractName, eventConfig, getStarted) {
 }
 
 async function getAllInitialEvents() {
-  for (let contractName in eventsByContract) {
-    // const contractName = "SynCityCoupons";
-    for (let eventConfig of eventsByContract[contractName].events) {
-      await getEventInfo(contractName, eventConfig, true);
-    }
+  // for (let contractName in eventsByContract) {
+  const contractName = "SynCityCoupons";
+  for (let eventConfig of eventsByContract[contractName].events) {
+    await getEventInfo(contractName, eventConfig, true);
   }
+  // }
 }
 
 async function getAllNewEvents() {

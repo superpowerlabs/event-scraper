@@ -10,6 +10,7 @@ const config = {
   eventsByContract: require("./eventsByContract"),
   providers: {
     1: new ethers.providers.InfuraProvider("homestead", process.env.INFURA_KEY),
+    56: new ethers.providers.JsonRpcProvider("https://bscrpc.com", 56),
   },
 };
 
