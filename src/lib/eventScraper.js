@@ -17,37 +17,30 @@ let options = {
   //
 };
 
-function clone(obj, options) {
-  const contract = obj.contract;
-  delete obj.contract;
-  obj = Object.assign(JSON.parse(JSON.stringify(obj)), options, {
-    contract,
-  });
-  return obj;
-}
-
 function log(...params) {
   if (options.verbose) {
     console.debug(...params);
   }
 }
 
-async function getEventsByFilter(options) {
-  let { filter, contractName, eventConfig, filterName } = options;
+async function getEventsByFilter(opt) {
+  let { filter, contractName, eventConfig, filterName, contract } = opt;
   let logs;
-  let topic = web3.utils.keccak256(options.filterName);
-  const count = await countEvents(contractName, eventConfig.filter);
+  let topic = web3.utils.keccak256(opt.filterName);
+  const count = options.fromZero
+    ? 0
+    : await countEvents(contractName, eventConfig.filter);
   let offset = count > 100 ? count - 100 : count;
   let limit = 500;
   do {
     const response = await requestHandler(
       Moralis.EvmApi.events.getContractEvents({
-        chain: "0x" + options.eventConfig.chainId.toString(16),
-        address: options.contract.address,
+        chain: "0x" + eventConfig.chainId.toString(16),
+        address: contract.address,
         limit,
         offset,
         topic,
-        abi: options.eventConfig.ABI[0],
+        abi: eventConfig.ABI[0],
       })
     );
     logs = response.jsonResponse.result;
@@ -149,7 +142,7 @@ async function getEventInfo(contractName, eventConfig, getStarted) {
     provider
   );
   const filter = contract.filters[filterName]();
-  const options = {
+  const opt = {
     filter,
     contractName,
     eventConfig,
@@ -158,28 +151,30 @@ async function getEventInfo(contractName, eventConfig, getStarted) {
   };
   if (getStarted) {
     log("Launching initial event fetch");
-    await getEventsByFilter(options);
+    await getEventsByFilter(opt);
   } else {
     await getFutureEvents(contract, filter, name, contractName, eventConfig);
   }
 }
 
-async function getInitialEvents() {
-  for (let contractName in eventsByContract) {
-    for (let eventConfig of eventsByContract[contractName].events) {
-      await getEventInfo(contractName, eventConfig, true);
-    }
-  }
-}
-
-async function subscribeToNewEvents() {
+async function getEvents(subscribe) {
   const promises = [];
   for (let contractName in eventsByContract) {
-    for (let eventConfig of eventsByContract[contractName].events) {
-      await getEventInfo(contractName, eventConfig);
+    if (!options.contract || contractName === options.contract) {
+      for (let eventConfig of eventsByContract[contractName].events) {
+        if (!options.event || eventConfig.name === options.event) {
+          if (subscribe) {
+            promises.push(getEventInfo(contractName, eventConfig));
+          } else {
+            await getEventInfo(contractName, eventConfig, true);
+          }
+        }
+      }
     }
   }
-  return Promise.all(promises);
+  if (subscribe) {
+    return Promise.all(promises);
+  }
 }
 
 async function main(opt) {
@@ -190,8 +185,11 @@ async function main(opt) {
     apiKey: process.env.MORALIS,
   });
 
-  await getInitialEvents();
-  await subscribeToNewEvents();
+  await getEvents();
+  if (options.contract || options.event) {
+    return;
+  }
+  await getEvents("subscribe");
 }
 
 module.exports = main;

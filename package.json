@@ -5,6 +5,7 @@
   "dependencies": {
     "case": "^1.6.3",
     "cli-spinner": "^0.2.10",
+    "command-line-args": "^5.2.1",
     "dotenv": "^16.0.3",
     "ethers": "^5.7.2",
     "fs-extra": "^11.1.1",

@@ -27,6 +27,21 @@ const optionDefinitions = [
     type: String,
     defaultValue: "Staked,Unstaked,YieldClaimed",
   },
+  {
+    name: "contract",
+    alias: "c",
+    type: String,
+  },
+  {
+    name: "event",
+    alias: "e",
+    type: String,
+  },
+  {
+    name: "from-zero",
+    alias: "f",
+    type: Boolean,
+  },
 ];
 
 function error(message) {
@@ -58,6 +73,9 @@ Options:
   -v, --verbose   Shows all the console logs
   -d, --dryrun    Don't persiste transactions to the database
   -t, --types     A comma seperated string o type of event to get (for example "Staked, Unstaked, YieldClaimed")
+  -c, --contract  The contract to get events from
+  -f, --from-zero Retrieve all the events from deployment time
+  -e, --event     The event to retrieve
 `);
   // eslint-disable-next-line no-process-exit
   process.exit(0);
@@ -68,4 +86,9 @@ async function main() {
   await eventScraper(options);
 }
 
-main();
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
