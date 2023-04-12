@@ -55,23 +55,30 @@ class EventManager extends Sql {
     for (let i = 0; i < rows.length; i += chunkSize) {
       const chunk = rows.slice(i, i + chunkSize);
       const sql = this.createBatchInsertQuery(tableName, chunk);
-      try {
-        await dbw.raw(sql);
-      } catch (error) {
-        console.error("failed to insert transactions", error);
-        return error;
-      }
+      await dbw.raw(sql);
     }
   }
 
-  async latestEvent(contractName, filter) {
-    let event = false;
+  async latestBlockByEvent(contractName, filter) {
     let tableName = utils.nameTable(contractName, filter);
     const exist = await this.tableExists(tableName);
     if (exist) {
-      event = dbr(tableName).max("block_number as block_number").first();
+      return parseInt(
+        (await dbr(tableName).max("block_number as block_number").first())
+          .block_number
+      );
     }
-    return event;
+  }
+
+  async latestEvents(contractName, filter) {
+    let latestBlock = await this.latestBlockByEvent(contractName, filter);
+    if (latestBlock) {
+      let tableName = utils.nameTable(contractName, filter);
+      return dbr
+        .select("*")
+        .from(tableName)
+        .where({ block_number: latestBlock });
+    }
   }
 
   async countEvents(contractName, filter) {
@@ -81,10 +88,9 @@ class EventManager extends Sql {
   }
 
   // used in testing
-  async getEvent(contractName, eventName, obj) {
+  async getEvent(contractName, filter, obj) {
     let event = false;
-    let tableName = Case.capital(contractName, "_");
-    tableName = `${tableName}_${eventName}`.toLowerCase();
+    let tableName = utils.nameTable(contractName, filter);
     const exist = await this.tableExists(tableName);
     if (exist) {
       event = dbr.select("*").from(tableName).where(obj);
