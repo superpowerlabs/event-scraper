@@ -35,8 +35,9 @@ function log(...params) {
 async function getEventsByFilter(options) {
   let { filter, contractName, eventConfig, filterName } = options;
   let logs;
-  let offset = 0;
   let topic = web3.utils.keccak256(options.filterName);
+  const count = await countEvents(contractName, eventConfig.filter);
+  let offset = count > 100 ? count - 100 : count;
   let limit = 500;
   do {
     const response = await requestHandler(
@@ -126,13 +127,9 @@ async function processSingleEvent(event, filter, argNames, argTypes) {
   return tx;
 }
 
-async function getStartBlock(contractName, filter, startBlock) {
-  const latestEvent = await eventManager.latestEvent(contractName, filter);
-  if (latestEvent && latestEvent.block_number > startBlock) {
-    return latestEvent.block_number + 1;
-  } else {
-    return startBlock;
-  }
+async function countEvents(contractName, filter) {
+  const result = await eventManager.countEvents(contractName, filter);
+  return parseInt(result.count);
 }
 
 async function getEventInfo(contractName, eventConfig, getStarted) {
@@ -141,15 +138,10 @@ async function getEventInfo(contractName, eventConfig, getStarted) {
       eventConfig.name
     }" events from "${contractName}"`
   );
-  const { chainId, startBlock: initialStartBlock } =
-    eventsByContract[contractName];
+
+  const { chainId } = eventsByContract[contractName];
   eventConfig.chainId = chainId;
   const { name, filter: filterName, ABI } = eventConfig;
-  const startBlock = await getStartBlock(
-    contractName,
-    filterName,
-    initialStartBlock
-  );
   const provider = providers[chainId];
   const contract = new ethers.Contract(
     contracts[chainId][contractName],
@@ -157,16 +149,12 @@ async function getEventInfo(contractName, eventConfig, getStarted) {
     provider
   );
   const filter = contract.filters[filterName]();
-  const endBlock = await requestHandler(provider.getBlockNumber());
   const options = {
-    contract,
     filter,
-    startBlock,
-    endBlock,
     contractName,
     eventConfig,
     filterName,
-    initialStartBlock,
+    contract,
   };
   if (getStarted) {
     log("Launching initial event fetch");
@@ -176,16 +164,15 @@ async function getEventInfo(contractName, eventConfig, getStarted) {
   }
 }
 
-async function getAllInitialEvents() {
+async function getInitialEvents() {
   for (let contractName in eventsByContract) {
-    // const contractName = "SynCityCoupons";
     for (let eventConfig of eventsByContract[contractName].events) {
       await getEventInfo(contractName, eventConfig, true);
     }
   }
 }
 
-async function getAllNewEvents() {
+async function subscribeToNewEvents() {
   const promises = [];
   for (let contractName in eventsByContract) {
     for (let eventConfig of eventsByContract[contractName].events) {
@@ -203,8 +190,8 @@ async function main(opt) {
     apiKey: process.env.MORALIS,
   });
 
-  await getAllInitialEvents();
-  await getAllNewEvents();
+  await getInitialEvents();
+  await subscribeToNewEvents();
 }
 
 module.exports = main;
