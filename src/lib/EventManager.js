@@ -77,7 +77,7 @@ class EventManager extends Sql {
   async countEvents(contractName, filter) {
     let tableName = utils.nameTable(contractName, filter);
     const exist = await this.tableExists(tableName);
-    return exist ? dbr.count("*").from(tableName).first() : { count: 0 };
+    return exist ? parseInt(dbr.count("*").from(tableName).first().count) : 0;
   }
 
   // used in testing

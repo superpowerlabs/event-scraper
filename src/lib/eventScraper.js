@@ -12,10 +12,7 @@ const { nameTable } = require("../utils");
 const requestHandler = require("./requestHandler");
 
 let failedEvents = [];
-
-let options = {
-  //
-};
+let options = {};
 
 function log(...params) {
   if (options.verbose) {
@@ -23,13 +20,13 @@ function log(...params) {
   }
 }
 
-async function getEventsByFilter(opt) {
+async function getHistoricalEvents(opt) {
   let { filter, contractName, eventConfig, filterName, contract } = opt;
   let logs;
   let topic = web3.utils.keccak256(opt.filterName);
   const count = options.fromZero
     ? 0
-    : await countEvents(contractName, eventConfig.filter);
+    : await eventManager.countEvents(contractName, filter);
   let offset = count > 100 ? count - 100 : count;
   let limit = 500;
   do {
@@ -68,7 +65,7 @@ async function processEvents(response, filter, contractName, eventConfig) {
   return processedEvents;
 }
 
-async function getFutureEvents(
+async function subscribeToFutureEvents(
   contract,
   type,
   eventName,
@@ -85,14 +82,11 @@ async function getFutureEvents(
 
 async function processSingleEvent(event, filter, argNames, argTypes) {
   let tx;
-  // handle the different formats returned by Infura and Moralis APIs
-  const { transactionHash, blockNumber, transaction_hash, block_number } =
-    event;
-  const key = transaction_hash ? "data" : "args";
+  const { transaction_hash, block_number } = event;
   try {
     tx = {
-      transaction_hash: transactionHash || transaction_hash,
-      block_number: blockNumber || block_number,
+      transaction_hash,
+      block_number,
     };
     for (let i = 0; i < argNames.length; i++) {
       const arg = argNames[i];
@@ -100,29 +94,26 @@ async function processSingleEvent(event, filter, argNames, argTypes) {
       const dataArg = Case.snake(arg);
       switch (type) {
         case "uint256":
-          tx[dataArg] = event[key][arg].toString();
+          tx[dataArg] = event.data[arg].toString();
           break;
         case "boolean":
           tx[dataArg] =
-            (typeof event[key][arg] === "boolean" && event[key][arg]) ||
-            /true/i.test(event[key][arg])
+            (typeof event.data[arg] === "boolean" && event.data[arg]) ||
+            /true/i.test(event.data[arg])
               ? "TRUE"
               : "FALSE";
           break;
         default:
-          tx[dataArg] = event[key][arg];
+          tx[dataArg] = event.data[arg];
       }
     }
   } catch (error) {
+    // this should never happen
+    // TODO if happens, we should log the failed events on file
     failedEvents.push({ event: event, type: filter });
-    console.log(error);
+    console.error(error.message);
   }
   return tx;
-}
-
-async function countEvents(contractName, filter) {
-  const result = await eventManager.countEvents(contractName, filter);
-  return parseInt(result.count);
 }
 
 async function getEventInfo(contractName, eventConfig, getStarted) {
@@ -150,10 +141,15 @@ async function getEventInfo(contractName, eventConfig, getStarted) {
     contract,
   };
   if (getStarted) {
-    log("Launching initial event fetch");
-    await getEventsByFilter(opt);
+    await getHistoricalEvents(opt);
   } else {
-    await getFutureEvents(contract, filter, name, contractName, eventConfig);
+    await subscribeToFutureEvents(
+      contract,
+      filter,
+      name,
+      contractName,
+      eventConfig
+    );
   }
 }
 
