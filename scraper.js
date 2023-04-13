@@ -42,6 +42,11 @@ const optionDefinitions = [
     alias: "f",
     type: Boolean,
   },
+  {
+    name: "exit",
+    alias: "x",
+    type: Boolean,
+  },
 ];
 
 function error(message) {
@@ -76,6 +81,7 @@ Options:
   -c, --contract  The contract to get events from
   -e, --event     The event to retrieve
   -f, --force     Force the retrieve of all the events from deployment time
+  -x, --exit      Exit after retrieving the historical events, skipping the monitoring
 `);
   // eslint-disable-next-line no-process-exit
   process.exit(0);

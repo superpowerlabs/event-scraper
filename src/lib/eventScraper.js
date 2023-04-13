@@ -182,7 +182,7 @@ async function main(opt) {
   });
 
   await getEvents();
-  if (options.contract || options.event) {
+  if (options.contract || options.event || options.exit) {
     return;
   }
   await getEvents("subscribe");
