@@ -42,6 +42,16 @@ const optionDefinitions = [
     alias: "f",
     type: Boolean,
   },
+  {
+    name: "hours",
+    alias: "o",
+    type: Number,
+  },
+  {
+    name: "limit",
+    alias: "l",
+    type: Number,
+  },
 ];
 
 function error(message) {
@@ -76,6 +86,8 @@ Options:
   -c, --contract  The contract to get events from
   -e, --event     The event to retrieve
   -f, --force     Force the retrieve of all the events from deployment time
+  -o, --hours     The number of hours to go back from the last saved event
+  -l, --limit     The number of events to retrieve at any request
 `);
   // eslint-disable-next-line no-process-exit
   process.exit(0);

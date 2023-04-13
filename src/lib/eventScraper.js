@@ -7,7 +7,12 @@ const Web3 = require("web3");
 const web3 = new Web3();
 const _ = require("lodash");
 
-const { providers, eventsByContract, contracts } = require("../config");
+const {
+  providers,
+  eventsByContract,
+  contracts,
+  averageBlockPerDay,
+} = require("../config");
 const { nameTable } = require("../utils");
 const requestHandler = require("./requestHandler");
 
@@ -26,9 +31,13 @@ async function getHistoricalEvents(opt) {
   let topic = web3.utils.keccak256(opt.filterName);
   const count = options.force
     ? 0
-    : await eventManager.countEvents(contractName, filter);
-  let offset = count > 100 ? count - 100 : count;
-  let limit = 500;
+    : await eventManager.countEvents(contractName, filterName);
+  let recoverHours = options.hours || 12;
+  let recoverOffset = Math.round(
+    (averageBlockPerDay[eventConfig.chainId] * recoverHours) / 24
+  );
+  let offset = count > recoverOffset ? count - recoverOffset : count;
+  let limit = options.limit || 500;
   do {
     const response = await requestHandler(
       Moralis.EvmApi.events.getContractEvents({
@@ -42,9 +51,14 @@ async function getHistoricalEvents(opt) {
     );
     logs = response.jsonResponse.result;
     if (logs.length > 0) {
+      let from = logs[0].block_number;
+      let to = logs[logs.length - 1].block_number;
       const txs = await processEvents(logs, filter, contractName, eventConfig);
       log(
-        `Inserting ${txs.length} rows ${nameTable(contractName, filterName)}`
+        `Inserting ${txs.length} rows ${nameTable(
+          contractName,
+          filterName
+        )} from ${from} to ${to}`
       );
       await eventManager.updateEvents(txs, filterName, contractName);
     }
