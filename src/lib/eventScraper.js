@@ -182,10 +182,10 @@ async function main(opt) {
   });
 
   await getEvents();
-  if (options.contract || options.event || options.exit) {
-    return;
+  // when not launched via scraper.js, it starts the monitoring
+  if (!options.exit) {
+    await getEvents("subscribe");
   }
-  await getEvents("subscribe");
 }
 
 module.exports = main;
