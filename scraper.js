@@ -27,6 +27,31 @@ const optionDefinitions = [
     type: String,
     defaultValue: "Staked,Unstaked,YieldClaimed",
   },
+  {
+    name: "contract",
+    alias: "c",
+    type: String,
+  },
+  {
+    name: "event",
+    alias: "e",
+    type: String,
+  },
+  {
+    name: "force",
+    alias: "f",
+    type: Boolean,
+  },
+  {
+    name: "hours",
+    alias: "o",
+    type: Number,
+  },
+  {
+    name: "limit",
+    alias: "l",
+    type: Number,
+  },
 ];
 
 function error(message) {
@@ -58,6 +83,11 @@ Options:
   -v, --verbose   Shows all the console logs
   -d, --dryrun    Don't persiste transactions to the database
   -t, --types     A comma seperated string o type of event to get (for example "Staked, Unstaked, YieldClaimed")
+  -c, --contract  The contract to get events from
+  -e, --event     The event to retrieve
+  -f, --force     Force the retrieve of all the events from deployment time
+  -o, --hours     The number of hours to go back from the last saved event
+  -l, --limit     The number of events to retrieve at any request
 `);
   // eslint-disable-next-line no-process-exit
   process.exit(0);
@@ -65,7 +95,14 @@ Options:
 
 async function main() {
   await migrateEvents();
+  // exit after the first run without starting the monitoring
+  options.exit = true;
   await eventScraper(options);
 }
 
-main();
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
