@@ -54,7 +54,7 @@ async function getHistoricalEvents(opt) {
       let from = logs[0].block_number;
       let to = logs[logs.length - 1].block_number;
       const txs = await processEvents(logs, filter, contractName, eventConfig);
-      log(
+      console.info(
         `Inserting ${txs.length} rows ${nameTable(
           contractName,
           filterName
@@ -84,12 +84,16 @@ async function subscribeToFutureEvents(
   type,
   eventName,
   contractName,
-  eventConfig
+  eventConfig,
+  filterName
 ) {
   log(`Starting Monitor for ${contractName} on event ${eventName}`);
   contract.on(eventName, async (...args) => {
     const event = [args[args.length - 1]];
     const txs = await processEvents(event, type, contractName, eventConfig);
+    console.info(
+      `Inserting ${txs.length} rows ${nameTable(contractName, filterName)}`
+    );
     await eventManager.updateEvents(txs, eventName, contractName);
   });
 }
@@ -162,7 +166,8 @@ async function getEventInfo(contractName, eventConfig, getStarted) {
       filter,
       name,
       contractName,
-      eventConfig
+      eventConfig,
+      filterName
     );
   }
 }
