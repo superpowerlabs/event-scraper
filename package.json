@@ -1,6 +1,6 @@
 {
-  "name": "mob-api",
-  "version": "0.1.1",
+  "name": "event-scraper",
+  "version": "0.2.0",
   "private": true,
   "dependencies": {
     "case": "^1.6.3",

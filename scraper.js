@@ -3,6 +3,7 @@
 const commandLineArgs = require("command-line-args");
 const eventScraper = require("./src/lib/eventScraper");
 const { migrateEvents } = require("./src/migrateEvents");
+const pkg = require("./package.json");
 
 const optionDefinitions = [
   {
@@ -14,12 +15,6 @@ const optionDefinitions = [
     name: "verbose",
     alias: "v",
     type: Boolean,
-  },
-  {
-    name: "dryrun",
-    alias: "d",
-    type: Boolean,
-    defaultValue: false,
   },
   {
     name: "types",
@@ -76,12 +71,12 @@ try {
 }
 
 if (options.help) {
-  console.info(`SYNR Volume Service
+  console.info(`
+Event Scraper V${pkg.version}
 
 Options:
   -h, --help      This help.
-  -v, --verbose   Shows all the console logs
-  -d, --dryrun    Don't persiste transactions to the database
+  -v, --verbose   Shows all the console logs. Default TRUE
   -t, --types     A comma seperated string o type of event to get (for example "Staked, Unstaked, YieldClaimed")
   -c, --contract  The contract to get events from
   -e, --event     The event to retrieve
@@ -95,8 +90,10 @@ Options:
 
 async function main() {
   await migrateEvents();
-  // exit after the first run without starting the monitoring
-  options.exit = true;
+  if (typeof options.verbose === "undefined") {
+    options.verbose = true;
+  }
+  options.scope = "historical";
   await eventScraper(options);
 }
 

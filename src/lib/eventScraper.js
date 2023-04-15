@@ -3,8 +3,6 @@ const Case = require("case");
 const ethers = require("ethers");
 const eventManager = require("./EventManager");
 const Moralis = require("moralis").default;
-const Web3 = require("web3");
-const web3 = new Web3();
 const _ = require("lodash");
 
 const {
@@ -25,10 +23,10 @@ function log(...params) {
   }
 }
 
-async function getHistoricalEvents(opt) {
-  let { filter, contractName, eventConfig, filterName, contract } = opt;
+async function retrieveHistoricalEvents(params) {
+  let { filter, contractName, eventConfig, filterName, contract } = params;
   let logs;
-  let topic = web3.utils.keccak256(opt.filterName);
+  let topic = ethers.utils.id(params.filterName);
   const count = options.force
     ? 0
     : await eventManager.countEvents(contractName, filterName);
@@ -55,10 +53,10 @@ async function getHistoricalEvents(opt) {
       let to = logs[logs.length - 1].block_number;
       const txs = await processEvents(logs, filter, contractName, eventConfig);
       console.info(
-        `Inserting ${txs.length} rows ${nameTable(
+        `Inserting ${txs.length} rows into ${nameTable(
           contractName,
           filterName
-        )} from ${from} to ${to}`
+        )}\n  from block ${from} to ${to}`
       );
       await eventManager.updateEvents(txs, filterName, contractName);
     }
@@ -79,7 +77,7 @@ async function processEvents(response, filter, contractName, eventConfig) {
   return processedEvents;
 }
 
-async function subscribeToFutureEvents(
+async function retrieveRealtimeEvents(
   contract,
   type,
   eventName,
@@ -87,12 +85,12 @@ async function subscribeToFutureEvents(
   eventConfig,
   filterName
 ) {
-  log(`Starting Monitor for ${contractName} on event ${eventName}`);
+  console.info(`Monitoring ${contractName} on event ${eventName}`);
   contract.on(eventName, async (...args) => {
     const event = [args[args.length - 1]];
     const txs = await processEvents(event, type, contractName, eventConfig);
     console.info(
-      `Inserting ${txs.length} rows ${nameTable(contractName, filterName)}`
+      `Inserting ${txs.length} rows into ${nameTable(contractName, filterName)}`
     );
     await eventManager.updateEvents(txs, eventName, contractName);
   });
@@ -151,17 +149,16 @@ async function getEventInfo(contractName, eventConfig, getStarted) {
     provider
   );
   const filter = contract.filters[filterName]();
-  const opt = {
-    filter,
-    contractName,
-    eventConfig,
-    filterName,
-    contract,
-  };
   if (getStarted) {
-    await getHistoricalEvents(opt);
+    await retrieveHistoricalEvents({
+      filter,
+      contractName,
+      eventConfig,
+      filterName,
+      contract,
+    });
   } else {
-    await subscribeToFutureEvents(
+    await retrieveRealtimeEvents(
       contract,
       filter,
       name,
@@ -172,39 +169,39 @@ async function getEventInfo(contractName, eventConfig, getStarted) {
   }
 }
 
-async function getEvents(subscribe) {
-  const promises = [];
-  for (let contractName in eventsByContract) {
-    if (!options.contract || contractName === options.contract) {
-      for (let eventConfig of eventsByContract[contractName].events) {
-        if (!options.event || eventConfig.name === options.event) {
-          if (subscribe) {
-            promises.push(getEventInfo(contractName, eventConfig));
-          } else {
-            await getEventInfo(contractName, eventConfig, true);
-          }
-        }
-      }
-    }
-  }
-  if (subscribe) {
-    return Promise.all(promises);
-  }
-}
-
-async function main(opt) {
+async function eventScraper(opt) {
   if (opt) {
     options = Object.assign(options, opt);
   }
   await Moralis.start({
     apiKey: process.env.MORALIS,
   });
-
-  await getEvents();
-  // when not launched via scraper.js, it starts the monitoring
-  if (!options.exit) {
-    await getEvents("subscribe");
+  if (options.scope === "historical") {
+    // called by `scraper.js`
+    // retrieve historical events using Moralis API
+    for (let contractName in eventsByContract) {
+      if (!options.contract || contractName === options.contract) {
+        for (let eventConfig of eventsByContract[contractName].events) {
+          if (!options.event || eventConfig.name === options.event) {
+            await getEventInfo(contractName, eventConfig, true);
+          }
+        }
+      }
+    }
+  } else if (options.scope === "realtime") {
+    // called by `monitor.js`
+    // monitor future events using Infura and BSCRPC API
+    const promises = [];
+    for (let contractName in eventsByContract) {
+      for (let eventConfig of eventsByContract[contractName].events) {
+        promises.push(getEventInfo(contractName, eventConfig));
+      }
+    }
+    return Promise.all(promises);
+  } else {
+    // uhm...
+    console.error("Unknown scope");
   }
 }
 
-module.exports = main;
+module.exports = eventScraper;
