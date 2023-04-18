@@ -98,11 +98,12 @@ async function retrieveRealtimeEvents(
 
 async function processSingleEvent(event, filter, argNames, argTypes) {
   let tx;
-  const { transaction_hash, block_number } = event;
+  const { transaction_hash, block_number, block_timestamp } = event;
   try {
     tx = {
       transaction_hash,
       block_number,
+      block_timestamp,
     };
     for (let i = 0; i < argNames.length; i++) {
       const arg = argNames[i];
