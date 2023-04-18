@@ -8,12 +8,13 @@ const migrate = require("./db/migrations/migrate");
 const { typeMapping } = require("./config");
 
 async function migrateEvent(tableName, params, dbw) {
-  let array = ["transaction_hash", "block_number"];
+  let array = ["transaction_hash", "block_number", "block_timestamp"];
   return dbw.schema.createTable(tableName, (table) => {
     table.increments("primary_key").primary();
     table.string("transaction_hash");
     table.integer("block_number").index();
     table.timestamp("created_at").defaultTo(dbw.fn.now());
+    table.timestamp("block_timestamp").index();
     for (const param of params) {
       let paramName = Case.snake(param.name);
       let paramType = typeMapping[param.type];
