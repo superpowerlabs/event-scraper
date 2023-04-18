@@ -174,7 +174,7 @@ async function eventScraper(opt) {
     options = Object.assign(options, opt);
   }
   await Moralis.start({
-    apiKey: process.env.MORALIS,
+    apiKey: process.env.MORALIS_API_KEY,
   });
   if (options.scope === "historical") {
     // called by `scraper.js`
