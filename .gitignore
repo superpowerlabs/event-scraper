@@ -121,3 +121,7 @@ src/config/deployedForTest.json
 /snapshot
 /tmp
 /scripts/tmp
+
+# here we can override repo's settings to re-use the code in a different project
+config-override.js
+
