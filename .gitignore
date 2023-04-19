@@ -112,7 +112,6 @@ dist
 .tern-port
 /webassembly-react
 
-.husky
 src/config/deployed.json
 src/config/deployedForTest.json
 /pgdata

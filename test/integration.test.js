@@ -35,6 +35,7 @@ describe("Integration test", function () {
       const obj = [
         {
           transaction_hash: "hash",
+          block_timestamp: Date.now(),
           block_number: 1,
           to: "you",
           from: "me",
@@ -63,6 +64,7 @@ describe("Integration test", function () {
       const obj = [
         {
           transaction_hash: "hash",
+          block_timestamp: Date.now(),
           block_number: 1,
           to: "you",
           from: "me",
@@ -70,6 +72,7 @@ describe("Integration test", function () {
         },
         {
           transaction_hash: "hash",
+          block_timestamp: Date.now(),
           block_number: 1,
           to: "you",
           from: "me",
@@ -103,6 +106,7 @@ describe("Integration test", function () {
       const obj = [
         {
           transaction_hash: "hash",
+          block_timestamp: Date.now(),
           block_number: 1,
           to: "you",
           from: "me",
@@ -112,6 +116,7 @@ describe("Integration test", function () {
       const obj1 = [
         {
           transaction_hash: "hash",
+          block_timestamp: Date.now(),
           block_number: 1,
           to: "you",
           from: "me",
@@ -157,6 +162,7 @@ describe("Integration test", function () {
       const obj = [
         {
           transaction_hash: "hash",
+          block_timestamp: Date.now(),
           block_number: 1,
           to: "you",
           from: "me",
@@ -166,6 +172,7 @@ describe("Integration test", function () {
       const obj1 = [
         {
           transaction_hash: "hesh",
+          block_timestamp: Date.now(),
           block_number: 2,
           to: "you",
           from: "me",
@@ -175,6 +182,7 @@ describe("Integration test", function () {
       const obj2 = [
         {
           transaction_hash: "hosh",
+          block_timestamp: Date.now(),
           block_number: 3,
           to: "you",
           from: "me",
@@ -184,6 +192,7 @@ describe("Integration test", function () {
       const obj3 = [
         {
           transaction_hash: "hish",
+          block_timestamp: Date.now(),
           block_number: 4,
           to: "you",
           from: "me",
@@ -193,6 +202,7 @@ describe("Integration test", function () {
       const obj4 = [
         {
           transaction_hash: "hish",
+          block_timestamp: Date.now(),
           block_number: 3,
           to: "you",
           from: "me",
@@ -240,6 +250,7 @@ describe("Integration test", function () {
       const obj = [
         {
           transaction_hash: "hash",
+          block_timestamp: Date.now(),
           block_number: 1,
           to: "you",
           from: "me",
