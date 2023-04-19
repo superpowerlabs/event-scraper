@@ -16,17 +16,19 @@ let averageBlockPerDay = {
   137: 1800,
 };
 
-// checks if there are overrides
-const configOverridePath = path.join(__dirname, "../../config-override.js");
-if (fs.existsSync(configOverridePath)) {
-  const configOverride = require(configOverridePath);
-  contracts = configOverride.contracts;
-  eventsByContract = configOverride.eventsByContract;
-  providers = { ...providers, ...(configOverride.providers || {}) };
-  averageBlockPerDay = {
-    ...averageBlockPerDay,
-    ...(configOverride.averageBlockPerDay || {}),
-  };
+if (process.env.NODE_ENV !== "test") {
+  // checks if there are overrides
+  const configOverridePath = path.join(__dirname, "../../config-override.js");
+  if (fs.existsSync(configOverridePath)) {
+    const configOverride = require(configOverridePath);
+    contracts = configOverride.contracts;
+    eventsByContract = configOverride.eventsByContract;
+    providers = { ...providers, ...(configOverride.providers || {}) };
+    averageBlockPerDay = {
+      ...averageBlockPerDay,
+      ...(configOverride.averageBlockPerDay || {}),
+    };
+  }
 }
 
 const config = {

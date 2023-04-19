@@ -1,11 +1,10 @@
 require("dotenv").config();
 const debug = require("./db/debug");
-const eventsByContract = require("./config/eventsByContract.js");
 const Sql = require("./db/Sql");
 const Case = require("case");
 const utils = require("./utils");
 const migrate = require("./db/migrations/migrate");
-const { typeMapping } = require("./config");
+const { eventsByContract, typeMapping } = require("./config");
 
 async function migrateEvent(tableName, params, dbw) {
   let array = ["transaction_hash", "block_number", "block_timestamp"];
