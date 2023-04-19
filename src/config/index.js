@@ -17,7 +17,7 @@ let averageBlockPerDay = {
 };
 
 // checks if there are overrides
-const configOverridePath = path.join(__dirname, "../config-override.js");
+const configOverridePath = path.join(__dirname, "../../config-override.js");
 if (fs.existsSync(configOverridePath)) {
   const configOverride = require(configOverridePath);
   contracts = configOverride.contracts;
