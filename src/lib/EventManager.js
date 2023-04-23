@@ -68,6 +68,7 @@ class EventManager extends Sql {
           .block_number
       );
     }
+    return false;
   }
 
   async latestEvents(contractName, filter) {

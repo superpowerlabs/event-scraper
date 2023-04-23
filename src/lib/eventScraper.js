@@ -10,6 +10,7 @@ const {
   eventsByContract,
   contracts,
   averageBlockPerDay,
+  abi,
 } = require("../config");
 const { nameTable } = require("../utils");
 const requestHandler = require("./requestHandler");
@@ -27,14 +28,18 @@ async function retrieveHistoricalEvents(params) {
   let { filter, contractName, eventConfig, filterName, contract } = params;
   let logs;
   let topic = ethers.utils.id(params.filterName);
-  const count = options.force
-    ? 0
-    : await eventManager.countEvents(contractName, filterName);
-  let recoverHours = options.hours || 12;
-  let recoverOffset = Math.round(
-    (averageBlockPerDay[eventConfig.chainId] * recoverHours) / 24
-  );
-  let offset = count > recoverOffset ? count - recoverOffset : count;
+  let fromBlock;
+  if (!options.force) {
+    const latestEventBlock = await eventManager.latestBlockByEvent(
+      contractName,
+      filterName
+    );
+    if (latestEventBlock) {
+      fromBlock = latestEventBlock - (options.blocks || 0);
+      if (fromBlock < 0) fromBlock = undefined;
+    }
+  }
+  let offset = 0;
   let limit = options.limit || 500;
   do {
     const response = await requestHandler(
@@ -45,6 +50,7 @@ async function retrieveHistoricalEvents(params) {
         offset,
         topic,
         abi: eventConfig.ABI[0],
+        fromBlock,
       })
     );
     logs = response.jsonResponse.result;
@@ -69,6 +75,7 @@ async function processEvents(response, filter, contractName, eventConfig) {
   const argNames = eventConfig.ABI[0].inputs.map((e) => e.name);
   const argTypes = eventConfig.ABI[0].inputs.map((e) => e.type);
   for (let event of response) {
+    console.log(event.block_number);
     const tx = await processSingleEvent(event, filter, argNames, argTypes);
     if (tx !== undefined) {
       processedEvents.push(tx);
