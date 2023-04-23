@@ -38,8 +38,8 @@ const optionDefinitions = [
     type: Boolean,
   },
   {
-    name: "hours",
-    alias: "o",
+    name: "blocks",
+    alias: "b",
     type: Number,
   },
   {
@@ -81,7 +81,7 @@ Options:
   -c, --contract  The contract to get events from
   -e, --event     The event to retrieve
   -f, --force     Force the retrieve of all the events from deployment time
-  -o, --hours     The number of hours to go back from the last saved event
+  -b, --blocks    It retrieves the events with "fromBlock = latest blocks - blocks" 
   -l, --limit     The number of events to retrieve at any request
 `);
   // eslint-disable-next-line no-process-exit
