@@ -92,7 +92,7 @@ async function retrieveRealtimeEvents(
     console.info(
       `Inserting ${txs.length} rows into ${nameTable(contractName, filterName)}`
     );
-    await eventManager.updateEvents(txs, eventName, contractName);
+    await eventManager.updateEvents(txs, filterName, contractName);
   });
 }
 
