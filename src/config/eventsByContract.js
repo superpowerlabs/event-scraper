@@ -262,7 +262,10 @@ const eventsByContract = {
       },
     ],
   },
-  FarmMintable: {
+};
+
+if (!/^\/home\/ubuntu/.test(__dirname)) {
+  eventsByContract.FarmMintable = {
     chainId: 5,
     startBlock: 23911196,
     events: [
@@ -272,7 +275,7 @@ const eventsByContract = {
         ABI: ABI.Transfer,
       },
     ],
-  },
-};
+  };
+}
 
 module.exports = eventsByContract;
