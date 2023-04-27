@@ -262,6 +262,17 @@ const eventsByContract = {
       },
     ],
   },
+  FarmMintable: {
+    chainId: 5,
+    startBlock: 23911196,
+    events: [
+      {
+        name: "Transfer",
+        filter: "Transfer(address,address,uint256)",
+        ABI: ABI.Transfer,
+      },
+    ],
+  },
 };
 
 module.exports = eventsByContract;

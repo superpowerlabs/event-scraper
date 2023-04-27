@@ -7,6 +7,7 @@ let eventsByContract = require("./eventsByContract");
 
 let providers = {
   1: new ethers.providers.InfuraProvider("homestead", process.env.INFURA_KEY),
+  5: new ethers.providers.InfuraProvider("homestead", process.env.INFURA_KEY),
   56: new ethers.providers.JsonRpcProvider("https://bscrpc.com", 56),
 };
 
