@@ -12,11 +12,31 @@ const {
   averageBlockPerDay,
   abi,
 } = require("../config");
-const { nameTable } = require("../utils");
+const { nameTable, sleep } = require("../utils");
 const requestHandler = require("./requestHandler");
 
 let failedEvents = [];
 let options = {};
+
+const timestampCache = {};
+
+async function getTimestampFromBlock(chainId, blockNumber) {
+  if (!timestampCache[chainId]) {
+    timestampCache[chainId] = {};
+  }
+  if (!timestampCache[chainId][blockNumber]) {
+    if (typeof timestampCache[chainId][blockNumber] === "undefined") {
+      timestampCache[chainId][blockNumber] = 0;
+      const block = await providers[chainId].getBlock(blockNumber);
+      timestampCache[chainId][blockNumber] = block.timestamp;
+    } else {
+      while (!timestampCache[chainId][blockNumber]) {
+        await sleep(100);
+      }
+    }
+  }
+  return new Date(timestampCache[chainId][blockNumber]).toISOString();
+}
 
 function log(...params) {
   if (options.verbose) {
@@ -24,10 +44,7 @@ function log(...params) {
   }
 }
 
-async function retrieveHistoricalEvents(params) {
-  let { filter, contractName, eventConfig, filterName, contract } = params;
-  let logs;
-  let topic = ethers.utils.id(params.filterName);
+async function getFromBlock(contractName, filterName) {
   let fromBlock;
   if (!options.force) {
     const latestEventBlock = await eventManager.latestBlockByEvent(
@@ -39,6 +56,14 @@ async function retrieveHistoricalEvents(params) {
       if (fromBlock < 0) fromBlock = undefined;
     }
   }
+  return fromBlock;
+}
+
+async function retrieveHistoricalEvents(params) {
+  let { filter, contractName, eventConfig, filterName, contract } = params;
+  let logs;
+  let topic = ethers.utils.id(params.filterName);
+  let fromBlock = await getFromBlock(contractName, filterName);
   let offset = 0;
   let limit = options.limit || 500;
   do {
@@ -71,12 +96,26 @@ async function retrieveHistoricalEvents(params) {
 }
 
 async function processEvents(response, filter, contractName, eventConfig) {
+  const { chainId } = eventConfig;
+  if (Object.keys(timestampCache[chainId]).length > 1000) {
+    // we partially empty the timestamp cache
+    let j = 0;
+    for (let key in timestampCache[chainId]) {
+      if (++j > 500) break;
+      delete timestampCache[chainId][key];
+    }
+  }
   const processedEvents = [];
   const argNames = eventConfig.ABI[0].inputs.map((e) => e.name);
   const argTypes = eventConfig.ABI[0].inputs.map((e) => e.type);
   for (let event of response) {
-    console.log(event.block_number);
-    const tx = await processSingleEvent(event, filter, argNames, argTypes);
+    const tx = await processSingleEvent(
+      event,
+      filter,
+      argNames,
+      argTypes,
+      eventConfig
+    );
     if (tx !== undefined) {
       processedEvents.push(tx);
     }
@@ -99,11 +138,38 @@ async function retrieveRealtimeEvents(
     console.info(
       `Inserting ${txs.length} rows into ${nameTable(contractName, filterName)}`
     );
-    await eventManager.updateEvents(txs, filterName, contractName);
+    try {
+      await eventManager.updateEvents(txs, filterName, contractName);
+    } catch (error) {
+      console.error(">>>>>>> Error updateEvents");
+      console.error(error);
+    }
   });
 }
 
-async function processSingleEvent(event, filter, argNames, argTypes) {
+async function processSingleEvent(...args) {
+  if (args[0].transaction_hash) {
+    return processMoralisEvent(...args);
+  } else {
+    return processRPCEvent(...args);
+  }
+}
+
+function formatAttribute(arg, type, data) {
+  switch (type) {
+    case "uint256":
+      return data[arg].toString();
+    case "boolean":
+      return (typeof data[arg] === "boolean" && data[arg]) ||
+        /true/i.test(data[arg])
+        ? "TRUE"
+        : "FALSE";
+    default:
+      return data[arg];
+  }
+}
+
+async function processMoralisEvent(event, filter, argNames, argTypes) {
   let tx;
   const { transaction_hash, block_number, block_timestamp } = event;
   try {
@@ -113,31 +179,48 @@ async function processSingleEvent(event, filter, argNames, argTypes) {
       block_timestamp,
     };
     for (let i = 0; i < argNames.length; i++) {
-      const arg = argNames[i];
-      const type = argTypes[i];
-      const dataArg = Case.snake(arg);
-      switch (type) {
-        case "uint256":
-          tx[dataArg] = event.data[arg].toString();
-          break;
-        case "boolean":
-          tx[dataArg] =
-            (typeof event.data[arg] === "boolean" && event.data[arg]) ||
-            /true/i.test(event.data[arg])
-              ? "TRUE"
-              : "FALSE";
-          break;
-        default:
-          tx[dataArg] = event.data[arg];
-      }
+      const dataArg = Case.snake(argNames[i]);
+      tx[dataArg] = formatAttribute(argNames[i], argTypes[i], event.data);
     }
   } catch (error) {
     // this should never happen
-    // TODO if happens, we should log the failed events on file
-    failedEvents.push({ event: event, type: filter });
-    console.error(error.message);
+    logFailedEvent(event, filter, error);
   }
   return tx;
+}
+
+async function processRPCEvent(event, filter, argNames, argTypes, eventConfig) {
+  let tx;
+  const { transactionHash, blockNumber } = event;
+  try {
+    tx = {
+      transaction_hash: transactionHash,
+      block_timestamp: await getTimestampFromBlock(
+        eventConfig.chainId,
+        blockNumber
+      ),
+      block_number: blockNumber,
+    };
+    for (let i = 0; i < argNames.length; i++) {
+      const dataArg = Case.snake(argNames[i]);
+      tx[dataArg] = formatAttribute(argNames[i], argTypes[i], event.args);
+    }
+  } catch (error) {
+    // this should never happen
+    logFailedEvent(event, filter, error);
+  }
+  return tx;
+}
+
+function logFailedEvent(event, filter, error) {
+  console.error(`
+
+Failed to process event with filter 
+${JSON.stringify(filter)}:
+Event:
+${JSON.stringify(event)}
+Error:
+${error.message}`);
 }
 
 async function getEventInfo(contractName, eventConfig, getStarted) {
@@ -184,31 +267,33 @@ async function eventScraper(opt) {
   await Moralis.start({
     apiKey: process.env.MORALIS_API_KEY,
   });
-  if (options.scope === "historical") {
-    // called by `scraper.js`
-    // retrieve historical events using Moralis API
-    for (let contractName in eventsByContract) {
-      if (!options.contract || contractName === options.contract) {
-        for (let eventConfig of eventsByContract[contractName].events) {
-          if (!options.event || eventConfig.name === options.event) {
+  const promises = [];
+  for (let contractName in eventsByContract) {
+    if (
+      (options.debug && contractName !== "USDC") ||
+      (!options.debug && contractName === "USDC")
+    ) {
+      continue;
+    }
+    if (!options.contract || contractName === options.contract) {
+      for (let eventConfig of eventsByContract[contractName].events) {
+        if (!options.event || eventConfig.name === options.event) {
+          if (options.scope === "historical") {
             await getEventInfo(contractName, eventConfig, true);
+          } else if (options.scope === "realtime") {
+            promises.push(getEventInfo(contractName, eventConfig));
+          } else {
+            // uhm...
+            console.error("Unknown scope");
+            break;
           }
         }
       }
     }
-  } else if (options.scope === "realtime") {
-    // called by `monitor.js`
-    // monitor future events using Infura and BSCRPC API
-    const promises = [];
-    for (let contractName in eventsByContract) {
-      for (let eventConfig of eventsByContract[contractName].events) {
-        promises.push(getEventInfo(contractName, eventConfig));
-      }
-    }
-    return Promise.all(promises);
-  } else {
-    // uhm...
-    console.error("Unknown scope");
+  }
+  if (options.scope === "realtime") {
+    await Promise.all(promises);
+    return new Promise(() => {});
   }
 }
 
