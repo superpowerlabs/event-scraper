@@ -12,7 +12,7 @@ const {
   averageBlockPerDay,
   abi,
 } = require("../config");
-const { nameTable } = require("../utils");
+const { nameTable, sleep } = require("../utils");
 const requestHandler = require("./requestHandler");
 
 let failedEvents = [];
@@ -97,12 +97,7 @@ async function retrieveRealtimeEvents(
   filterName
 ) {
   console.info(`Monitoring ${contractName} on event ${eventName}`);
-  let opt = {};
-  if (options.blocks) {
-    opt = { fromBlock: await getFromBlock(contractName, filterName) };
-  }
-  console.log(opt);
-  contract.on(eventName, opt, async (...args) => {
+  contract.on(eventName, async (...args) => {
     const event = [args[args.length - 1]];
     const txs = await processEvents(event, type, contractName, eventConfig);
     console.info(
@@ -163,10 +158,9 @@ async function processRPCEvent(event, filter, argNames, argTypes) {
       blockTimestamp,
       blockNumber,
     };
-    console.log(JSON.stringify(event, null, 2));
     for (let i = 0; i < argNames.length; i++) {
       const dataArg = Case.snake(argNames[i]);
-      tx[dataArg] = formatAttribute(argNames, argTypes, event.data);
+      tx[dataArg] = formatAttribute(argNames, argTypes, event.args);
     }
   } catch (error) {
     // this should never happen
@@ -244,7 +238,8 @@ async function eventScraper(opt) {
     }
   }
   if (options.scope === "realtime") {
-    return Promise.all(promises);
+    await Promise.all(promises);
+    return new Promise(() => {});
   }
 }
 

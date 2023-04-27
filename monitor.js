@@ -25,16 +25,6 @@ const optionDefinitions = [
     alias: "e",
     type: String,
   },
-  {
-    name: "blocks",
-    alias: "b",
-    type: Number,
-  },
-  {
-    name: "limit",
-    alias: "l",
-    type: Number,
-  },
 ];
 
 function error(message) {
@@ -67,8 +57,6 @@ Options:
   -v, --verbose   Shows all the console logs. Default TRUE
   -c, --contract  The contract to get events from
   -e, --event     The event to retrieve
-  -b, --blocks    It retrieves the events with "fromBlock = latest blocks - blocks" 
-  -l, --limit     The number of events to retrieve at any request
 `);
   // eslint-disable-next-line no-process-exit
   process.exit(0);
