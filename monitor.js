@@ -25,6 +25,11 @@ const optionDefinitions = [
     alias: "e",
     type: String,
   },
+  {
+    name: "debug",
+    alias: "d",
+    type: Boolean,
+  },
 ];
 
 function error(message) {
@@ -57,6 +62,7 @@ Options:
   -v, --verbose   Shows all the console logs. Default TRUE
   -c, --contract  The contract to get events from
   -e, --event     The event to retrieve
+  -d, --debug     Debug mode (it loads the USDC contract on Ethereum)
 `);
   // eslint-disable-next-line no-process-exit
   process.exit(0);

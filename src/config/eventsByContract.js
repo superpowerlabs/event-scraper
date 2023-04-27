@@ -164,6 +164,33 @@ const ABI = {
       type: "event",
     },
   ],
+  TransferERC20: [
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "address",
+          name: "from",
+          type: "address",
+        },
+        {
+          indexed: true,
+          internalType: "address",
+          name: "to",
+          type: "address",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "value",
+          type: "uint256",
+        },
+      ],
+      name: "Transfer",
+      type: "event",
+    },
+  ],
 };
 
 const eventsByContract = {
@@ -262,20 +289,17 @@ const eventsByContract = {
       },
     ],
   },
-};
-
-if (!/^\/home\/ubuntu/.test(__dirname)) {
-  eventsByContract.FarmMintable = {
-    chainId: 5,
-    startBlock: 23911196,
+  USDC: {
+    chainId: 1,
+    startBlock: 17140584,
     events: [
       {
         name: "Transfer",
         filter: "Transfer(address,address,uint256)",
-        ABI: ABI.Transfer,
+        ABI: ABI.TransferERC20,
       },
     ],
-  };
-}
+  },
+};
 
 module.exports = eventsByContract;

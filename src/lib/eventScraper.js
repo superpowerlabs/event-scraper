@@ -18,6 +18,26 @@ const requestHandler = require("./requestHandler");
 let failedEvents = [];
 let options = {};
 
+const timestampCache = {};
+
+async function getTimestampFromBlock(chainId, blockNumber) {
+  if (!timestampCache[chainId]) {
+    timestampCache[chainId] = {};
+  }
+  if (!timestampCache[chainId][blockNumber]) {
+    if (typeof timestampCache[chainId][blockNumber] === "undefined") {
+      timestampCache[chainId][blockNumber] = 0;
+      const block = await providers[chainId].getBlock(blockNumber);
+      timestampCache[chainId][blockNumber] = block.timestamp;
+    } else {
+      while (!timestampCache[chainId][blockNumber]) {
+        await sleep(100);
+      }
+    }
+  }
+  return new Date(timestampCache[chainId][blockNumber]).toISOString();
+}
+
 function log(...params) {
   if (options.verbose) {
     console.debug(...params);
@@ -76,11 +96,26 @@ async function retrieveHistoricalEvents(params) {
 }
 
 async function processEvents(response, filter, contractName, eventConfig) {
+  const { chainId } = eventConfig;
+  if (Object.keys(timestampCache[chainId]).length > 1000) {
+    // we partially empty the timestamp cache
+    let j = 0;
+    for (let key in timestampCache[chainId]) {
+      if (++j > 500) break;
+      delete timestampCache[chainId][key];
+    }
+  }
   const processedEvents = [];
   const argNames = eventConfig.ABI[0].inputs.map((e) => e.name);
   const argTypes = eventConfig.ABI[0].inputs.map((e) => e.type);
   for (let event of response) {
-    const tx = await processSingleEvent(event, filter, argNames, argTypes);
+    const tx = await processSingleEvent(
+      event,
+      filter,
+      argNames,
+      argTypes,
+      eventConfig
+    );
     if (tx !== undefined) {
       processedEvents.push(tx);
     }
@@ -103,7 +138,12 @@ async function retrieveRealtimeEvents(
     console.info(
       `Inserting ${txs.length} rows into ${nameTable(contractName, filterName)}`
     );
-    await eventManager.updateEvents(txs, filterName, contractName);
+    try {
+      await eventManager.updateEvents(txs, filterName, contractName);
+    } catch (error) {
+      console.error(">>>>>>> Error updateEvents");
+      console.error(error);
+    }
   });
 }
 
@@ -149,18 +189,21 @@ async function processMoralisEvent(event, filter, argNames, argTypes) {
   return tx;
 }
 
-async function processRPCEvent(event, filter, argNames, argTypes) {
+async function processRPCEvent(event, filter, argNames, argTypes, eventConfig) {
   let tx;
-  const { transactionHash, blockTimestamp, blockNumber } = event;
+  const { transactionHash, blockNumber } = event;
   try {
     tx = {
-      transactionHash,
-      blockTimestamp,
-      blockNumber,
+      transaction_hash: transactionHash,
+      block_timestamp: await getTimestampFromBlock(
+        eventConfig.chainId,
+        blockNumber
+      ),
+      block_number: blockNumber,
     };
     for (let i = 0; i < argNames.length; i++) {
       const dataArg = Case.snake(argNames[i]);
-      tx[dataArg] = formatAttribute(argNames, argTypes, event.args);
+      tx[dataArg] = formatAttribute(argNames[i], argTypes[i], event.args);
     }
   } catch (error) {
     // this should never happen
@@ -170,9 +213,14 @@ async function processRPCEvent(event, filter, argNames, argTypes) {
 }
 
 function logFailedEvent(event, filter, error) {
-  console.error("Failed to process event with filter", filter);
-  console.error(JSON.stringify(event));
-  console.error(error.message);
+  console.error(`
+
+Failed to process event with filter 
+${JSON.stringify(filter)}:
+Event:
+${JSON.stringify(event)}
+Error:
+${error.message}`);
 }
 
 async function getEventInfo(contractName, eventConfig, getStarted) {
@@ -213,10 +261,6 @@ async function getEventInfo(contractName, eventConfig, getStarted) {
 }
 
 async function eventScraper(opt) {
-  testEventMonitoring().then();
-  console.log("returned");
-  return;
-
   if (opt) {
     options = Object.assign(options, opt);
   }
@@ -225,6 +269,12 @@ async function eventScraper(opt) {
   });
   const promises = [];
   for (let contractName in eventsByContract) {
+    if (
+      (options.debug && contractName !== "USDC") ||
+      (!options.debug && contractName === "USDC")
+    ) {
+      continue;
+    }
     if (!options.contract || contractName === options.contract) {
       for (let eventConfig of eventsByContract[contractName].events) {
         if (!options.event || eventConfig.name === options.event) {
@@ -248,49 +298,3 @@ async function eventScraper(opt) {
 }
 
 module.exports = eventScraper;
-
-async function testEventMonitoring() {
-  const chainId = 1;
-  const address = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48";
-  const ABI = [
-    {
-      anonymous: false,
-      inputs: [
-        {
-          indexed: true,
-          internalType: "address",
-          name: "from",
-          type: "address",
-        },
-        {
-          indexed: true,
-          internalType: "address",
-          name: "to",
-          type: "address",
-        },
-        {
-          indexed: true,
-          internalType: "uint256",
-          name: "value",
-          type: "uint256",
-        },
-      ],
-      name: "Transfer",
-      type: "event",
-    },
-  ];
-
-  const provider = new ethers.providers.JsonRpcProvider(process.env.INFURA_KEY);
-  const contract = new ethers.Contract(address, ABI, provider);
-
-  contract
-    .on("Transfer", (from, to, value, event) => {
-      console.log(`From: ${from}`);
-      console.log(`To: ${to}`);
-      console.log(`Value: ${value.toString()}`);
-      console.log(event);
-    })
-    .on("error", console.error);
-
-  return new Promise(() => {});
-}
