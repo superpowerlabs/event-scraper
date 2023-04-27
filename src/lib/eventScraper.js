@@ -213,6 +213,10 @@ async function getEventInfo(contractName, eventConfig, getStarted) {
 }
 
 async function eventScraper(opt) {
+  testEventMonitoring().then();
+  console.log("returned");
+  return;
+
   if (opt) {
     options = Object.assign(options, opt);
   }
@@ -244,3 +248,49 @@ async function eventScraper(opt) {
 }
 
 module.exports = eventScraper;
+
+async function testEventMonitoring() {
+  const chainId = 1;
+  const address = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48";
+  const ABI = [
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "address",
+          name: "from",
+          type: "address",
+        },
+        {
+          indexed: true,
+          internalType: "address",
+          name: "to",
+          type: "address",
+        },
+        {
+          indexed: true,
+          internalType: "uint256",
+          name: "value",
+          type: "uint256",
+        },
+      ],
+      name: "Transfer",
+      type: "event",
+    },
+  ];
+
+  const provider = new ethers.providers.JsonRpcProvider(process.env.INFURA_KEY);
+  const contract = new ethers.Contract(address, ABI, provider);
+
+  contract
+    .on("Transfer", (from, to, value, event) => {
+      console.log(`From: ${from}`);
+      console.log(`To: ${to}`);
+      console.log(`Value: ${value.toString()}`);
+      console.log(event);
+    })
+    .on("error", console.error);
+
+  return new Promise(() => {});
+}
