@@ -97,7 +97,7 @@ async function retrieveHistoricalEvents(params) {
 
 async function processEvents(response, filter, contractName, eventConfig) {
   const { chainId } = eventConfig;
-  if (Object.keys(timestampCache[chainId]).length > 1000) {
+  if (Object.keys(timestampCache[chainId] || []).length > 1000) {
     // we partially empty the timestamp cache
     let j = 0;
     for (let key in timestampCache[chainId]) {
