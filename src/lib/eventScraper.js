@@ -263,7 +263,7 @@ async function getEventInfo(contractName, eventConfig, getStarted) {
 let started = false;
 
 async function eventScraper(opt) {
-  console.log("Going");
+  console.log("Starting event scraper");
   if (opt) {
     options = Object.assign(options, opt);
   }
