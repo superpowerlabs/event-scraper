@@ -225,7 +225,7 @@ ${error.message}`);
 
 async function getEventInfo(contractName, eventConfig, getStarted) {
   log(
-    `Getting ${getStarted ? "initial " : ""}"${
+    `Getting ${getStarted ? "historical " : ""}"${
       eventConfig.name
     }" events from "${contractName}"`
   );
@@ -260,13 +260,19 @@ async function getEventInfo(contractName, eventConfig, getStarted) {
   }
 }
 
+let started = false;
+
 async function eventScraper(opt) {
+  console.log("Going");
   if (opt) {
     options = Object.assign(options, opt);
   }
-  await Moralis.start({
-    apiKey: process.env.MORALIS_API_KEY,
-  });
+  if (!started) {
+    started = true;
+    await Moralis.start({
+      apiKey: process.env.MORALIS_API_KEY,
+    });
+  }
   const promises = [];
   for (let contractName in eventsByContract) {
     if (
@@ -293,7 +299,10 @@ async function eventScraper(opt) {
   }
   if (options.scope === "realtime") {
     await Promise.all(promises);
+    // this is a hack to keep the process alive
     return new Promise(() => {});
+  } else {
+    return true;
   }
 }
 
