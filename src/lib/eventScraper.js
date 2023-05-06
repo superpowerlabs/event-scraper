@@ -52,7 +52,7 @@ async function getFromBlock(contractName, filterName) {
       filterName
     );
     if (latestEventBlock) {
-      fromBlock = latestEventBlock - (options.blocks || 0);
+      fromBlock = latestEventBlock - (options.blocks || -1);
       if (fromBlock < 0) fromBlock = undefined;
     }
   }
