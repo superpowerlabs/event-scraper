@@ -138,6 +138,10 @@ async function retrieveRealtimeEvents(
     console.info(
       `Inserting ${txs.length} rows into ${nameTable(contractName, filterName)}`
     );
+    if (contractName === "SynCityCoupons") {
+      // let's try to figure out why the txs are not being inserted
+      console.log(JSON.stringify(txs, null, 2));
+    }
     try {
       await eventManager.updateEvents(txs, filterName, contractName);
     } catch (error) {
