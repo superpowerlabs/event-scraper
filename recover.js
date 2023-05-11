@@ -3,7 +3,9 @@ const { migrateEvents } = require("./src/migrateEvents");
 const eventScraper = require("./src/lib/eventScraper");
 const { sleep } = require("./src/utils");
 
-let options = {};
+let options = {
+  blocks: 1000,
+};
 
 async function main() {
   await migrateEvents();
