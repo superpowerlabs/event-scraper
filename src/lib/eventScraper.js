@@ -64,6 +64,10 @@ async function retrieveHistoricalEvents(params) {
   let logs;
   let topic = ethers.utils.id(params.filterName);
   let fromBlock = await getFromBlock(contractName, filterName);
+  if (options.force) {
+    // we clean the table
+    await eventManager.truncateEvents(filterName, contractName);
+  }
   let offset = 0;
   let limit = options.limit || 500;
   do {
