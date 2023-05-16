@@ -174,6 +174,7 @@ function formatAttribute(arg, type, data) {
 }
 
 async function processMoralisEvent(event, filter, argNames, argTypes) {
+  console.log(event, filter, argNames, argTypes);
   let tx;
   const { transaction_hash, block_number, block_timestamp } = event;
   try {
@@ -264,6 +265,36 @@ async function getEventInfo(contractName, eventConfig, getStarted) {
   }
 }
 
+async function retrieveRealtimeEventsMoralis(contractName) {
+  console.info(`Monitoring ${contractName}`);
+  const contract = eventsByContract[contractName];
+  const address = contracts[contract.chainId][contractName];
+  let contractABI = [];
+  let eventTopics = [];
+  for (let event of contract.events) {
+    eventTopics.push(event.filter);
+    contractABI.push(event.ABI[0]);
+  }
+  const options = {
+    chains: [contract.chainId],
+    description: `Monitor Target Events in ${contractName}`,
+    tag: "Events",
+    abi: contractABI,
+    includeContractLogs: true,
+    allAddresses: false,
+    topic0: eventTopics,
+    webhookUrl:
+      "https://75fd-2605-ba00-9108-722-e9a6-355b-3538-3195.ngrok-free.app/v1/assets/moralis", // webhook url to receive events,
+  };
+
+  const stream = await Moralis.Streams.add(options);
+  const { id } = stream.toJSON();
+  await Moralis.Streams.addAddress({
+    id: id,
+    address: address,
+  });
+}
+
 let started = false;
 
 async function eventScraper(opt) {
@@ -286,28 +317,25 @@ async function eventScraper(opt) {
       continue;
     }
     if (!options.contract || contractName === options.contract) {
+      if (options.scope === "realtime") {
+        retrieveRealtimeEventsMoralis(contractName);
+      }
       for (let eventConfig of eventsByContract[contractName].events) {
         if (!options.event || eventConfig.name === options.event) {
           if (options.scope === "historical") {
             await getEventInfo(contractName, eventConfig, true);
-          } else if (options.scope === "realtime") {
-            promises.push(getEventInfo(contractName, eventConfig));
-          } else {
-            // uhm...
-            console.error("Unknown scope");
+          }
+          // else if (options.scope === "realtime") {
+          //   promises.push(getEventInfo(contractName, eventConfig));
+          // }
+          else {
             break;
           }
         }
       }
     }
   }
-  if (options.scope === "realtime") {
-    await Promise.all(promises);
-    // this is a hack to keep the process alive
-    return new Promise(() => {});
-  } else {
-    return true;
-  }
+  return true;
 }
 
 module.exports = eventScraper;

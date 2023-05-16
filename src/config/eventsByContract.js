@@ -227,7 +227,7 @@ const eventsByContract = {
     ],
   },
   SynCityCoupons: {
-    chainId: 56,
+    chainId: 43113,
     startBlock: 13069259,
     events: [
       {
