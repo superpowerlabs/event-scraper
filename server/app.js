@@ -50,7 +50,7 @@ app.use(bodyParser.urlencoded({ limit: "10mb", extended: false }));
 app.get("/", (req, res) => {
   res.json({
     success: true,
-    content: "Superpower API V1",
+    content: "Superpower Moralis Streams API",
   });
 });
 
