@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const commandLineArgs = require("command-line-args");
-const eventScraper = require("./src/lib/eventScraper");
+const { eventScraper } = require("./src/lib/eventScraper");
 const { migrateEvents } = require("./src/migrateEvents");
 const pkg = require("./package.json");
 

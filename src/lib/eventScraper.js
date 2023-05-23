@@ -123,34 +123,6 @@ async function processEvents(response, filter, contractName, eventConfig) {
   return processedEvents;
 }
 
-async function retrieveRealtimeEvents(
-  contract,
-  type,
-  eventName,
-  contractName,
-  eventConfig,
-  filterName
-) {
-  console.info(`Monitoring ${contractName} on event ${eventName}`);
-  contract.on(eventName, async (...args) => {
-    const event = [args[args.length - 1]];
-    const txs = await processEvents(event, type, contractName, eventConfig);
-    console.info(
-      `Inserting ${txs.length} rows into ${nameTable(contractName, filterName)}`
-    );
-    if (contractName === "SynCityCoupons") {
-      // let's try to figure out why the txs are not being inserted
-      console.log(JSON.stringify(txs, null, 2));
-    }
-    try {
-      await eventManager.updateEvents(txs, filterName, contractName);
-    } catch (error) {
-      console.error(">>>>>>> Error updateEvents");
-      console.error(error);
-    }
-  });
-}
-
 async function processSingleEvent(...args) {
   if (args[0].transaction_hash) {
     return processMoralisEvent(...args);
@@ -174,7 +146,6 @@ function formatAttribute(arg, type, data) {
 }
 
 async function processMoralisEvent(event, filter, argNames, argTypes) {
-  console.log(event, filter, argNames, argTypes);
   let tx;
   const { transaction_hash, block_number, block_timestamp } = event;
   try {
@@ -192,6 +163,64 @@ async function processMoralisEvent(event, filter, argNames, argTypes) {
     logFailedEvent(event, filter, error);
   }
   return tx;
+}
+
+async function processMoralisStreamEvent(stream) {
+  console.log("Stream event function");
+  const chainId = parseInt(stream.chainId);
+  const relevantContracts = contracts[chainId];
+  for (let log of stream.logs) {
+    const topic0 = log.topic0;
+    let contractName;
+    for (const key in relevantContracts) {
+      if (relevantContracts[key].toLowerCase() === log.address.toLowerCase()) {
+        contractName = key;
+        break;
+      }
+    }
+    const possibleEvents = eventsByContract[contractName];
+    let event;
+    for (let possibleEvent of possibleEvents.events) {
+      const signature = ethers.utils.keccak256(
+        ethers.utils.toUtf8Bytes(possibleEvent.filter)
+      );
+      if (signature === topic0) {
+        event = possibleEvent;
+        break;
+      }
+    }
+
+    const topics = event.ABI[0].inputs;
+    let data = {};
+    data.transaction_hash = log.transactionHash;
+    data.block_number = stream.block.number;
+    data.block_timestamp = await getTimestampFromBlock(
+      eventsByContract[contractName].chainId,
+      Number(stream.block.number)
+    );
+    for (let i in topics) {
+      const name = Case.snake(topics[i].name);
+      data[name] = ethers.utils.defaultAbiCoder.decode(
+        [topics[i].type],
+        log[`topic${Number(i) + 1}`]
+      )[0];
+      if (topics[i].type === "uint256") {
+        data[name] = data[name].toString();
+      }
+      //not sure if bool or boolean
+      if (topics[i].type === "bool") {
+        data[name] =
+          (typeof data[name] === "boolean" && data[name]) ||
+          /true/i.test(data[name])
+            ? "TRUE"
+            : "FALSE";
+      }
+    }
+    console.info(
+      `Inserting 1 event into ${nameTable(contractName, event.filter)}\n`
+    );
+    await eventManager.updateEvents([data], event.filter, contractName);
+  }
 }
 
 async function processRPCEvent(event, filter, argNames, argTypes, eventConfig) {
@@ -228,12 +257,8 @@ Error:
 ${error.message}`);
 }
 
-async function getEventInfo(contractName, eventConfig, getStarted) {
-  log(
-    `Getting ${getStarted ? "historical " : ""}"${
-      eventConfig.name
-    }" events from "${contractName}"`
-  );
+async function getEventInfo(contractName, eventConfig) {
+  log(`Getting Historical"${eventConfig.name}" events from "${contractName}"`);
 
   const { chainId } = eventsByContract[contractName];
   eventConfig.chainId = chainId;
@@ -245,27 +270,23 @@ async function getEventInfo(contractName, eventConfig, getStarted) {
     provider
   );
   const filter = contract.filters[filterName]();
-  if (getStarted) {
-    await retrieveHistoricalEvents({
-      filter,
-      contractName,
-      eventConfig,
-      filterName,
-      contract,
-    });
-  } else {
-    await retrieveRealtimeEvents(
-      contract,
-      filter,
-      name,
-      contractName,
-      eventConfig,
-      filterName
-    );
-  }
+  await retrieveHistoricalEvents({
+    filter,
+    contractName,
+    eventConfig,
+    filterName,
+    contract,
+  });
 }
 
-async function retrieveRealtimeEventsMoralis(contractName) {
+async function retrieveRealtimeEventsMoralis(contractName, existingStreams) {
+  for (let stream of existingStreams.result) {
+    if (stream.tag === contractName) {
+      await Moralis.Streams.delete({
+        id: stream.id,
+      });
+    }
+  }
   console.info(`Monitoring ${contractName}`);
   const contract = eventsByContract[contractName];
   const address = contracts[contract.chainId][contractName];
@@ -278,21 +299,32 @@ async function retrieveRealtimeEventsMoralis(contractName) {
   const options = {
     chains: [contract.chainId],
     description: `Monitor Target Events in ${contractName}`,
-    tag: "Events",
+    tag: `${contractName}`,
     abi: contractABI,
     includeContractLogs: true,
     allAddresses: false,
     topic0: eventTopics,
     webhookUrl:
-      "https://75fd-2605-ba00-9108-722-e9a6-355b-3538-3195.ngrok-free.app/v1/assets/moralis", // webhook url to receive events,
+      "https://f12c-2605-ba00-9108-722-e9e2-7845-7516-390f.ngrok-free.app/moralis", // webhook url to receive events,
   };
-
-  const stream = await Moralis.Streams.add(options);
-  const { id } = stream.toJSON();
-  await Moralis.Streams.addAddress({
-    id: id,
-    address: address,
-  });
+  try {
+    const stream = await Moralis.Streams.add(options);
+    const { id } = stream.toJSON();
+    await Moralis.Streams.addAddress({
+      id: id,
+      address: address,
+    });
+  } catch (e) {
+    console.log("MORALIS API RETURNED ERROR: Trying again");
+    const newStreams = (
+      await Moralis.Streams.getAll({
+        limit: 100,
+      })
+    ).raw;
+    await retrieveRealtimeEventsMoralis(contractName, newStreams);
+    console.log(`Success with ${contractName}`);
+  }
+  return;
 }
 
 let started = false;
@@ -309,6 +341,13 @@ async function eventScraper(opt) {
     });
   }
   const promises = [];
+
+  const existingStreams = (
+    await Moralis.Streams.getAll({
+      limit: 100,
+    })
+  ).raw;
+
   for (let contractName in eventsByContract) {
     if (
       (options.debug && contractName !== "USDC") ||
@@ -318,12 +357,13 @@ async function eventScraper(opt) {
     }
     if (!options.contract || contractName === options.contract) {
       if (options.scope === "realtime") {
-        retrieveRealtimeEventsMoralis(contractName);
+        await sleep(3000);
+        await retrieveRealtimeEventsMoralis(contractName, existingStreams);
       }
       for (let eventConfig of eventsByContract[contractName].events) {
         if (!options.event || eventConfig.name === options.event) {
           if (options.scope === "historical") {
-            await getEventInfo(contractName, eventConfig, true);
+            await getEventInfo(contractName, eventConfig);
           }
           // else if (options.scope === "realtime") {
           //   promises.push(getEventInfo(contractName, eventConfig));
@@ -338,4 +378,4 @@ async function eventScraper(opt) {
   return true;
 }
 
-module.exports = eventScraper;
+module.exports = { eventScraper, processMoralisStreamEvent };
