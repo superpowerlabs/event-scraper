@@ -63,6 +63,8 @@ app.use("/hello", function (req, res) {
 
 app.post("/moralis", async (req, res) => {
   verifySignature(req, process.env.MORALIS_STREAM_SECRET_KEY);
+  //TODO: For now we ignore Confirmation of the EVENT
+  //We can consider later if we notice it causes issues with events that have been reverted and are present in the database when they should not be.
   if (!req.body.confirmed) {
     processMoralisStreamEvent(req.body);
   }
