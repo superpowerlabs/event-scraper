@@ -305,7 +305,7 @@ async function retrieveRealtimeEventsMoralis(contractName, existingStreams) {
     allAddresses: false,
     topic0: eventTopics,
     webhookUrl:
-      "https://f12c-2605-ba00-9108-722-e9e2-7845-7516-390f.ngrok-free.app/moralis", // webhook url to receive events,
+      "https://f12c-2605-ba00-9108-722-e9e2-7845-7516-390f.ngrok-free.app/moralis", // webhook url for receiving events
   };
   try {
     const stream = await Moralis.Streams.add(options);
@@ -364,12 +364,6 @@ async function eventScraper(opt) {
         if (!options.event || eventConfig.name === options.event) {
           if (options.scope === "historical") {
             await getEventInfo(contractName, eventConfig);
-          }
-          // else if (options.scope === "realtime") {
-          //   promises.push(getEventInfo(contractName, eventConfig));
-          // }
-          else {
-            break;
           }
         }
       }
