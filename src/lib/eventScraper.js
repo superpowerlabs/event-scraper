@@ -304,7 +304,7 @@ async function retrieveRealtimeEventsMoralis(contractName, existingStreams) {
     includeContractLogs: true,
     allAddresses: false,
     topic0: eventTopics,
-    webhookUrl: process.env.WEBHOOK_ENDPOINT + "/moralis", // webhook url for receiving events
+    webhookUrl: process.env.WEBHOOK_ORIGIN + "/webhooks/moralis", // webhook url for receiving events
   };
   try {
     const stream = await Moralis.Streams.add(options);
@@ -323,7 +323,6 @@ async function retrieveRealtimeEventsMoralis(contractName, existingStreams) {
     await retrieveRealtimeEventsMoralis(contractName, newStreams);
     console.log(`Success with ${contractName}`);
   }
-  return;
 }
 
 let started = false;

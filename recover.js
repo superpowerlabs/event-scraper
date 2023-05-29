@@ -4,7 +4,7 @@ const eventScraper = require("./src/lib/eventScraper");
 const { sleep } = require("./src/utils");
 
 let options = {
-  blocks: 1000,
+  blocks: 10000,
 };
 
 async function main() {
