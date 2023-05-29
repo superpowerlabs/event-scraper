@@ -35,7 +35,7 @@ async function getTimestampFromBlock(chainId, blockNumber) {
       }
     }
   }
-  return new Date(timestampCache[chainId][blockNumber]).toISOString();
+  return new Date(timestampCache[chainId][blockNumber] * 1000).toISOString();
 }
 
 function log(...params) {
