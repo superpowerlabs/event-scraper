@@ -289,17 +289,17 @@ const eventsByContract = {
       },
     ],
   },
-  USDC: {
-    chainId: 1,
-    startBlock: 17140584,
-    events: [
-      {
-        name: "Transfer",
-        filter: "Transfer(address,address,uint256)",
-        ABI: ABI.TransferERC20,
-      },
-    ],
-  },
+  // USDC: {
+  //   chainId: 1,
+  //   startBlock: 17140584,
+  //   events: [
+  //     {
+  //       name: "Transfer",
+  //       filter: "Transfer(address,address,uint256)",
+  //       ABI: ABI.TransferERC20,
+  //     },
+  //   ],
+  // },
 };
 
 module.exports = eventsByContract;
