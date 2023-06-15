@@ -12,7 +12,8 @@
     "USDC": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
   },
   "5": {
-    "FarmMintable": "0x01F5656e86FC644A09158eBaec910DC31c6bc347"
+    "FarmMintable": "0x01F5656e86FC644A09158eBaec910DC31c6bc347",
+    "BCFactoryGoerli": "0xB2162D0174F51Aad7206de9247ff7c5fdC7264ab"
   },
   "56": {
     "SynCityCoupons": "0x1eC94bE5C72CF0E0524D6EcB6E7bD0bA1700BF70",
