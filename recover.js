@@ -12,7 +12,7 @@ async function main() {
   options.scope = "historical";
   while (await eventScraper(options)) {
     // it attempts to recover missing events every 5 minutes
-    await sleep(1000 * 300);
+    await sleep(1000 * 600);
   }
 }
 
