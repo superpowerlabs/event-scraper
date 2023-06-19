@@ -87,13 +87,17 @@ async function retrieveHistoricalEvents(params) {
       let from = logs[0].block_number;
       let to = logs[logs.length - 1].block_number;
       const txs = await processEvents(logs, filter, contractName, eventConfig);
+      const [expected, inserted] = await eventManager.updateEvents(
+        txs,
+        filterName,
+        contractName
+      );
       console.info(
-        `Inserting ${txs.length} rows into ${nameTable(
+        `Inserting ${inserted} of ${expected} rows into ${nameTable(
           contractName,
           filterName
         )}\n  from block ${from} to ${to}`
       );
-      await eventManager.updateEvents(txs, filterName, contractName);
     }
     offset += limit;
   } while (logs.length > 0);
@@ -139,15 +143,18 @@ async function retrieveRealtimeEvents(
   contract.on(eventName, async (...args) => {
     const event = [args[args.length - 1]];
     const txs = await processEvents(event, type, contractName, eventConfig);
-    console.info(
-      `Inserting ${txs.length} rows into ${nameTable(contractName, filterName)}`
-    );
-    if (contractName === "SynCityCoupons") {
-      // let's try to figure out why the txs are not being inserted
-      console.log(JSON.stringify(txs, null, 2));
-    }
     try {
-      await eventManager.updateEvents(txs, filterName, contractName);
+      const [expected, inserted] = await eventManager.updateEvents(
+        txs,
+        filterName,
+        contractName
+      );
+      console.info(
+        `Inserting ${inserted} of ${expected} rows into ${nameTable(
+          contractName,
+          filterName
+        )}\n  from block ${from} to ${to}`
+      );
     } catch (error) {
       console.error(">>>>>>> Error updateEvents");
       console.error(error);
