@@ -40,7 +40,7 @@ async function migrateEvents() {
     for (const event of eventsByContract[contractName].events) {
       const params = event.ABI[0].inputs;
       let tableName = utils.nameTable(contractName, event.filter);
-      console.log(tableName);
+      // console.log(tableName);
       // await dbw.schema.dropTableIfExists(tableName);
       if (!(await dbw.schema.hasTable(tableName))) {
         await migrateEvent(tableName, params, dbw);
