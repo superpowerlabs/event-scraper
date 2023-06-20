@@ -55,6 +55,7 @@ class EventManager extends Sql {
     let countBefore = parseInt(
       (await dbr.count("*").from(tableName).first()).count
     );
+    console.log("countBefore", countBefore);
     for (let i = 0; i < rows.length; i += chunkSize) {
       const chunk = rows.slice(i, i + chunkSize);
       const sql = this.createBatchInsertQuery(tableName, chunk);
@@ -63,6 +64,7 @@ class EventManager extends Sql {
     let countAfter = parseInt(
       (await dbr.count("*").from(tableName).first()).count
     );
+    console.log("countAfter", countAfter);
     return [rows.length, countAfter - countBefore];
   }
 
