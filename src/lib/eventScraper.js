@@ -153,7 +153,7 @@ async function retrieveRealtimeEvents(
         `Inserting ${inserted} of ${expected} rows into ${nameTable(
           contractName,
           filterName
-        )}\n  from block ${from} to ${to}`
+        )}`
       );
     } catch (error) {
       console.error(">>>>>>> Error updateEvents");
