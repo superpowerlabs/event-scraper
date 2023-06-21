@@ -53,7 +53,7 @@ class EventManager extends Sql {
   async updateEvents(rows, filter, contractName, chunkSize = 100) {
     let tableName = utils.nameTable(contractName, filter);
     let countBefore = parseInt(
-      (await dbr.count("*").from(tableName).first()).count
+      (await dbw.count("*").from(tableName).first()).count
     );
     for (let i = 0; i < rows.length; i += chunkSize) {
       const chunk = rows.slice(i, i + chunkSize);
@@ -61,7 +61,7 @@ class EventManager extends Sql {
       await dbw.raw(sql);
     }
     let countAfter = parseInt(
-      (await dbr.count("*").from(tableName).first()).count
+      (await dbw.count("*").from(tableName).first()).count
     );
     return [rows.length, countAfter - countBefore];
   }
