@@ -9,6 +9,10 @@ let providers = {
   1: new ethers.providers.InfuraProvider("homestead", process.env.INFURA_KEY),
   5: new ethers.providers.InfuraProvider("goerli", process.env.INFURA_KEY),
   56: new ethers.providers.JsonRpcProvider("https://bscrpc.com", 56),
+  7001: new ethers.providers.JsonRpcProvider(
+    "https://rpc.ankr.com/zetachain_evm_testnet",
+    7001
+  ),
 };
 
 let averageBlockPerDay = {
@@ -32,6 +36,20 @@ if (process.env.NODE_ENV !== "test") {
   }
 }
 
+const supportedByMoralis = {
+  1: "Ethereum Mainnet",
+  25: "Cronos Mainnet",
+  56: "Binance Smart Chain Mainnet",
+  97: "Binance Smart Chain Testnet",
+  137: "Polygon Mainnet",
+  250: "Fantom",
+  42161: "Arbitrum",
+  43114: "Avalanche C-Chain",
+  80001: "Polygon Mumbai",
+  11155111: "Ethereum Sepolia",
+  11297108109: "Palm",
+};
+
 const config = {
   typeMapping: {
     address: "VARCHAR(256)",
@@ -42,6 +60,7 @@ const config = {
   eventsByContract,
   providers,
   averageBlockPerDay,
+  supportedByMoralis,
 };
 
 module.exports = config;
