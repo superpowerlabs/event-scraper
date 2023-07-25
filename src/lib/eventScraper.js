@@ -42,13 +42,16 @@ function log(...params) {
   }
 }
 
-async function getFromBlock(contractName, filterName) {
+async function getFromBlock(contractName, filterName, startBlock) {
   let fromBlock;
   if (!options.force) {
-    const latestEventBlock = await eventManager.latestBlockByEvent(
+    let latestEventBlock = await eventManager.latestBlockByEvent(
       contractName,
       filterName
     );
+    if (latestEventBlock < startBlock) {
+      latestEventBlock = startBlock;
+    }
     if (latestEventBlock) {
       fromBlock = latestEventBlock - (options.blocks || -1);
       if (fromBlock < 0) fromBlock = undefined;
@@ -63,7 +66,8 @@ async function retrieveHistoricalEvents(params) {
   let logs = [];
 
   let fromBlock =
-    options.startingBlock || (await getFromBlock(contractName, filterName));
+    options.startingBlock ||
+    (await getFromBlock(contractName, filterName, eventConfig.startBlock));
 
   if (options.force) {
     // we clean the table
@@ -114,10 +118,18 @@ async function getEventsViaMoralis(params, limit, offset, fromBlock) {
   ).jsonResponse.result;
 }
 
+function toHexString(value) {
+  let str = value.toString(16);
+  if (str.length % 2) {
+    str = "0" + str;
+  }
+  return "0x" + str;
+}
+
 async function getEventsFromRPC(params, limit, offset, fromBlock) {
-  const { contractName, filterName, contract } = params;
+  const { filterName, contract } = params;
   const filter = contract.filters[filterName]();
-  return contract.queryFilter(filter, fromBlock, "latest", contractName);
+  return contract.queryFilter(filter, toHexString(fromBlock), "latest");
 }
 
 async function processEvents(response, filter, contractName, eventConfig) {
