@@ -339,17 +339,6 @@ const eventsByContract = {
       },
     ],
   },
-  ZetaSkinnedBot: {
-    chainId: 7001,
-    startBlock: 3000000,
-    events: [
-      {
-        name: "Transfer",
-        filter: "Transfer(address,address,uint256)",
-        ABI: ABI.Transfer,
-      },
-    ],
-  },
   // Moralis has dismissed Goerli support
   // BCFactoryGoerli: {
   //   chainId: 5,
