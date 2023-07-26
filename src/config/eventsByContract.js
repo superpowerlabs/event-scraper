@@ -328,17 +328,29 @@ const eventsByContract = {
       },
     ],
   },
-  BCFactoryGoerli: {
-    chainId: 5,
-    startBlock: 0,
+  BruceLeeCyberBot56: {
+    chainId: 56,
+    startBlock: 30164103,
     events: [
       {
-        name: "OracleMinted",
-        filter: "OracleMinted(uint256,uint256,uint256,uint256,uint256)",
-        ABI: ABI.OracleMinted,
+        name: "Transfer",
+        filter: "Transfer(address,address,uint256)",
+        ABI: ABI.Transfer,
       },
     ],
   },
+  // Moralis has dismissed Goerli support
+  // BCFactoryGoerli: {
+  //   chainId: 5,
+  //   startBlock: 0,
+  //   events: [
+  //     {
+  //       name: "OracleMinted",
+  //       filter: "OracleMinted(uint256,uint256,uint256,uint256,uint256)",
+  //       ABI: ABI.OracleMinted,
+  //     },
+  //   ],
+  // },
   // USDC: {
   //   chainId: 1,
   //   startBlock: 17140584,
