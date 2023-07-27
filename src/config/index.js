@@ -6,10 +6,11 @@ let contracts = require("./deployedProduction.json");
 let eventsByContract = require("./eventsByContract");
 
 let providers = {
-  1: new ethers.InfuraProvider("homestead", process.env.INFURA_KEY),
-  5: new ethers.InfuraProvider("goerli", process.env.INFURA_KEY),
-  56: new ethers.JsonRpcProvider("https://bscrpc.com", 56),
-  7001: new ethers.JsonRpcProvider(
+  1: new ethers.providers.InfuraProvider("homestead", process.env.INFURA_KEY),
+  5: new ethers.providers.InfuraProvider("goerli", process.env.INFURA_KEY),
+  137: new ethers.providers.JsonRpcProvider("https://polygon-rpc.com/"),
+  56: new ethers.providers.JsonRpcProvider("https://bscrpc.com", 56),
+  7001: new ethers.providers.JsonRpcProvider(
     "https://rpc.ankr.com/zetachain_evm_testnet",
     7001
   ),
