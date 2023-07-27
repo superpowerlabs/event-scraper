@@ -9,13 +9,11 @@ const {
   providers,
   eventsByContract,
   contracts,
-  averageBlockPerDay,
-  abi,
+  supportedByMoralis,
 } = require("../config");
 const { nameTable, sleep } = require("../utils");
 const requestHandler = require("./requestHandler");
 
-let failedEvents = [];
 let options = {};
 
 const timestampCache = {};
@@ -44,13 +42,16 @@ function log(...params) {
   }
 }
 
-async function getFromBlock(contractName, filterName) {
+async function getFromBlock(contractName, filterName, startBlock) {
   let fromBlock;
   if (!options.force) {
-    const latestEventBlock = await eventManager.latestBlockByEvent(
+    let latestEventBlock = await eventManager.latestBlockByEvent(
       contractName,
       filterName
     );
+    if (latestEventBlock < startBlock) {
+      latestEventBlock = startBlock;
+    }
     if (latestEventBlock) {
       fromBlock = latestEventBlock - (options.blocks || -1);
       if (fromBlock < 0) fromBlock = undefined;
@@ -61,9 +62,13 @@ async function getFromBlock(contractName, filterName) {
 
 async function retrieveHistoricalEvents(params) {
   let { filter, contractName, eventConfig, filterName, contract } = params;
-  let logs;
-  let topic = ethers.utils.id(params.filterName);
-  let fromBlock = await getFromBlock(contractName, filterName);
+  const { chainId } = eventConfig;
+  let logs = [];
+
+  let fromBlock =
+    options.startingBlock ||
+    (await getFromBlock(contractName, filterName, eventConfig.startBlock));
+
   if (options.force) {
     // we clean the table
     await eventManager.truncateEvents(filterName, contractName);
@@ -71,18 +76,11 @@ async function retrieveHistoricalEvents(params) {
   let offset = 0;
   let limit = options.limit || 500;
   do {
-    const response = await requestHandler(
-      Moralis.EvmApi.events.getContractEvents({
-        chain: "0x" + eventConfig.chainId.toString(16),
-        address: contract.address,
-        limit,
-        offset,
-        topic,
-        abi: eventConfig.ABI[0],
-        fromBlock,
-      })
-    );
-    logs = response.jsonResponse.result;
+    if (supportedByMoralis[chainId]) {
+      logs = await getEventsViaMoralis(params, limit, offset, fromBlock);
+    } else {
+      logs = await getEventsFromRPC(params, limit, offset, fromBlock);
+    }
     if (logs.length > 0) {
       let from = logs[0].block_number;
       let to = logs[logs.length - 1].block_number;
@@ -101,6 +99,37 @@ async function retrieveHistoricalEvents(params) {
     }
     offset += limit;
   } while (logs.length > 0);
+}
+
+async function getEventsViaMoralis(params, limit, offset, fromBlock) {
+  let { filter, eventConfig, contract } = params;
+  return (
+    await requestHandler(
+      Moralis.EvmApi.events.getContractEvents({
+        chain: "0x" + eventConfig.chainId.toString(16),
+        address: contract.address,
+        limit,
+        offset,
+        topic: filter.topics[0],
+        abi: eventConfig.ABI[0],
+        fromBlock,
+      })
+    )
+  ).jsonResponse.result;
+}
+
+function toHexString(value) {
+  let str = value.toString(16);
+  if (str.length % 2) {
+    str = "0" + str;
+  }
+  return "0x" + str;
+}
+
+async function getEventsFromRPC(params, limit, offset, fromBlock) {
+  const { filterName, contract } = params;
+  const filter = contract.filters[filterName]();
+  return contract.queryFilter(filter, toHexString(fromBlock), "latest");
 }
 
 async function processEvents(response, filter, contractName, eventConfig) {

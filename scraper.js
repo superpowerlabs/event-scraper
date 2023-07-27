@@ -47,6 +47,11 @@ const optionDefinitions = [
     alias: "l",
     type: Number,
   },
+  {
+    name: "starting-block",
+    alias: "s",
+    type: Number,
+  },
 ];
 
 function error(message) {

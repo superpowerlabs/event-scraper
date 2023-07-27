@@ -339,6 +339,17 @@ const eventsByContract = {
       },
     ],
   },
+  BruceLeeCyberBot137: {
+    chainId: 137,
+    startBlock: 45567579,
+    events: [
+      {
+        name: "Transfer",
+        filter: "Transfer(address,address,uint256)",
+        ABI: ABI.Transfer,
+      },
+    ],
+  },
   // Moralis has dismissed Goerli support
   // BCFactoryGoerli: {
   //   chainId: 5,
