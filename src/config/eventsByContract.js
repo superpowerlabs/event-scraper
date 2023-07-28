@@ -328,6 +328,17 @@ const eventsByContract = {
       },
     ],
   },
+  BruceLeeCyberBot1: {
+    chainId: 1,
+    startBlock: 17789070,
+    events: [
+      {
+        name: "Transfer",
+        filter: "Transfer(address,address,uint256)",
+        ABI: ABI.Transfer,
+      },
+    ],
+  },
   BruceLeeCyberBot56: {
     chainId: 56,
     startBlock: 30164103,
