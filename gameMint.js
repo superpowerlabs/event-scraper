@@ -51,7 +51,7 @@ async function main() {
   }
   options.scope = "historical";
 
-  const keysToUpdate = [2, 4, 5, 7];
+  const keysToUpdate = [5, 7];
   await gameExports.checkGameExport(keysToUpdate);
 }
 

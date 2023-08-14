@@ -361,6 +361,17 @@ const eventsByContract = {
       },
     ],
   },
+  // GameExports: {
+  //   chainId: 1,
+  //   startBlock: "add start block",
+  //   events: [
+  //     {
+  //       name: "Transfer",
+  //       filter: "Transfer(address,address,uint256)",
+  //       ABI: ABI.Transfer,
+  //     },
+  //   ],
+  // },
   // Moralis has dismissed Goerli support
   // BCFactoryGoerli: {
   //   chainId: 5,
