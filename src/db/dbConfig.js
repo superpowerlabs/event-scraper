@@ -23,8 +23,7 @@ const dbConfig = {
     client: "pg",
     connection: {
       host: process.env.RDS_WRITER_ENDPOINT,
-      hostReplica:
-        process.env.RDS_READER_ENDPOINT || process.env.RDS_WRITER_ENDPOINT,
+      hostReplica: process.env.RDS_READER_ENDPOINT || process.env.RDS_WRITER_ENDPOINT,
       port: process.env.POSTGRES_PORT || 5432,
       user: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
