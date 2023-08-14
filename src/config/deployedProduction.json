@@ -10,7 +10,8 @@
     "Tesseract": "0x05939950966aD5f15e7D0BB347CF02405928E043",
     "MainWormholeBridge": "0xEdAa0716711545D866CC3193568D4Fa7d4E90608",
     "USDC": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    "BruceLeeCyberBot1": "0xAEBC5416d9d161f122582b083f2BBe0ABa959D0D"
+    "BruceLeeCyberBot1": "0xAEBC5416d9d161f122582b083f2BBe0ABa959D0D",
+    "GameExports": "TODO add address"
   },
   "5": {
     "FarmMintable": "0x01F5656e86FC644A09158eBaec910DC31c6bc347",
