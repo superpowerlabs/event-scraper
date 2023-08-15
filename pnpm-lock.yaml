@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@celo-tools/celo-ethers-wrapper':
+    specifier: ^0.4.0
+    version: 0.4.0(ethers@5.7.2)
   case:
     specifier: ^1.6.3
     version: 1.6.3
@@ -418,6 +421,15 @@ packages:
   /@bcoe/v8-coverage@0.2.3:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
+
+  /@celo-tools/celo-ethers-wrapper@0.4.0(ethers@5.7.2):
+    resolution: {integrity: sha512-XtrBRgJCLhyWLER+FMFFfEGG2cPePAVA2KbtD/B963Y+x2Gc9J4k8MSt02ZzAxtghBoiOAoNCMLlziR/kWt97w==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      ethers: ^5
+    dependencies:
+      ethers: 5.7.2
+    dev: false
 
   /@ethereumjs/common@2.5.0:
     resolution: {integrity: sha512-DEHjW6e38o+JmB/NO3GZBpW4lpaiBpkFgXF6jLcJ6gETBYpEyaA5nTimsWBUJR3Vmtm/didUEbNjajskugZORg==}

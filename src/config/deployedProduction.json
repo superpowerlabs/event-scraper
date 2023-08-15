@@ -32,5 +32,10 @@
   },
   "137": {
     "BruceLeeCyberBot137": "0xC5D6E31F5020Bfedc5d294C3C8CB0BA66cA0DbF8"
+  },
+  "44787": {
+    "BCGenesisToken": "0xf38E97EEDcCaefB49c9384DE57E5E61A98003CF6",
+    "BCOracleToken": "0xCFc4383b7854b5c1bb9314208e11431Ba4FD082f",
+    "BCFactoryForTest": "0x75Eb6D87bdBf4d4a802b145c8B9Cd7C1905B9B47"
   }
 }

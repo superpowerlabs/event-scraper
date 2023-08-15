@@ -3,6 +3,7 @@
   "version": "0.2.0",
   "private": true,
   "dependencies": {
+    "@celo-tools/celo-ethers-wrapper": "^0.4.0",
     "case": "^1.6.3",
     "cli-spinner": "^0.2.10",
     "command-line-args": "^5.2.1",
