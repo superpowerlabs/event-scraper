@@ -43,7 +43,7 @@ function log(...params) {
 }
 
 async function getFromBlock(contractName, filterName, startBlock) {
-  let fromBlock;
+  let fromBlock = startBlock;
   if (!options.force) {
     let latestEventBlock = await eventManager.latestBlockByEvent(
       contractName,
@@ -54,7 +54,7 @@ async function getFromBlock(contractName, filterName, startBlock) {
     }
     if (latestEventBlock) {
       fromBlock = latestEventBlock - (options.blocks || -1);
-      if (fromBlock < 0) fromBlock = undefined;
+      if (fromBlock < 0) fromBlock = startBlock;
     }
   }
   return fromBlock;
@@ -65,10 +65,11 @@ async function retrieveHistoricalEvents(params) {
   const { chainId } = eventConfig;
   let logs = [];
 
-  let fromBlock =
-    options.startingBlock ||
-    (await getFromBlock(contractName, filterName, eventConfig.startBlock));
-
+  let fromBlock = await getFromBlock(
+    contractName,
+    filterName,
+    options.startingBlock || eventConfig.startBlock
+  );
   if (options.force) {
     // we clean the table
     await eventManager.truncateEvents(filterName, contractName);
@@ -96,6 +97,9 @@ async function retrieveHistoricalEvents(params) {
           filterName
         )}\n  from block ${from} to ${to}`
       );
+    }
+    if (logs.length < limit) {
+      break;
     }
     offset += limit;
   } while (logs.length > 0);
@@ -127,10 +131,31 @@ function toHexString(value) {
 }
 
 async function getEventsFromRPC(params, limit, offset, fromBlock) {
-  const { filterName, contract } = params;
-  const filter = contract.filters[filterName]();
-  return contract.queryFilter(filter, toHexString(fromBlock), "latest");
+  let { eventConfig, contract, filter } = params;
+  const provider = providers[eventConfig.chainId];
+  filter = Object.assign(filter, {
+    fromBlock,
+  });
+  const logs = await provider.getLogs(filter);
+  const transferEvents = logs.map((log) => {
+    let data = contract.interface.parseLog(log).args;
+    log.data = {};
+    for (let key in data) {
+      if (/^\d+$/.test(key)) continue;
+      log.data[key] = data[key];
+    }
+    log.block_number = log.blockNumber;
+    delete log.topics;
+    return log;
+  });
+  return transferEvents;
 }
+
+// async function getEventsFromRPC(params, limit, offset, fromBlock) {
+//   const { filterName, contract } = params;
+//   const filter = contract.filters[filterName]();
+//   return contract.queryFilter(filter, toHexString(fromBlock), "latest");
+// }
 
 async function processEvents(response, filter, contractName, eventConfig) {
   const { chainId } = eventConfig;
@@ -235,24 +260,32 @@ async function processMoralisEvent(event, filter, argNames, argTypes) {
 
 async function processRPCEvent(event, filter, argNames, argTypes, eventConfig) {
   let tx;
-  const { transactionHash, blockNumber } = event;
+  const {
+    transactionHash: transaction_hash,
+    blockNumber: block_number,
+    blockHash,
+  } = event;
   try {
+    const block_timestamp = await getTimestampFromBlock(
+      eventConfig.chainId,
+      block_number,
+      blockHash
+    );
     tx = {
-      transaction_hash: transactionHash,
-      block_timestamp: await getTimestampFromBlock(
-        eventConfig.chainId,
-        blockNumber
-      ),
-      block_number: blockNumber,
+      transaction_hash,
+      block_timestamp,
+      block_number,
     };
     for (let i = 0; i < argNames.length; i++) {
       const dataArg = Case.snake(argNames[i]);
-      tx[dataArg] = formatAttribute(argNames[i], argTypes[i], event.args);
+      tx[dataArg] = formatAttribute(argNames[i], argTypes[i], event.data);
     }
   } catch (error) {
+    // console.log("error", error);
     // this should never happen
     logFailedEvent(event, filter, error);
   }
+  // process.exit()
   return tx;
 }
 
@@ -319,14 +352,16 @@ async function eventScraper(opt) {
   }
   const promises = [];
   for (let contractName in eventsByContract) {
-    if (
-      (options.debug && contractName !== "USDC") ||
-      (!options.debug && contractName === "USDC")
-    ) {
-      continue;
-    }
+    // if (
+    //   (options.debug && contractName !== "USDC") ||
+    //   (!options.debug && contractName === "USDC")
+    // ) {
+    //   continue;
+    // }
     if (!options.contract || contractName === options.contract) {
       for (let eventConfig of eventsByContract[contractName].events) {
+        eventConfig.startBlock = eventsByContract[contractName].startBlock;
+        eventConfig.chainId = eventsByContract[contractName].chainId;
         if (!options.event || eventConfig.name === options.event) {
           if (options.scope === "historical") {
             await getEventInfo(contractName, eventConfig, true);
