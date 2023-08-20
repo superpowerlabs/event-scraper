@@ -230,6 +230,45 @@ const ABI = {
       type: "event",
     },
   ],
+  OracleMinted: [
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "uint256",
+          name: "id",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "partId1",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "partId2",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "partId3",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "partId4",
+          type: "uint256",
+        },
+      ],
+      name: "OracleMinted",
+      type: "event",
+    },
+  ],
 };
 
 const eventsByContract = {
@@ -380,6 +419,39 @@ const eventsByContract = {
         name: "Transfer",
         filter: "Transfer(address,address,uint256)",
         ABI: ABI.Transfer,
+      },
+    ],
+  },
+  BCGenesisToken1: {
+    chainId: 1,
+    startBlock: 17957723,
+    events: [
+      {
+        name: "Transfer",
+        filter: "Transfer(address,address,uint256)",
+        ABI: ABI.Transfer,
+      },
+    ],
+  },
+  BCOracleToken1: {
+    chainId: 1,
+    startBlock: 17957723,
+    events: [
+      {
+        name: "Transfer",
+        filter: "Transfer(address,address,uint256)",
+        ABI: ABI.Transfer,
+      },
+    ],
+  },
+  BCFactory1: {
+    chainId: 1,
+    startBlock: 17957723,
+    events: [
+      {
+        name: "OracleMinted",
+        filter: "OracleMinted(uint256,uint256,uint256,uint256,uint256)",
+        ABI: ABI.OracleMinted,
       },
     ],
   },
