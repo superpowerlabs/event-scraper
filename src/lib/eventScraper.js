@@ -260,25 +260,22 @@ async function processMoralisEvent(event, filter, argNames, argTypes) {
 
 async function processRPCEvent(event, filter, argNames, argTypes, eventConfig) {
   let tx;
-  const {
-    transactionHash: transaction_hash,
-    blockNumber: block_number,
-    blockHash,
-  } = event;
+  const { transactionHash: transaction_hash, blockNumber: block_number } =
+    event;
   try {
     const block_timestamp = await getTimestampFromBlock(
       eventConfig.chainId,
-      block_number,
-      blockHash
+      block_number
     );
     tx = {
       transaction_hash,
       block_timestamp,
       block_number,
     };
+    const data = event.data;
     for (let i = 0; i < argNames.length; i++) {
       const dataArg = Case.snake(argNames[i]);
-      tx[dataArg] = formatAttribute(argNames[i], argTypes[i], event.data);
+      tx[dataArg] = formatAttribute(argNames[i], argTypes[i], data);
     }
   } catch (error) {
     // console.log("error", error);
