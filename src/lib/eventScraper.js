@@ -225,16 +225,21 @@ async function processSingleEvent(...args) {
 }
 
 function formatAttribute(arg, type, data) {
+  let value = data[arg];
+  // patch to fix issue with BCFactory returning uid instead of id
+  if (!value && arg === "id") {
+    value = data.uid;
+  }
+
   switch (type) {
     case "uint256":
-      return data[arg].toString();
+      return value.toString();
     case "boolean":
-      return (typeof data[arg] === "boolean" && data[arg]) ||
-        /true/i.test(data[arg])
+      return (typeof value === "boolean" && value) || /true/i.test(value)
         ? "TRUE"
         : "FALSE";
     default:
-      return data[arg];
+      return value;
   }
 }
 
@@ -252,6 +257,7 @@ async function processMoralisEvent(event, filter, argNames, argTypes) {
       tx[dataArg] = formatAttribute(argNames[i], argTypes[i], event.data);
     }
   } catch (error) {
+    console.log(error);
     // this should never happen
     logFailedEvent(event, filter, error);
   }

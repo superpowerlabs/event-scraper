@@ -68,7 +68,13 @@ class EventManager extends Sql {
 
   async truncateEvents(filter, contractName) {
     let tableName = utils.nameTable(contractName, filter);
+    console.log(tableName);
     await dbw(tableName).truncate();
+  }
+
+  async dropTable(table) {
+    console.log("Dropping", table);
+    await dbw.dropTableIfExists(table);
   }
 
   async latestBlockByEvent(contractName, filter) {

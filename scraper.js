@@ -4,6 +4,7 @@ const commandLineArgs = require("command-line-args");
 const eventScraper = require("./src/lib/eventScraper");
 const { migrateEvents } = require("./src/migrateEvents");
 const pkg = require("./package.json");
+const Sql = require("./src/db/Sql");
 
 const optionDefinitions = [
   {
@@ -52,6 +53,10 @@ const optionDefinitions = [
     alias: "s",
     type: Number,
   },
+  {
+    name: "drop-table",
+    type: String,
+  },
 ];
 
 function error(message) {
@@ -94,6 +99,12 @@ Options:
 }
 
 async function main() {
+  if (options.dropTable) {
+    const sql = new Sql();
+    const dbw = await sql.sql();
+    console.log("Dropping", options.dropTable);
+    await dbw.schema.dropTableIfExists(options.dropTable);
+  }
   await migrateEvents();
   if (typeof options.verbose === "undefined") {
     options.verbose = true;
