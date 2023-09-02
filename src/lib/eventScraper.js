@@ -278,7 +278,23 @@ async function processRPCEvent(event, filter, argNames, argTypes, eventConfig) {
       block_timestamp,
       block_number,
     };
-    const data = event.data || event.args;
+    const data =
+      Object.keys(event.args) > 0
+        ? event.args
+        : Object.keys(event.data).length > 0
+        ? event.data
+        : null;
+    if (!data) {
+      console.error(
+        ">>>>>>> Error processRPCEvent. Params:",
+        JSON.stringify(
+          { event, filter, argNames, argTypes, eventConfig },
+          null,
+          2
+        )
+      );
+      return;
+    }
     for (let i = 0; i < argNames.length; i++) {
       const dataArg = Case.snake(argNames[i]);
       tx[dataArg] = formatAttribute(argNames[i], argTypes[i], data);
