@@ -278,12 +278,15 @@ async function processRPCEvent(event, filter, argNames, argTypes, eventConfig) {
       block_timestamp,
       block_number,
     };
-    const data =
-      Object.keys(event.args) > 0
-        ? event.args
-        : Object.keys(event.data).length > 0
-        ? event.data
-        : null;
+    let data;
+    try {
+      data =
+        typeof event.args === "object" && Object.keys(event.args) > 0
+          ? event.args
+          : typeof event.data === "object" && Object.keys(event.data).length > 0
+          ? event.data
+          : undefined;
+    } catch (e) {}
     if (!data) {
       console.error(
         ">>>>>>> Error processRPCEvent. Params:",
