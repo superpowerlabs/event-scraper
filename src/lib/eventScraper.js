@@ -264,6 +264,13 @@ async function processMoralisEvent(event, filter, argNames, argTypes) {
   return tx;
 }
 
+function processRPCEventError(event, filter, argNames, argTypes, eventConfig) {
+  console.error(
+    ">>>>>>> Error processRPCEvent. Params:",
+    JSON.stringify({ event, filter, argNames, argTypes, eventConfig }, null, 2)
+  );
+}
+
 async function processRPCEvent(event, filter, argNames, argTypes, eventConfig) {
   let tx;
   const { transactionHash: transaction_hash, blockNumber: block_number } =
@@ -287,20 +294,34 @@ async function processRPCEvent(event, filter, argNames, argTypes, eventConfig) {
           ? event.data
           : undefined;
     } catch (e) {}
+    if (!data && Array.isArray(event.args)) {
+      const tmp = {};
+      for (let i = 0; i < argNames.length; i++) {
+        tmp[argNames[i]] = event.args[i];
+      }
+      data = tmp;
+    }
     if (!data) {
-      console.error(
-        ">>>>>>> Error processRPCEvent. Params:",
-        JSON.stringify(
-          { event, filter, argNames, argTypes, eventConfig },
-          null,
-          2
-        )
+      return processRPCEventError(
+        event,
+        filter,
+        argNames,
+        argTypes,
+        eventConfig
       );
-      return;
     }
     for (let i = 0; i < argNames.length; i++) {
       const dataArg = Case.snake(argNames[i]);
       tx[dataArg] = formatAttribute(argNames[i], argTypes[i], data);
+      if (tx[dataArg] === undefined) {
+        return processRPCEventError(
+          event,
+          filter,
+          argNames,
+          argTypes,
+          eventConfig
+        );
+      }
     }
   } catch (error) {
     // console.log("error", error);
