@@ -20,6 +20,18 @@ const utils = {
     ].join("__");
   },
 
+  transactionsToLowerCase(txs) {
+    return txs.map((tx) => {
+      const isAddress = (address) => /^(0x)?[0-9a-fA-F]{40}$/.test(address);
+
+      const updatedTx = {};
+      for (const [key, value] of Object.entries(tx)) {
+        updatedTx[key] = isAddress(value) ? value.toLowerCase() : value;
+      }
+      return updatedTx;
+    });
+  },
+
   nameTableV1(contractName, eventName) {
     // useful to migrate data between tables
     return [Case.snake(contractName), Case.snake(eventName)].join("_");

@@ -11,7 +11,7 @@ const {
   contracts,
   supportedByMoralis,
 } = require("../config");
-const { nameTable, sleep } = require("../utils");
+const { nameTable, sleep, transactionsToLowerCase } = require("../utils");
 const requestHandler = require("./requestHandler");
 
 let options = {};
@@ -85,12 +85,14 @@ async function retrieveHistoricalEvents(params) {
     if (logs.length > 0) {
       let from = logs[0].block_number;
       let to = logs[logs.length - 1].block_number;
-      const txs = await processEvents(logs, filter, contractName, eventConfig);
+      let txs = await processEvents(logs, filter, contractName, eventConfig);
+      txs = transactionsToLowerCase(txs);
       const [expected, inserted] = await eventManager.updateEvents(
         txs,
         filterName,
         contractName
       );
+
       console.info(
         `Inserting ${inserted} of ${expected} rows into ${nameTable(
           contractName,
@@ -196,8 +198,9 @@ async function retrieveRealtimeEvents(
   console.info(`Monitoring ${contractName} on event ${eventName}`);
   contract.on(eventName, async (...args) => {
     const event = [args[args.length - 1]];
-    const txs = await processEvents(event, type, contractName, eventConfig);
+    let txs = await processEvents(event, type, contractName, eventConfig);
     try {
+      txs = transactionsToLowerCase(txs);
       const [expected, inserted] = await eventManager.updateEvents(
         txs,
         filterName,
