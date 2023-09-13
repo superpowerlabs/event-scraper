@@ -455,6 +455,28 @@ const eventsByContract = {
       },
     ],
   },
+  Fragments44787: {
+    chainId: 44787,
+    startBlock: 0,
+    events: [
+      {
+        name: "Transfer",
+        filter: "Transfer(address,address,uint256)",
+        ABI: ABI.Transfer,
+      },
+    ],
+  },
+  TreasureMaps44787: {
+    chainId: 44787,
+    startBlock: 0,
+    events: [
+      {
+        name: "Transfer",
+        filter: "Transfer(address,address,uint256)",
+        ABI: ABI.Transfer,
+      },
+    ],
+  },
   // Moralis has dismissed Goerli support
   // BCFactoryGoerli: {
   //   chainId: 5,
