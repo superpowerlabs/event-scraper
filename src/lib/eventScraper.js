@@ -11,7 +11,7 @@ const {
   contracts,
   supportedByMoralis,
 } = require("../config");
-const { nameTable, sleep, transactionsToLowerCase } = require("../utils");
+const { nameTable, sleep } = require("../utils");
 const requestHandler = require("./requestHandler");
 
 let options = {};
@@ -85,8 +85,7 @@ async function retrieveHistoricalEvents(params) {
     if (logs.length > 0) {
       let from = logs[0].block_number;
       let to = logs[logs.length - 1].block_number;
-      let txs = await processEvents(logs, filter, contractName, eventConfig);
-      txs = transactionsToLowerCase(txs);
+      const txs = await processEvents(logs, filter, contractName, eventConfig);
       const [expected, inserted] = await eventManager.updateEvents(
         txs,
         filterName,
@@ -198,9 +197,8 @@ async function retrieveRealtimeEvents(
   console.info(`Monitoring ${contractName} on event ${eventName}`);
   contract.on(eventName, async (...args) => {
     const event = [args[args.length - 1]];
-    let txs = await processEvents(event, type, contractName, eventConfig);
+    const txs = await processEvents(event, type, contractName, eventConfig);
     try {
-      txs = transactionsToLowerCase(txs);
       const [expected, inserted] = await eventManager.updateEvents(
         txs,
         filterName,
@@ -235,6 +233,8 @@ function formatAttribute(arg, type, data) {
   }
 
   switch (type) {
+    case "address":
+      return value.toLowerCase();
     case "uint256":
       return value.toString();
     case "boolean":
