@@ -91,6 +91,7 @@ async function retrieveHistoricalEvents(params) {
         filterName,
         contractName
       );
+
       console.info(
         `Inserting ${inserted} of ${expected} rows into ${nameTable(
           contractName,
@@ -232,6 +233,8 @@ function formatAttribute(arg, type, data) {
   }
 
   switch (type) {
+    case "address":
+      return value.toLowerCase();
     case "uint256":
       return value.toString();
     case "boolean":
