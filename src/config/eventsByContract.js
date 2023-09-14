@@ -486,6 +486,11 @@ const eventsByContract = {
         filter: "Transfer(address,address,uint256)",
         ABI: ABI.Transfer,
       },
+      {
+        name: "Locked",
+        filter: "Locked(uint256,bool)",
+        ABI: ABI.Locked2,
+      },
     ],
   },
   // Moralis has dismissed Goerli support
