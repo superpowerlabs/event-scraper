@@ -14,8 +14,10 @@ let providers = {
   5: new ethers.providers.InfuraProvider("goerli", process.env.INFURA_KEY),
   137: new ethers.providers.JsonRpcProvider("https://polygon-rpc.com/"),
   56: new ethers.providers.JsonRpcProvider("https://bscrpc.com", 56),
-  7001: new StaticCeloProvider("https://rpc.ankr.com/zetachain_evm_testnet"),
-  44787: new ethers.providers.JsonRpcProvider(
+  7001: new ethers.providers.JsonRpcProvider(
+    "https://rpc.ankr.com/zetachain_evm_testnet"
+  ),
+  44787: new StaticCeloProvider(
     "https://alfajores-forno.celo-testnet.org",
     44787
   ),
