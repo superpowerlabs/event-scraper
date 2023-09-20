@@ -26,6 +26,63 @@ const ABI = {
       type: "event",
     },
   ],
+  Trade: [
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: false,
+          internalType: "address",
+          name: "trader",
+          type: "address",
+        },
+        {
+          indexed: false,
+          internalType: "address",
+          name: "subject",
+          type: "address",
+        },
+        {
+          indexed: false,
+          internalType: "bool",
+          name: "isBuy",
+          type: "bool",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "shareAmount",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "ethAmount",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "protocolEthAmount",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "subjectEthAmount",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "supply",
+          type: "uint256",
+        },
+      ],
+      name: "Trade",
+      type: "event",
+    },
+  ],
   Locked: [
     {
       anonymous: false,
@@ -501,6 +558,17 @@ const eventsByContract = {
         name: "Locked",
         filter: "Locked(uint256,bool)",
         ABI: ABI.Locked2,
+      },
+    ],
+  },
+  FriendTech: {
+    chainId: 8453,
+    startBlock: 4216447,
+    events: [
+      {
+        name: "Trade",
+        filter: "Trade(address,address,bool,uint256,uint256,uint256,uint256,uint256)",
+        ABI: ABI.Trade,
       },
     ],
   },
