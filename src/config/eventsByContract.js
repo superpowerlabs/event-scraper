@@ -1,4 +1,55 @@
 const ABI = {
+  Trade: [
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "address",
+          name: "trader",
+          type: "address",
+        },
+        {
+          indexed: true,
+          internalType: "address",
+          name: "subject",
+          type: "address",
+        },
+        {
+          indexed: false,
+          internalType: "bool",
+          name: "isBuy",
+          type: "bool",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "amount",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "price",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "supply",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "enum TurnupSharesV4.SubjectType",
+          name: "subjectType",
+          type: "uint8",
+        },
+      ],
+      name: "Trade",
+      type: "event",
+    },
+  ],
   Transfer: [
     {
       anonymous: false,
@@ -501,6 +552,17 @@ const eventsByContract = {
         name: "Locked",
         filter: "Locked(uint256,bool)",
         ABI: ABI.Locked2,
+      },
+    ],
+  },
+  TurnupSharesV4: {
+    chainId: 137,
+    startBlock: 0,
+    events: [
+      {
+        name: "Trade",
+        filter: "Trade(address,address,bool,uint256,uint256,uint256,uint8)",
+        ABI: ABI.Trade,
       },
     ],
   },
