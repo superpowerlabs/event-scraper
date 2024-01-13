@@ -1,4 +1,61 @@
 const ABI = {
+  WishClosed: [
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "address",
+          name: "sharesSubject",
+          type: "address",
+        },
+      ],
+      name: "WishClosed",
+      type: "event",
+    },
+  ],
+  WishBound: [
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "address",
+          name: "sharesSubject",
+          type: "address",
+        },
+        {
+          indexed: true,
+          internalType: "address",
+          name: "wisher",
+          type: "address",
+        },
+      ],
+      name: "WishBound",
+      type: "event",
+    },
+  ],
+  WishCreated: [
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: false,
+          internalType: "address",
+          name: "wisher",
+          type: "address",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "reservedQuantity",
+          type: "uint256",
+        },
+      ],
+      name: "WishCreated",
+      type: "event",
+    },
+  ],
   Trade: [
     {
       anonymous: false,
@@ -563,6 +620,21 @@ const eventsByContract = {
         name: "Trade",
         filter: "Trade(address,address,bool,uint256,uint256,uint256,uint8)",
         ABI: ABI.Trade,
+      },
+      {
+        name: "WishCreated",
+        filter: "WishCreated(address,uint256)",
+        ABI: ABI.WishCreated,
+      },
+      {
+        name: "WishBound",
+        filter: "WishBound(address,address)",
+        ABI: ABI.WishBound,
+      },
+      {
+        name: "WishClosed",
+        filter: "WishClosed(address)",
+        ABI: ABI.WishClosed,
       },
     ],
   },
