@@ -1,4 +1,70 @@
 const ABI = {
+  CancelRequest: [
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "uint256",
+          name: "orderId",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "amount",
+          type: "uint256",
+        },
+        {
+          indexed: true,
+          internalType: "address",
+          name: "account",
+          type: "address",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "lockedUntil",
+          type: "uint256",
+        },
+      ],
+      name: "CancelRequest",
+      type: "event",
+    },
+  ],
+  MintRequested: [
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "uint256",
+          name: "orderId",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "amount",
+          type: "uint256",
+        },
+        {
+          indexed: true,
+          internalType: "address",
+          name: "to",
+          type: "address",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "lockedUntil",
+          type: "uint256",
+        },
+      ],
+      name: "MintRequested",
+      type: "event",
+    },
+  ],
   Transfer: [
     {
       anonymous: false,
@@ -501,6 +567,22 @@ const eventsByContract = {
         name: "Locked",
         filter: "Locked(uint256,bool)",
         ABI: ABI.Locked2,
+      },
+    ],
+  },
+  TurnupSharesV4: {
+    chainId: 137,
+    startBlock: 0,
+    events: [
+      {
+        name: "MintRequested",
+        filter: "MintRequested(uint256,uint256,address,uint256)",
+        ABI: ABI.Trade,
+      },
+      {
+        name: "CancelRequest",
+        filter: "CancelRequest(uint256,uint256,address,uint256)",
+        ABI: ABI.Trade,
       },
     ],
   },
