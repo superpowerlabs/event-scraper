@@ -577,12 +577,12 @@ const eventsByContract = {
       {
         name: "MintRequested",
         filter: "MintRequested(uint256,uint256,address,uint256)",
-        ABI: ABI.Trade,
+        ABI: ABI.MintRequested,
       },
       {
         name: "CancelRequest",
         filter: "CancelRequest(uint256,uint256,address,uint256)",
-        ABI: ABI.Trade,
+        ABI: ABI.CancelRequest,
       },
     ],
   },
