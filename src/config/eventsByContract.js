@@ -570,6 +570,22 @@ const eventsByContract = {
       },
     ],
   },
+  LFGFactory: {
+    chainId: 80001,
+    startBlock: 0,
+    events: [
+      {
+        name: "MintRequested",
+        filter: "MintRequested(uint256,uint256,address,uint256)",
+        ABI: ABI.MintRequested,
+      },
+      {
+        name: "CancelRequest",
+        filter: "CancelRequest(uint256,uint256,address,uint256)",
+        ABI: ABI.CancelRequest,
+      },
+    ],
+  },
   LFGFactory44787: {
     chainId: 44787,
     startBlock: 0,
