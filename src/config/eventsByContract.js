@@ -1,4 +1,37 @@
 const ABI = {
+  MintAndStakeRequested: [
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "uint256",
+          name: "orderId",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "amount",
+          type: "uint256",
+        },
+        {
+          indexed: true,
+          internalType: "address",
+          name: "to",
+          type: "address",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "lockedUntil",
+          type: "uint256",
+        },
+      ],
+      name: "MintAndStakeRequested",
+      type: "event",
+    },
+  ],
   CancelRequest: [
     {
       anonymous: false,
@@ -583,6 +616,11 @@ const eventsByContract = {
         name: "CancelRequest",
         filter: "CancelRequest(uint256,uint256,address,uint256)",
         ABI: ABI.CancelRequest,
+      },
+      {
+        name: "MintAndStakeRequested",
+        filter: "MintAndStakeRequested(uint256,uint256,address,uint256)",
+        ABI: ABI.MintAndStakeRequested,
       },
     ],
   },
