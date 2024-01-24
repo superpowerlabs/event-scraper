@@ -638,6 +638,11 @@ const eventsByContract = {
         filter: "CancelRequest(uint256,uint256,address,uint256)",
         ABI: ABI.CancelRequest,
       },
+      {
+        name: "MintAndStakeRequested",
+        filter: "MintAndStakeRequested(uint256,uint256,address,uint256)",
+        ABI: ABI.MintAndStakeRequested,
+      },
     ],
   },
   // Moralis has dismissed Goerli support
