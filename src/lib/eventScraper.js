@@ -56,7 +56,6 @@ async function retrieveHistoricalEvents(params) {
   let { filter, contractName, eventConfig, filterName, contract } = params;
   const { chainId } = eventConfig;
   let logs = [];
-  let runOnce = false;
 
   let fromBlock = await getFromBlock(contractName, filterName, options.startingBlock || eventConfig.startBlock);
   if (options.force) {
@@ -85,8 +84,7 @@ async function retrieveHistoricalEvents(params) {
       break;
     }
     offset += limit;
-    runOnce = true;
-  } while (logs.length > 0 && !runOnce);
+  } while (logs.length > 0);
 }
 
 async function getEventsViaMoralis(params, limit, offset, fromBlock) {
