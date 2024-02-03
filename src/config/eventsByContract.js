@@ -648,7 +648,7 @@ const eventsByContract = {
       },
     ],
   },
-  LFGFactory: {
+  LFGFactoryProd: {
     chainId: 137,
     startBlock: 0,
     events: [
