@@ -13,7 +13,11 @@ const utils = {
       .split(")")[0]
       .split(",")
       .map((e) => e.substring(0, 1));
-    return [Case.snake(contractName), Case.snake(filter.split("(")[0]), attrs.join("")].join("__");
+    return [
+      Case.snake(contractName),
+      Case.snake(filter.split("(")[0]),
+      attrs.join(""),
+    ].join("__");
   },
 
   nameTableV1(contractName, eventName) {

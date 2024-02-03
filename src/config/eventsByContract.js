@@ -599,55 +599,55 @@ const eventsByContract = {
       },
     ],
   },
-  Fragments44787: {
-    chainId: 44787,
-    startBlock: 0,
-    events: [
-      {
-        name: "Transfer",
-        filter: "Transfer(address,address,uint256)",
-        ABI: ABI.Transfer,
-      },
-    ],
-  },
-  TreasureMaps44787: {
-    chainId: 44787,
-    startBlock: 0,
-    events: [
-      {
-        name: "Transfer",
-        filter: "Transfer(address,address,uint256)",
-        ABI: ABI.Transfer,
-      },
-    ],
-  },
-  Season244787: {
-    chainId: 44787,
-    startBlock: 0,
-    events: [
-      {
-        name: "Transfer",
-        filter: "Transfer(address,address,uint256)",
-        ABI: ABI.Transfer,
-      },
-    ],
-  },
-  TreasureHunter44787: {
-    chainId: 44787,
-    startBlock: 0,
-    events: [
-      {
-        name: "Transfer",
-        filter: "Transfer(address,address,uint256)",
-        ABI: ABI.Transfer,
-      },
-      {
-        name: "Locked",
-        filter: "Locked(uint256,bool)",
-        ABI: ABI.Locked2,
-      },
-    ],
-  },
+  // Fragments44787: {
+  //   chainId: 44787,
+  //   startBlock: 0,
+  //   events: [
+  //     {
+  //       name: "Transfer",
+  //       filter: "Transfer(address,address,uint256)",
+  //       ABI: ABI.Transfer,
+  //     },
+  //   ],
+  // },
+  // TreasureMaps44787: {
+  //   chainId: 44787,
+  //   startBlock: 0,
+  //   events: [
+  //     {
+  //       name: "Transfer",
+  //       filter: "Transfer(address,address,uint256)",
+  //       ABI: ABI.Transfer,
+  //     },
+  //   ],
+  // },
+  // Season244787: {
+  //   chainId: 44787,
+  //   startBlock: 0,
+  //   events: [
+  //     {
+  //       name: "Transfer",
+  //       filter: "Transfer(address,address,uint256)",
+  //       ABI: ABI.Transfer,
+  //     },
+  //   ],
+  // },
+  // TreasureHunter44787: {
+  //   chainId: 44787,
+  //   startBlock: 0,
+  //   events: [
+  //     {
+  //       name: "Transfer",
+  //       filter: "Transfer(address,address,uint256)",
+  //       ABI: ABI.Transfer,
+  //     },
+  //     {
+  //       name: "Locked",
+  //       filter: "Locked(uint256,bool)",
+  //       ABI: ABI.Locked2,
+  //     },
+  //   ],
+  // },
   // LFGFactoryProd: {
   //   chainId: 137,
   //   startBlock: 0,
@@ -671,18 +671,6 @@ const eventsByContract = {
   //       name: "CancelStakeRequest",
   //       filter: "CancelStakeRequest(uint256,uint256,address,uint256,uint256)",
   //       ABI: ABI.CancelStakeRequest,
-  //     },
-  //   ],
-  // },
-  // Moralis has dismissed Goerli support
-  // BCFactoryGoerli: {
-  //   chainId: 5,
-  //   startBlock: 0,
-  //   events: [
-  //     {
-  //       name: "OracleMinted",
-  //       filter: "OracleMinted(uint256,uint256,uint256,uint256,uint256)",
-  //       ABI: ABI.OracleMinted,
   //     },
   //   ],
   // },
