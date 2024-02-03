@@ -1,4 +1,82 @@
 const ABI = {
+  CancelStakeRequest: [
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "uint256",
+          name: "orderId",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "amount",
+          type: "uint256",
+        },
+        {
+          indexed: true,
+          internalType: "address",
+          name: "account",
+          type: "address",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "lockedUntil",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "stakeLockedUntil",
+          type: "uint256",
+        },
+      ],
+      name: "CancelStakeRequest",
+      type: "event",
+    },
+  ],
+  MintAndStakeRequested: [
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "uint256",
+          name: "orderId",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "amount",
+          type: "uint256",
+        },
+        {
+          indexed: true,
+          internalType: "address",
+          name: "to",
+          type: "address",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "lockedUntil",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "stakeLockedUntil",
+          type: "uint256",
+        },
+      ],
+      name: "MintAndStakeRequested",
+      type: "event",
+    },
+  ],
   CancelRequest: [
     {
       anonymous: false,
@@ -570,8 +648,8 @@ const eventsByContract = {
       },
     ],
   },
-  LFGFactory: {
-    chainId: 80001,
+  LFGFactoryProd: {
+    chainId: 137,
     startBlock: 0,
     events: [
       {
@@ -584,21 +662,15 @@ const eventsByContract = {
         filter: "CancelRequest(uint256,uint256,address,uint256)",
         ABI: ABI.CancelRequest,
       },
-    ],
-  },
-  LFGFactory44787: {
-    chainId: 44787,
-    startBlock: 0,
-    events: [
       {
-        name: "MintRequested",
-        filter: "MintRequested(uint256,uint256,address,uint256)",
-        ABI: ABI.MintRequested,
+        name: "MintAndStakeRequested",
+        filter: "MintAndStakeRequested(uint256,uint256,address,uint256,uint256)",
+        ABI: ABI.MintAndStakeRequested,
       },
       {
-        name: "CancelRequest",
-        filter: "CancelRequest(uint256,uint256,address,uint256)",
-        ABI: ABI.CancelRequest,
+        name: "CancelStakeRequest",
+        filter: "CancelStakeRequest(uint256,uint256,address,uint256,uint256)",
+        ABI: ABI.CancelStakeRequest,
       },
     ],
   },
