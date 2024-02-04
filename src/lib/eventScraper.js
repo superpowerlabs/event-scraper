@@ -85,13 +85,13 @@ async function retrieveHistoricalEvents(params) {
     if (logs.length > 0) {
       let from = logs[0].block_number;
       let to = logs[logs.length - 1].block_number;
+      fromBlock = to;
       const txs = await processEvents(logs, filter, contractName, eventConfig);
       const [expected, inserted] = await eventManager.updateEvents(
         txs,
         filterName,
         contractName
       );
-
       console.info(
         `Inserting ${inserted} of ${expected} rows into ${nameTable(
           contractName,

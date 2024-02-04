@@ -648,32 +648,33 @@ const eventsByContract = {
   //     },
   //   ],
   // },
-  // LFGFactoryProd: {
-  //   chainId: 137,
-  //   startBlock: 0,
-  //   events: [
-  //     {
-  //       name: "MintRequested",
-  //       filter: "MintRequested(uint256,uint256,address,uint256)",
-  //       ABI: ABI.MintRequested,
-  //     },
-  //     {
-  //       name: "CancelRequest",
-  //       filter: "CancelRequest(uint256,uint256,address,uint256)",
-  //       ABI: ABI.CancelRequest,
-  //     },
-  //     {
-  //       name: "MintAndStakeRequested",
-  //       filter: "MintAndStakeRequested(uint256,uint256,address,uint256,uint256)",
-  //       ABI: ABI.MintAndStakeRequested,
-  //     },
-  //     {
-  //       name: "CancelStakeRequest",
-  //       filter: "CancelStakeRequest(uint256,uint256,address,uint256,uint256)",
-  //       ABI: ABI.CancelStakeRequest,
-  //     },
-  //   ],
-  // },
+  LFGFactoryProd: {
+    chainId: 137,
+    startBlock: 0,
+    events: [
+      {
+        name: "MintRequested",
+        filter: "MintRequested(uint256,uint256,address,uint256)",
+        ABI: ABI.MintRequested,
+      },
+      {
+        name: "CancelRequest",
+        filter: "CancelRequest(uint256,uint256,address,uint256)",
+        ABI: ABI.CancelRequest,
+      },
+      {
+        name: "MintAndStakeRequested",
+        filter:
+          "MintAndStakeRequested(uint256,uint256,address,uint256,uint256)",
+        ABI: ABI.MintAndStakeRequested,
+      },
+      {
+        name: "CancelStakeRequest",
+        filter: "CancelStakeRequest(uint256,uint256,address,uint256,uint256)",
+        ABI: ABI.CancelStakeRequest,
+      },
+    ],
+  },
   // USDC: {
   //   chainId: 1,
   //   startBlock: 17140584,
