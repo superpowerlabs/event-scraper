@@ -5,12 +5,7 @@ const eventManager = require("./EventManager");
 const Moralis = require("moralis").default;
 const _ = require("lodash");
 
-const {
-  providers,
-  eventsByContract,
-  contracts,
-  supportedByMoralis,
-} = require("../config");
+const { providers, eventsByContract, contracts, supportedByMoralis } = require("../config");
 const { nameTable, sleep } = require("../utils");
 const requestHandler = require("./requestHandler");
 
@@ -45,10 +40,7 @@ function log(...params) {
 async function getFromBlock(contractName, filterName, startBlock) {
   let fromBlock = startBlock;
   if (!options.force) {
-    let latestEventBlock = await eventManager.latestBlockByEvent(
-      contractName,
-      filterName
-    );
+    let latestEventBlock = await eventManager.latestBlockByEvent(contractName, filterName);
     if (latestEventBlock < startBlock) {
       latestEventBlock = startBlock;
     }
@@ -65,11 +57,7 @@ async function retrieveHistoricalEvents(params) {
   const { chainId } = eventConfig;
   let logs = [];
 
-  let fromBlock = await getFromBlock(
-    contractName,
-    filterName,
-    options.startingBlock || eventConfig.startBlock
-  );
+  let fromBlock = await getFromBlock(contractName, filterName, options.startingBlock || eventConfig.startBlock);
   if (options.force) {
     // we clean the table
     await eventManager.truncateEvents(filterName, contractName);
@@ -85,18 +73,11 @@ async function retrieveHistoricalEvents(params) {
     if (logs.length > 0) {
       let from = logs[0].block_number;
       let to = logs[logs.length - 1].block_number;
+      fromBlock = to;
       const txs = await processEvents(logs, filter, contractName, eventConfig);
-      const [expected, inserted] = await eventManager.updateEvents(
-        txs,
-        filterName,
-        contractName
-      );
-
+      const [expected, inserted] = await eventManager.updateEvents(txs, filterName, contractName);
       console.info(
-        `Inserting ${inserted} of ${expected} rows into ${nameTable(
-          contractName,
-          filterName
-        )}\n  from block ${from} to ${to}`
+        `Inserting ${inserted} of ${expected} rows into ${nameTable(contractName, filterName)}\n  from block ${from} to ${to}`
       );
     }
     if (logs.length < limit) {
@@ -172,13 +153,7 @@ async function processEvents(response, filter, contractName, eventConfig) {
   const argNames = eventConfig.ABI[0].inputs.map((e) => e.name);
   const argTypes = eventConfig.ABI[0].inputs.map((e) => e.type);
   for (let event of response) {
-    const tx = await processSingleEvent(
-      event,
-      filter,
-      argNames,
-      argTypes,
-      eventConfig
-    );
+    const tx = await processSingleEvent(event, filter, argNames, argTypes, eventConfig);
     if (tx !== undefined) {
       processedEvents.push(tx);
     }
@@ -186,30 +161,14 @@ async function processEvents(response, filter, contractName, eventConfig) {
   return processedEvents;
 }
 
-async function retrieveRealtimeEvents(
-  contract,
-  type,
-  eventName,
-  contractName,
-  eventConfig,
-  filterName
-) {
+async function retrieveRealtimeEvents(contract, type, eventName, contractName, eventConfig, filterName) {
   console.info(`Monitoring ${contractName} on event ${eventName}`);
   contract.on(eventName, async (...args) => {
     const event = [args[args.length - 1]];
     const txs = await processEvents(event, type, contractName, eventConfig);
     try {
-      const [expected, inserted] = await eventManager.updateEvents(
-        txs,
-        filterName,
-        contractName
-      );
-      console.info(
-        `Inserting ${inserted} of ${expected} rows into ${nameTable(
-          contractName,
-          filterName
-        )}`
-      );
+      const [expected, inserted] = await eventManager.updateEvents(txs, filterName, contractName);
+      console.info(`Inserting ${inserted} of ${expected} rows into ${nameTable(contractName, filterName)}`);
     } catch (error) {
       console.error(">>>>>>> Error updateEvents");
       console.error(error);
@@ -238,9 +197,7 @@ function formatAttribute(arg, type, data) {
     case "uint256":
       return value.toString();
     case "boolean":
-      return (typeof value === "boolean" && value) || /true/i.test(value)
-        ? "TRUE"
-        : "FALSE";
+      return (typeof value === "boolean" && value) || /true/i.test(value) ? "TRUE" : "FALSE";
     default:
       return value;
   }
@@ -276,13 +233,9 @@ function processRPCEventError(event, filter, argNames, argTypes, eventConfig) {
 
 async function processRPCEvent(event, filter, argNames, argTypes, eventConfig) {
   let tx;
-  const { transactionHash: transaction_hash, blockNumber: block_number } =
-    event;
+  const { transactionHash: transaction_hash, blockNumber: block_number } = event;
   try {
-    const block_timestamp = await getTimestampFromBlock(
-      eventConfig.chainId,
-      block_number
-    );
+    const block_timestamp = await getTimestampFromBlock(eventConfig.chainId, block_number);
     tx = {
       transaction_hash,
       block_timestamp,
@@ -305,25 +258,13 @@ async function processRPCEvent(event, filter, argNames, argTypes, eventConfig) {
       data = tmp;
     }
     if (!data) {
-      return processRPCEventError(
-        event,
-        filter,
-        argNames,
-        argTypes,
-        eventConfig
-      );
+      return processRPCEventError(event, filter, argNames, argTypes, eventConfig);
     }
     for (let i = 0; i < argNames.length; i++) {
       const dataArg = Case.snake(argNames[i]);
       tx[dataArg] = formatAttribute(argNames[i], argTypes[i], data);
       if (tx[dataArg] === undefined) {
-        return processRPCEventError(
-          event,
-          filter,
-          argNames,
-          argTypes,
-          eventConfig
-        );
+        return processRPCEventError(event, filter, argNames, argTypes, eventConfig);
       }
     }
   } catch (error) {
@@ -347,21 +288,13 @@ ${error.message}`);
 }
 
 async function getEventInfo(contractName, eventConfig, getStarted) {
-  log(
-    `Getting ${getStarted ? "historical " : ""}"${
-      eventConfig.name
-    }" events from "${contractName}"`
-  );
+  log(`Getting ${getStarted ? "historical " : ""}"${eventConfig.name}" events from "${contractName}"`);
 
   const { chainId } = eventsByContract[contractName];
   eventConfig.chainId = chainId;
   const { name, filter: filterName, ABI } = eventConfig;
   const provider = providers[chainId];
-  const contract = new ethers.Contract(
-    contracts[chainId][contractName],
-    ABI,
-    provider
-  );
+  const contract = new ethers.Contract(contracts[chainId][contractName], ABI, provider);
   const filter = contract.filters[filterName]();
   if (getStarted) {
     await retrieveHistoricalEvents({
@@ -372,14 +305,7 @@ async function getEventInfo(contractName, eventConfig, getStarted) {
       contract,
     });
   } else {
-    await retrieveRealtimeEvents(
-      contract,
-      filter,
-      name,
-      contractName,
-      eventConfig,
-      filterName
-    );
+    await retrieveRealtimeEvents(contract, filter, name, contractName, eventConfig, filterName);
   }
 }
 

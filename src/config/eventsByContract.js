@@ -1,4 +1,43 @@
 const ABI = {
+  CancelStakeRequest: [
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "uint256",
+          name: "orderId",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "amount",
+          type: "uint256",
+        },
+        {
+          indexed: true,
+          internalType: "address",
+          name: "account",
+          type: "address",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "lockedUntil",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "stakeLockedUntil",
+          type: "uint256",
+        },
+      ],
+      name: "CancelStakeRequest",
+      type: "event",
+    },
+  ],
   MintAndStakeRequested: [
     {
       anonymous: false,
@@ -25,6 +64,12 @@ const ABI = {
           indexed: false,
           internalType: "uint256",
           name: "lockedUntil",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "stakeLockedUntil",
           type: "uint256",
         },
       ],
@@ -554,106 +599,89 @@ const eventsByContract = {
       },
     ],
   },
-  Fragments44787: {
-    chainId: 44787,
+  LFGFactoryProd: {
+    chainId: 137,
     startBlock: 0,
     events: [
       {
-        name: "Transfer",
-        filter: "Transfer(address,address,uint256)",
-        ABI: ABI.Transfer,
+        name: "MintRequested",
+        filter: "MintRequested(uint256,uint256,address,uint256)",
+        ABI: ABI.MintRequested,
+      },
+      {
+        name: "CancelRequest",
+        filter: "CancelRequest(uint256,uint256,address,uint256)",
+        ABI: ABI.CancelRequest,
+      },
+      {
+        name: "MintAndStakeRequested",
+        filter: "MintAndStakeRequested(uint256,uint256,address,uint256,uint256)",
+        ABI: ABI.MintAndStakeRequested,
+      },
+      {
+        name: "CancelStakeRequest",
+        filter: "CancelStakeRequest(uint256,uint256,address,uint256,uint256)",
+        ABI: ABI.CancelStakeRequest,
       },
     ],
   },
-  TreasureMaps44787: {
-    chainId: 44787,
-    startBlock: 0,
-    events: [
-      {
-        name: "Transfer",
-        filter: "Transfer(address,address,uint256)",
-        ABI: ABI.Transfer,
-      },
-    ],
-  },
-  Season244787: {
-    chainId: 44787,
-    startBlock: 0,
-    events: [
-      {
-        name: "Transfer",
-        filter: "Transfer(address,address,uint256)",
-        ABI: ABI.Transfer,
-      },
-    ],
-  },
-  TreasureHunter44787: {
-    chainId: 44787,
-    startBlock: 0,
-    events: [
-      {
-        name: "Transfer",
-        filter: "Transfer(address,address,uint256)",
-        ABI: ABI.Transfer,
-      },
-      {
-        name: "Locked",
-        filter: "Locked(uint256,bool)",
-        ABI: ABI.Locked2,
-      },
-    ],
-  },
-  LFGFactory: {
+  PFPAsset80001: {
     chainId: 80001,
     startBlock: 0,
     events: [
       {
-        name: "MintRequested",
-        filter: "MintRequested(uint256,uint256,address,uint256)",
-        ABI: ABI.MintRequested,
-      },
-      {
-        name: "CancelRequest",
-        filter: "CancelRequest(uint256,uint256,address,uint256)",
-        ABI: ABI.CancelRequest,
-      },
-      {
-        name: "MintAndStakeRequested",
-        filter: "MintAndStakeRequested(uint256,uint256,address,uint256)",
-        ABI: ABI.MintAndStakeRequested,
+        name: "Transfer",
+        filter: "Transfer(address,address,uint256)",
+        ABI: ABI.Transfer,
       },
     ],
   },
-  LFGFactory44787: {
-    chainId: 44787,
-    startBlock: 0,
-    events: [
-      {
-        name: "MintRequested",
-        filter: "MintRequested(uint256,uint256,address,uint256)",
-        ABI: ABI.MintRequested,
-      },
-      {
-        name: "CancelRequest",
-        filter: "CancelRequest(uint256,uint256,address,uint256)",
-        ABI: ABI.CancelRequest,
-      },
-      {
-        name: "MintAndStakeRequested",
-        filter: "MintAndStakeRequested(uint256,uint256,address,uint256)",
-        ABI: ABI.MintAndStakeRequested,
-      },
-    ],
-  },
-  // Moralis has dismissed Goerli support
-  // BCFactoryGoerli: {
-  //   chainId: 5,
+  // Fragments44787: {
+  //   chainId: 44787,
   //   startBlock: 0,
   //   events: [
   //     {
-  //       name: "OracleMinted",
-  //       filter: "OracleMinted(uint256,uint256,uint256,uint256,uint256)",
-  //       ABI: ABI.OracleMinted,
+  //       name: "Transfer",
+  //       filter: "Transfer(address,address,uint256)",
+  //       ABI: ABI.Transfer,
+  //     },
+  //   ],
+  // },
+  // TreasureMaps44787: {
+  //   chainId: 44787,
+  //   startBlock: 0,
+  //   events: [
+  //     {
+  //       name: "Transfer",
+  //       filter: "Transfer(address,address,uint256)",
+  //       ABI: ABI.Transfer,
+  //     },
+  //   ],
+  // },
+  // Season244787: {
+  //   chainId: 44787,
+  //   startBlock: 0,
+  //   events: [
+  //     {
+  //       name: "Transfer",
+  //       filter: "Transfer(address,address,uint256)",
+  //       ABI: ABI.Transfer,
+  //     },
+  //   ],
+  // },
+  // TreasureHunter44787: {
+  //   chainId: 44787,
+  //   startBlock: 0,
+  //   events: [
+  //     {
+  //       name: "Transfer",
+  //       filter: "Transfer(address,address,uint256)",
+  //       ABI: ABI.Transfer,
+  //     },
+  //     {
+  //       name: "Locked",
+  //       filter: "Locked(uint256,bool)",
+  //       ABI: ABI.Locked2,
   //     },
   //   ],
   // },
