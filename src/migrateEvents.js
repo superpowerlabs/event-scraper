@@ -5,6 +5,7 @@ const Case = require("case");
 const utils = require("./utils");
 const migrate = require("./db/migrations/migrate");
 const { eventsByContract, typeMapping } = require("./config");
+const json = require("./config/deployedProduction.json");
 
 async function migrateEvent(tableName, params, dbw) {
   let array = ["transaction_hash", "block_number", "block_timestamp"];
@@ -30,8 +31,6 @@ async function migrateEvent(tableName, params, dbw) {
 }
 
 async function migrateEvents() {
-  await migrate();
-
   const sql = new Sql();
   const dbw = await sql.sql();
   // await dbw.schema.dropTableIfExists("syn_city_coupons__transfer__aau");
@@ -50,6 +49,34 @@ async function migrateEvents() {
   }
 }
 
+async function migrateContracts() {
+  debug("Migrating contract");
+
+  const sql = new Sql();
+  const dbw = await sql.sql();
+  // await dbw.schema.dropTableIfExists("syn_city_coupons__transfer__aau");
+
+  if (await dbw.schema.hasTable("current_address")) {
+    for (let events in eventsByContract) {
+      let chainId = eventsByContract[events].chainId;
+      let address = json[chainId][events];
+      const existingEntry = await dbw("current_address").where({ name: events }).first();
+      if (existingEntry) {
+        if (existingEntry.address !== address) {
+          await dbw("current_address").where({ name: events }).update({ address: address });
+          console.log(`Updated address for ${events} to ${address}.`);
+        }
+      } else {
+        await dbw("current_address").insert({
+          name: events,
+          address: address,
+        });
+      }
+    }
+  }
+}
+
 module.exports = {
   migrateEvents,
+  migrateContracts,
 };
