@@ -5,8 +5,6 @@ class CreateAddressTables extends require("../Migration") {
     let done = false;
     let sql = await this.sql();
 
-    await sql.schema.dropTableIfExists("current_address");
-
     if (!(await sql.schema.hasTable("current_address"))) {
       await sql.schema.createTable("current_address", async (table) => {
         table.increments("id").primary();
