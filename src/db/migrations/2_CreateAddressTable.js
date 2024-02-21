@@ -14,7 +14,6 @@ class CreateAddressTables extends require("../Migration") {
       done = true;
       debug('Table "current_address" created.');
     }
-
     if (!done) {
       debug("No change required for this migration");
     }
