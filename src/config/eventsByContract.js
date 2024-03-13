@@ -615,8 +615,7 @@ const eventsByContract = {
       },
       {
         name: "MintAndStakeRequested",
-        filter:
-          "MintAndStakeRequested(uint256,uint256,address,uint256,uint256)",
+        filter: "MintAndStakeRequested(uint256,uint256,address,uint256,uint256)",
         ABI: ABI.MintAndStakeRequested,
       },
       {
@@ -639,6 +638,17 @@ const eventsByContract = {
   },
   PFPAssetPolygon: {
     chainId: 137,
+    startBlock: 0,
+    events: [
+      {
+        name: "Transfer",
+        filter: "Transfer(address,address,uint256)",
+        ABI: ABI.Transfer,
+      },
+    ],
+  },
+  NFTTest: {
+    chainId: 80001,
     startBlock: 0,
     events: [
       {
