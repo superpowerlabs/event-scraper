@@ -2,7 +2,7 @@
 
 const commandLineArgs = require("command-line-args");
 const eventScraper = require("./src/lib/eventScraper");
-const { migrateEvents } = require("./src/migrateEvents");
+const { migrateEvents, migrateContracts } = require("./src/migrateEvents");
 const pkg = require("./package.json");
 const Sql = require("./src/db/Sql");
 
@@ -105,6 +105,7 @@ async function main() {
     console.log("Dropping", options.dropTable);
     await dbw.schema.dropTableIfExists(options.dropTable);
   }
+  await migrateContracts();
   await migrateEvents();
   if (typeof options.verbose === "undefined") {
     options.verbose = true;
