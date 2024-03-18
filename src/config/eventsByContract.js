@@ -670,6 +670,17 @@ const eventsByContract = {
       },
     ],
   },
+  PFPAssetTest: {
+    chainId: 80001,
+    startBlock: 0,
+    events: [
+      {
+        name: "Transfer",
+        filter: "Transfer(address,address,uint256)",
+        ABI: ABI.Transfer,
+      },
+    ],
+  },
   // Fragments44787: {
   //   chainId: 44787,
   //   startBlock: 0,

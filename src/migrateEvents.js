@@ -67,10 +67,14 @@ async function migrateContracts() {
     for (let contractName in eventsByContract) {
       let chainId = eventsByContract[contractName].chainId;
       let address = json[chainId][contractName];
-      const existingEntry = await dbw("current_address").where({ name: contractName }).first();
+      const existingEntry = await dbw("current_address")
+        .where({ name: contractName })
+        .first();
       if (existingEntry) {
         if (existingEntry.address !== address) {
-          await dbw("current_address").where({ name: contractName }).update({ address: address });
+          await dbw("current_address")
+            .where({ name: contractName })
+            .update({ address: address });
           console.log(`Updated address for ${contractName} to ${address}.`);
           await dropTable(eventsByContract, contractName, dbw);
         }
