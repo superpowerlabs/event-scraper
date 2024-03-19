@@ -670,7 +670,7 @@ const eventsByContract = {
       },
     ],
   },
-  PFPAssetTest: {
+  PFPMumbaiAsset: {
     chainId: 80001,
     startBlock: 0,
     events: [
