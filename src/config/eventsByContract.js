@@ -626,28 +626,28 @@ const eventsByContract = {
       },
     ],
   },
-  PFPAssetMumbai: {
-    chainId: 80001,
-    startBlock: 0,
-    events: [
-      {
-        name: "Transfer",
-        filter: "Transfer(address,address,uint256)",
-        ABI: ABI.Transfer,
-      },
-    ],
-  },
-  PFPAssetPolygon: {
-    chainId: 137,
-    startBlock: 0,
-    events: [
-      {
-        name: "Transfer",
-        filter: "Transfer(address,address,uint256)",
-        ABI: ABI.Transfer,
-      },
-    ],
-  },
+  // PFPAssetMumbai: {
+  //   chainId: 80001,
+  //   startBlock: 0,
+  //   events: [
+  //     {
+  //       name: "Transfer",
+  //       filter: "Transfer(address,address,uint256)",
+  //       ABI: ABI.Transfer,
+  //     },
+  //   ],
+  // },
+  // PFPAssetPolygon: {
+  //   chainId: 137,
+  //   startBlock: 0,
+  //   events: [
+  //     {
+  //       name: "Transfer",
+  //       filter: "Transfer(address,address,uint256)",
+  //       ABI: ABI.Transfer,
+  //     },
+  //   ],
+  // },
   PFPAssetP2: {
     chainId: 137,
     startBlock: 0,
