@@ -659,18 +659,29 @@ const eventsByContract = {
       },
     ],
   },
-  NFTTest: {
-    chainId: 80001,
-    startBlock: 0,
-    events: [
-      {
-        name: "Transfer",
-        filter: "Transfer(address,address,uint256)",
-        ABI: ABI.Transfer,
-      },
-    ],
-  },
-  PFPAssetTest: {
+  // NFTTest: {
+  //   chainId: 80001,
+  //   startBlock: 0,
+  //   events: [
+  //     {
+  //       name: "Transfer",
+  //       filter: "Transfer(address,address,uint256)",
+  //       ABI: ABI.Transfer,
+  //     },
+  //   ],
+  // },
+  // PFPAssetTest: {
+  //   chainId: 80001,
+  //   startBlock: 0,
+  //   events: [
+  //     {
+  //       name: "Transfer",
+  //       filter: "Transfer(address,address,uint256)",
+  //       ABI: ABI.Transfer,
+  //     },
+  //   ],
+  // },
+  TestPFPAsset: {
     chainId: 80001,
     startBlock: 0,
     events: [
