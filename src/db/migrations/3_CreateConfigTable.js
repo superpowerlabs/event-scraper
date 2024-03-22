@@ -7,19 +7,20 @@ class CreateConfigTable extends require("../Migration") {
 
     // await sql.schema.dropTableIfExists("test");
 
-    if (!(await sql.schema.hasTable("scraper_config"))) {
-      await sql.schema.createTable("scraper_config", async (table) => {
+    if (!(await sql.schema.hasTable("event_scraper_config"))) {
+      await sql.schema.createTable("event_scraper_config", async (table) => {
         table.increments("id").primary();
         table.string("name").notNullable().unique();
-        table.string("address").notNullable().unique();
+        table.string("address").notNullable();
         table.integer("chain_id").notNullable();
-        table.integer("start_block").notNullable();
+        table.integer("start_block").defaultTo(0);
         table.bool("started");
-        table.json("events");
+        table.text("events");
+        table.integer("version").defaultTo(1);
         table.timestamp("created_at").defaultTo(sql.fn.now());
       });
       done = true;
-      debug('Table "scraper_config" created.');
+      debug('Table "event_scraper_config" created.');
     }
 
     if (!done) {
