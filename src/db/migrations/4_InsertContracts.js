@@ -15,7 +15,7 @@ class InsertContracts extends require("../Migration") {
           await sql("scraper_config")
             .insert({
               name: contract,
-              address,
+              address: address.toLowerCase(),
               chain_id: config[contract].chainId,
               start_block: config[contract].startBlock,
               events: JSON.stringify(eventNames),
