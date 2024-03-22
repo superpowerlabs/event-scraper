@@ -115,6 +115,7 @@ async function getEventsViaMoralis(params, limit, offset, fromBlock) {
         address: contract.address,
         limit,
         offset,
+        order: "ASC",
         topic: filter.topics[0],
         abi: eventConfig.ABI[0],
         fromBlock,
