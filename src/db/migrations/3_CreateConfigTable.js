@@ -16,7 +16,7 @@ class CreateConfigTable extends require("../Migration") {
         table.integer("start_block").defaultTo(0);
         table.bool("started");
         table.text("events");
-        table.integer("version").defaultTo(1);
+        table.string("version").defaultTo("");
         table.timestamp("created_at").defaultTo(sql.fn.now());
       });
       done = true;
