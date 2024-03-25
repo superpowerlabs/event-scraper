@@ -304,7 +304,6 @@ async function getEventInfo(contractName, eventConfig, getStarted) {
       filterName,
       contract,
     });
-    await eventManager.updateStarted(contractName);
   } else {
     await retrieveRealtimeEvents(contract, filter, name, contractName, eventConfig, filterName);
   }
@@ -344,6 +343,7 @@ async function eventScraper(opt) {
           } else if (options.scope === "realtime") {
             if (!row.started) {
               await getEventInfo(row.name, eventConfig, true);
+              await eventManager.updateStarted(row.name);
             }
             promises.push(getEventInfo(row.name, eventConfig));
           } else {
