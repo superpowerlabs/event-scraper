@@ -19,7 +19,7 @@ class InsertContracts extends require("../Migration") {
               chain_id: config[contract].chainId,
               start_block: config[contract].startBlock,
               events: JSON.stringify(eventNames),
-              started: false,
+              started: true,
             })
             .onConflict("name")
             .ignore();

@@ -67,6 +67,17 @@ class EventManager extends Sql {
     return rows;
   }
 
+  async updateStarted(contractName) {
+    await dbw("event_scraper_config")
+      .where({
+        name: contractName,
+        started: false,
+      })
+      .update({
+        started: true,
+      });
+  }
+
   async truncateEvents(filter, contractName) {
     let tableName = utils.nameTable(contractName, filter);
     console.log(tableName);
