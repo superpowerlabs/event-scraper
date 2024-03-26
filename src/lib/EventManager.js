@@ -52,18 +52,30 @@ class EventManager extends Sql {
 
   async updateEvents(rows, filter, contractName, chunkSize = 100) {
     let tableName = utils.nameTable(contractName, filter);
-    let countBefore = parseInt(
-      (await dbw.count("*").from(tableName).first()).count
-    );
+    let countBefore = parseInt((await dbw.count("*").from(tableName).first()).count);
     for (let i = 0; i < rows.length; i += chunkSize) {
       const chunk = rows.slice(i, i + chunkSize);
       const sql = this.createBatchInsertQuery(tableName, chunk);
       await dbw.raw(sql);
     }
-    let countAfter = parseInt(
-      (await dbw.count("*").from(tableName).first()).count
-    );
+    let countAfter = parseInt((await dbw.count("*").from(tableName).first()).count);
     return [rows.length, countAfter - countBefore];
+  }
+
+  async getEvents() {
+    const rows = await dbw("event_scraper_config").select("*");
+    return rows;
+  }
+
+  async updateStarted(contractName) {
+    await dbw("event_scraper_config")
+      .where({
+        name: contractName,
+        started: false,
+      })
+      .update({
+        started: true,
+      });
   }
 
   async truncateEvents(filter, contractName) {
@@ -81,10 +93,7 @@ class EventManager extends Sql {
     let tableName = utils.nameTable(contractName, filter);
     const exist = await this.tableExists(tableName);
     if (exist) {
-      return parseInt(
-        (await dbr(tableName).max("block_number as block_number").first())
-          .block_number
-      );
+      return parseInt((await dbr(tableName).max("block_number as block_number").first()).block_number);
     }
     return false;
   }
@@ -93,19 +102,14 @@ class EventManager extends Sql {
     let latestBlock = await this.latestBlockByEvent(contractName, filter);
     if (latestBlock) {
       let tableName = utils.nameTable(contractName, filter);
-      return dbr
-        .select("*")
-        .from(tableName)
-        .where({ block_number: latestBlock });
+      return dbr.select("*").from(tableName).where({ block_number: latestBlock });
     }
   }
 
   async countEvents(contractName, filter) {
     let tableName = utils.nameTable(contractName, filter);
     const exist = await this.tableExists(tableName);
-    return exist
-      ? parseInt((await dbr.count("*").from(tableName).first()).count)
-      : 0;
+    return exist ? parseInt((await dbr.count("*").from(tableName).first()).count) : 0;
   }
 
   // used in testing
