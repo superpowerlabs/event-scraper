@@ -15,7 +15,7 @@ let providers = {
   137: new ethers.providers.JsonRpcProvider("https://polygon-rpc.com/"),
   56: new ethers.providers.JsonRpcProvider("https://bscrpc.com", 56),
   80001: new ethers.providers.JsonRpcProvider(
-    "https://rpc-mumbai.maticvigil.com",
+    "https://polygon-mumbai.blockpi.network/v1/rpc/public",
     80001
   ),
   7001: new ethers.providers.JsonRpcProvider(
