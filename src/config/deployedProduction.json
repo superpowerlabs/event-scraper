@@ -58,5 +58,8 @@
     "PFPAssetTest": "0x7D05Eece310621385Ac1666c20fe1CdC5a1A1642",
     "TestPFPAsset": "0x7d05eece310621385ac1666c20fe1cdc5a1a1642",
     "PFPMumbaiAsset": "0x7D05Eece310621385Ac1666c20fe1CdC5a1A1642"
+  },
+  "80002": {
+    "TurnUPNFTAmoy": "0xe0246956A086dE3Bd6C3F518FCCD638cc7Ec9a9B"
   }
 }

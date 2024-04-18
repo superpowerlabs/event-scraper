@@ -1,10 +1,7 @@
 const ethers = require("ethers");
 const path = require("path");
 const fs = require("fs-extra");
-const {
-  CeloProvider,
-  StaticCeloProvider,
-} = require("@celo-tools/celo-ethers-wrapper");
+const { CeloProvider, StaticCeloProvider } = require("@celo-tools/celo-ethers-wrapper");
 
 let contracts = require("./deployedProduction.json");
 let eventsByContract = require("./eventsByContract");
@@ -14,17 +11,10 @@ let providers = {
   5: new ethers.providers.InfuraProvider("goerli", process.env.INFURA_KEY),
   137: new ethers.providers.JsonRpcProvider("https://polygon-rpc.com/"),
   56: new ethers.providers.JsonRpcProvider("https://bscrpc.com", 56),
-  80001: new ethers.providers.JsonRpcProvider(
-    "https://rpc-mumbai.maticvigil.com",
-    80001
-  ),
-  7001: new ethers.providers.JsonRpcProvider(
-    "https://rpc.ankr.com/zetachain_evm_testnet"
-  ),
-  44787: new StaticCeloProvider(
-    "https://alfajores-forno.celo-testnet.org",
-    44787
-  ),
+  80001: new ethers.providers.JsonRpcProvider("https://rpc-mumbai.maticvigil.com", 80001),
+  80002: new ethers.providers.JsonRpcProvider("https://rpc-amoy.polygon.technology/", 80002),
+  7001: new ethers.providers.JsonRpcProvider("https://rpc.ankr.com/zetachain_evm_testnet"),
+  44787: new StaticCeloProvider("https://alfajores-forno.celo-testnet.org", 44787),
 };
 
 let averageBlockPerDay = {
@@ -58,6 +48,7 @@ const supportedByMoralis = {
   42161: "Arbitrum",
   43114: "Avalanche C-Chain",
   80001: "Polygon Mumbai",
+  80002: "Amoy",
   11155111: "Ethereum Sepolia",
   11297108109: "Palm",
 };
