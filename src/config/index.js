@@ -59,6 +59,7 @@ const supportedByMoralis = {
   42161: "Arbitrum",
   43114: "Avalanche C-Chain",
   80001: "Polygon Mumbai",
+  80002: "Polygon Amoy",
   11155111: "Ethereum Sepolia",
   11297108109: "Palm",
 };
