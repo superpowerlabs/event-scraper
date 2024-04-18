@@ -18,6 +18,7 @@ let providers = {
     "https://polygon-mumbai.blockpi.network/v1/rpc/public",
     80001
   ),
+  80002: new ethers.providers.JsonRpcProvider("https://rpc-amoy.polygon.technology/", 80002),
   7001: new ethers.providers.JsonRpcProvider(
     "https://rpc.ankr.com/zetachain_evm_testnet"
   ),
@@ -58,6 +59,7 @@ const supportedByMoralis = {
   42161: "Arbitrum",
   43114: "Avalanche C-Chain",
   80001: "Polygon Mumbai",
+  80002: "Polygon Amoy",
   11155111: "Ethereum Sepolia",
   11297108109: "Palm",
 };
