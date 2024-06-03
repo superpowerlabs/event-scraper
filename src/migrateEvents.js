@@ -6,6 +6,8 @@ const utils = require("./utils");
 const migrate = require("./db/migrations/migrate");
 const { eventsByContract, typeMapping } = require("./config");
 const json = require("./config/deployedProduction.json");
+const eventsABI = require("./config/eventsABI");
+const { filter } = require("lodash");
 
 async function migrateEvent(tableName, params, dbw) {
   let array = ["transaction_hash", "block_number", "block_timestamp"];
@@ -35,11 +37,14 @@ async function migrateEvents() {
   const dbw = await sql.sql();
   // await dbw.schema.dropTableIfExists("syn_city_coupons__transfer__aau");
 
-  for (const contractName in eventsByContract) {
-    for (const event of eventsByContract[contractName].events) {
-      const params = event.ABI[0].inputs;
-      let tableName = utils.nameTable(contractName, event.filter);
-      // console.log(tableName);
+  const rows = await dbw("event_scraper_config").select("*");
+
+  for (const row of rows) {
+    const events = JSON.parse(row.events);
+    for (const filter of events) {
+      const params = eventsABI.ABI[filter][0].inputs;
+      let tableName = utils.nameTable(row.name, eventsABI.filters[filter], row.version);
+      // console.log(tableName)
       // await dbw.schema.dropTableIfExists(tableName);
       if (!(await dbw.schema.hasTable(tableName))) {
         await migrateEvent(tableName, params, dbw);
@@ -47,6 +52,19 @@ async function migrateEvents() {
       }
     }
   }
+
+  // for (const contractName in eventsByContract) {
+  //   for (const event of eventsByContract[contractName].events) {
+  //     const params = event.ABI[0].inputs;
+  //     let tableName = utils.nameTable(contractName, event.filter);
+  //     // console.log(tableName);
+  //     // await dbw.schema.dropTableIfExists(tableName);
+  //     if (!(await dbw.schema.hasTable(tableName))) {
+  //       await migrateEvent(tableName, params, dbw);
+  //       debug(`table ${tableName} created`);
+  //     }
+  //   }
+  // }
 }
 
 async function dropTable(eventsByContract, contractName, dbw) {
@@ -67,14 +85,10 @@ async function migrateContracts() {
     for (let contractName in eventsByContract) {
       let chainId = eventsByContract[contractName].chainId;
       let address = json[chainId][contractName];
-      const existingEntry = await dbw("current_address")
-        .where({ name: contractName })
-        .first();
+      const existingEntry = await dbw("current_address").where({ name: contractName }).first();
       if (existingEntry) {
         if (existingEntry.address !== address) {
-          await dbw("current_address")
-            .where({ name: contractName })
-            .update({ address: address });
+          await dbw("current_address").where({ name: contractName }).update({ address: address });
           console.log(`Updated address for ${contractName} to ${address}.`);
           await dropTable(eventsByContract, contractName, dbw);
         }
