@@ -681,17 +681,17 @@ const eventsByContract = {
   //     },
   //   ],
   // },
-  TestPFPAsset: {
-    chainId: 80001,
-    startBlock: 0,
-    events: [
-      {
-        name: "Transfer",
-        filter: "Transfer(address,address,uint256)",
-        ABI: ABI.Transfer,
-      },
-    ],
-  },
+  // TestPFPAsset: {
+  //   chainId: 80001,
+  //   startBlock: 0,
+  //   events: [
+  //     {
+  //       name: "Transfer",
+  //       filter: "Transfer(address,address,uint256)",
+  //       ABI: ABI.Transfer,
+  //     },
+  //   ],
+  // },
   TurnUPNFTAmoy: {
     chainId: 80002,
     startBlock: 0,
